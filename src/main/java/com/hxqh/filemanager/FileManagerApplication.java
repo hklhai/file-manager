@@ -35,7 +35,7 @@ public class FileManagerApplication implements WebMvcConfigurer {
 
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
 
-        List<MediaType> fastMediaTypes = new ArrayList<MediaType>();
+        List<MediaType> fastMediaTypes = new ArrayList<>();
 
         // 处理中文乱码问题
         fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);

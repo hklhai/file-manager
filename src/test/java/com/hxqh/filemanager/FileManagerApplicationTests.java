@@ -1,6 +1,8 @@
 package com.hxqh.filemanager;
 
 import com.hxqh.filemanager.model.User;
+import com.hxqh.filemanager.repository.FileRepository;
+import com.hxqh.filemanager.repository.FileVersionRepository;
 import com.hxqh.filemanager.service.FileService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,11 +17,26 @@ public class FileManagerApplicationTests {
 
     @Autowired
     private FileService fileService;
+    @Autowired
+    private FileRepository fileRepository;
+    @Autowired
+    private FileVersionRepository fileVersionRepository;
+
 
     @Test
-    public void contextLoads() {
+    public void userList() {
         User user = fileService.findByUserid(1);
         Assert.assertTrue("admin".equals(user.getName()));
+    }
+
+    @Test
+    public void fileList() {
+        Assert.assertTrue(fileRepository.findAll().size() > 0);
+    }
+
+    @Test
+    public void fileVersionList() {
+        Assert.assertTrue(fileVersionRepository.findAll().size() > 0);
     }
 
 }
