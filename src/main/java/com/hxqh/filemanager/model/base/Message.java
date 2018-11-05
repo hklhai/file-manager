@@ -1,4 +1,4 @@
-package com.hxqh.filemanager.model.assist;
+package com.hxqh.filemanager.model.base;
 
 /**
  * Created by Ocean Lin on 2017/5/7.

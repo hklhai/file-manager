@@ -1,15 +1,19 @@
 package com.hxqh.filemanager.controller;
 
 import com.hxqh.filemanager.common.IConstants;
-import com.hxqh.filemanager.model.assist.Message;
+import com.hxqh.filemanager.model.TbFile;
+import com.hxqh.filemanager.model.TbFileVersion;
+import com.hxqh.filemanager.model.assist.FileDto;
+import com.hxqh.filemanager.model.assist.FileVersionDto;
+import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +32,40 @@ public class FileController {
 
     @Autowired
     private FileService fileService;
+
+    @ResponseBody
+    @RequestMapping(value = "/fileList", method = RequestMethod.POST)
+    public FileDto fileList(@RequestBody TbFile file,
+                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+        FileDto fileDto = null;
+        Sort sort = new Sort(Sort.Direction.DESC, "fileid");
+        try {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            fileDto = fileService.fileList(file, pageable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fileDto;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/fileVersionList", method = RequestMethod.POST)
+    public FileVersionDto fileVersionList(@RequestBody TbFileVersion fileVersion,
+                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                          @RequestParam(value = "size", defaultValue = "10") int size) {
+        FileVersionDto fileVersionDto = null;
+        Sort sort = new Sort(Sort.Direction.DESC, "fileversionid");
+        try {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            fileVersionDto = fileService.fileVersionList(fileVersion, pageable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fileVersionDto;
+    }
+
 
     @ResponseBody
     @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)

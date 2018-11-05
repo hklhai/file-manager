@@ -1,7 +1,9 @@
 package com.hxqh.filemanager.repository;
 
-import com.hxqh.filemanager.model.FileVersion;
+
+import com.hxqh.filemanager.model.TbFileVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -10,5 +12,5 @@ import org.springframework.stereotype.Repository;
  * @author Ocean lin
  */
 @Repository
-public interface FileVersionRepository extends JpaRepository<FileVersion, Integer> {
+public interface FileVersionRepository extends JpaRepository<TbFileVersion, Integer>, JpaSpecificationExecutor<TbFileVersion> {
 }
