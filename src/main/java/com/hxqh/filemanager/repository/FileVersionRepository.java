@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FileVersionRepository extends JpaRepository<TbFileVersion, Integer>, JpaSpecificationExecutor<TbFileVersion> {
+    TbFileVersion findByFileversionid(Integer fid);
 }

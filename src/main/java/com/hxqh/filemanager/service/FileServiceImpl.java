@@ -4,10 +4,12 @@ import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.User;
 import com.hxqh.filemanager.model.assist.FileDto;
+import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.repository.FileRepository;
 import com.hxqh.filemanager.repository.FileVersionRepository;
 import com.hxqh.filemanager.repository.UserRepository;
+import com.hxqh.filemanager.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
+import static com.hxqh.filemanager.common.IConstants.THOUSAND;
 
 /**
  * Created by Ocean lin on 2018/10/30.
@@ -93,6 +99,18 @@ public class FileServiceImpl implements FileService {
         return fileVersionDto;
     }
 
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public TbFile findByFileid(Integer fid) {
+        return fileRepository.findByFileid(fid);
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public TbFileVersion findByFileversionid(Integer fid) {
+        return fileVersionRepository.findByFileversionid(fid);
+    }
+
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
@@ -100,31 +118,58 @@ public class FileServiceImpl implements FileService {
         return userRepository.findByUserid(userId);
     }
 
+    /**
+     * 保存文件
+     *
+     * @param file     文件
+     * @param fileInfo 文件信息
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveFile(MultipartFile file, String appname, Long userid) {
-        // todo 1. 文件记录，2. 历史版本记录
+    public void saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
 
-        String filename;
+        String filePath, savePath;
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
-            File f = new File(uploadPath);
 
-            // todo 是否需要 yyyy-mm路径的配置
+            File f = new File(uploadPath + "/" + DateUtils.getTodayMonth());
+
             if (!f.exists()) {
                 f.mkdirs();
             }
-            filename = uploadPath + "/" + file.getOriginalFilename();
+            String extensionName = file.getOriginalFilename().split("\\.")[1];
+
+            savePath = "/" + DateUtils.getTodayMonth() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
+                    +"."+ extensionName;
+            filePath = uploadPath + savePath;
             FileOutputStream outputStream;
             try {
-                outputStream = new FileOutputStream(new File(filename));
+                outputStream = new FileOutputStream(new File(filePath));
                 outputStream.write(file.getBytes());
                 outputStream.flush();
                 outputStream.close();
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
-        }
+            // 保存文件信息
+            TbFile tbFile = new TbFile();
 
+            tbFile.setAppname(fileInfo.getAppname());
+            tbFile.setUserid(fileInfo.getUserid().intValue());
+            tbFile.setUsersid(fileInfo.getUsersid());
+            tbFile.setRecordid(fileInfo.getRecordid().intValue());
+            tbFile.setRecordsid(fileInfo.getRecordsid());
+
+            tbFile.setFilerealname(file.getOriginalFilename());
+            Double fileSize = file.getSize() * 1.0 / THOUSAND / THOUSAND;
+            tbFile.setFilesize(fileSize.floatValue());
+            tbFile.setCreatedate(new Date());
+            tbFile.setEditdate(new Date());
+            // todo 判断是否存在历史版本
+            tbFile.setFileversion(1);
+            tbFile.setFilepath(savePath);
+
+            fileRepository.save(tbFile);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

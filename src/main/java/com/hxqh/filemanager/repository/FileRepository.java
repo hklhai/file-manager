@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FileRepository extends JpaRepository<TbFile, Integer>, JpaSpecificationExecutor<TbFile> {
+    TbFile findByFileid(Integer fid);
 }

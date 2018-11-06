@@ -4,10 +4,12 @@ import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.assist.FileDto;
+import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 /**
@@ -32,12 +35,14 @@ public class FileController {
 
     @Autowired
     private FileService fileService;
+    @Value(value = "${com.hxqh.filemanager.upload}")
+    private String uploadPath;
 
     @ResponseBody
     @RequestMapping(value = "/fileList", method = RequestMethod.POST)
     public FileDto fileList(@RequestBody TbFile file,
-                                  @RequestParam(value = "page", defaultValue = "0") int page,
-                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+                            @RequestParam(value = "page", defaultValue = "0") int page,
+                            @RequestParam(value = "size", defaultValue = "10") int size) {
         FileDto fileDto = null;
         Sort sort = new Sort(Sort.Direction.DESC, "fileid");
         try {
@@ -70,11 +75,15 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)
     public Message uploadfileUpload(@RequestParam("files") MultipartFile files,
-                                    @RequestParam("appname") String appname,
-                                    @RequestParam("userid") Long userid) {
+                                    @RequestParam(value = "appname") String appname,
+                                    @RequestParam(value = "userid", defaultValue = "0") Long userid,
+                                    @RequestParam(value = "usersid", defaultValue = "") String usersid,
+                                    @RequestParam(value = "recordid", defaultValue = "0") Long recordid,
+                                    @RequestParam(value = "recordsid", defaultValue = "") String recordsid) {
         Message message;
         try {
-            fileService.saveFile(files, appname, userid);
+            FileInfo fileInfo = new FileInfo(appname, userid, usersid, recordid, recordsid);
+            fileService.saveFile(files, fileInfo);
             message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
@@ -98,13 +107,28 @@ public class FileController {
         }
     }
 
+    /**
+     * @param response
+     * @param ftype    "file" 或 "viersion"
+     * @param fid
+     * @throws IOException
+     */
     @RequestMapping(value = "/downloadFile", method = RequestMethod.GET)
-    public void downloadFile(HttpServletResponse response, @RequestParam("docinfoid") Long docinfoid) throws IOException {
-        //获取文件路径
-//        Docinfo docinfo = fileService.getFilePath(docinfoid);
+    public void downloadFile(HttpServletResponse response,
+                             @RequestParam(value = "ftype", defaultValue = "") String ftype,
+                             @RequestParam("fid") Integer fid) throws IOException {
         String s;
-//        String urlname = docinfo.getUrlname();
-        String urlname = null;
+        String urlname, fileName = null;
+        if (IConstants.FILE.equals(ftype)) {
+            TbFile file = fileService.findByFileid(fid);
+            urlname = uploadPath + file.getFilepath();
+            fileName = file.getFilerealname();
+        } else {
+            TbFileVersion fileVersion = fileService.findByFileversionid(fid);
+            urlname = uploadPath + fileVersion.getFilepath();
+            fileName = fileVersion.getFilerealname();
+        }
+
         if (urlname.contains("\\")) {
             s = urlname.replace("\\", "\\\\");
         } else {
@@ -127,11 +151,8 @@ public class FileController {
             mimeType = "application/octet-stream";
         }
 
-        System.out.println("mimetype : " + mimeType);
-
         response.setContentType(mimeType);
-
-        response.setHeader("Content-Disposition", String.format("inline; filename=\"" + urlname + "\""));
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "utf-8"));
         response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         FileCopyUtils.copy(inputStream, response.getOutputStream());

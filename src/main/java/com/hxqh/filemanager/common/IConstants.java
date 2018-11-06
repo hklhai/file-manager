@@ -7,9 +7,14 @@ package com.hxqh.filemanager.common;
  */
 public interface IConstants {
 
+
+    String FILE =  "file";
+    String VIERSION = "viersion";
     Integer SUCCESS = 1;
     Integer FAIL = 0;
     Integer OCCUPIED = -3;
+    Integer THOUSAND  = 1024;
+
 
     String EDITNOMATCHCREATE = "The current user not match the creator";
     String OCCUPIEDINFO = "Already occupied";
