@@ -47,7 +47,7 @@ public class TbFile implements Serializable {
     private String recordsid;
 
     @JSONField(serialize = false)
-    @OneToMany(mappedBy = "tbFile")
+    @OneToMany(mappedBy = "tbFile", cascade = {CascadeType.ALL})
     private List<TbFileVersion> tbFileVersions;
 
     public TbFile() {

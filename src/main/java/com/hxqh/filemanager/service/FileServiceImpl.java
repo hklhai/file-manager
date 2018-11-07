@@ -10,8 +10,10 @@ import com.hxqh.filemanager.repository.FileRepository;
 import com.hxqh.filemanager.repository.FileVersionRepository;
 import com.hxqh.filemanager.repository.UserRepository;
 import com.hxqh.filemanager.util.DateUtils;
+import com.hxqh.filemanager.util.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -43,6 +45,9 @@ public class FileServiceImpl implements FileService {
 
     @Value(value = "${com.hxqh.filemanager.upload}")
     private String uploadPath;
+
+    @Value(value = "${com.hxqh.filemanager.file.url}")
+    private String webUrl;
 
     @Autowired
     private UserRepository userRepository;
@@ -127,19 +132,19 @@ public class FileServiceImpl implements FileService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
-
         String filePath, savePath;
+
+        File f = new File(uploadPath + "/" + DateUtils.getTodayMonth());
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+        String extensionName = file.getOriginalFilename().split("\\.")[1];
+        savePath = "/" + DateUtils.getTodayMonth() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
+                + "." + extensionName;
+
+
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
 
-            File f = new File(uploadPath + "/" + DateUtils.getTodayMonth());
-
-            if (!f.exists()) {
-                f.mkdirs();
-            }
-            String extensionName = file.getOriginalFilename().split("\\.")[1];
-
-            savePath = "/" + DateUtils.getTodayMonth() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
-                    +"."+ extensionName;
             filePath = uploadPath + savePath;
             FileOutputStream outputStream;
             try {
@@ -150,34 +155,72 @@ public class FileServiceImpl implements FileService {
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
-            // 保存文件信息
-            TbFile tbFile = new TbFile();
 
-            tbFile.setAppname(fileInfo.getAppname());
-            tbFile.setUserid(fileInfo.getUserid().intValue());
-            tbFile.setUsersid(fileInfo.getUsersid());
-            tbFile.setRecordid(fileInfo.getRecordid().intValue());
-            tbFile.setRecordsid(fileInfo.getRecordsid());
+            if (null == fileInfo.getFileid()) {
+                // 保存文件信息
+                TbFile tbFile = new TbFile();
+                setFileProperties(file, fileInfo, savePath, tbFile);
+                fileRepository.save(tbFile);
+            } else {
+                TbFile tbFile = fileRepository.findByFileid(fileInfo.getFileid());
+                TbFileVersion fileVersion = new TbFileVersion();
+                BeanUtils.copyProperties(tbFile, fileVersion);
 
-            tbFile.setFilerealname(file.getOriginalFilename());
-            Double fileSize = file.getSize() * 1.0 / THOUSAND / THOUSAND;
-            tbFile.setFilesize(fileSize.floatValue());
-            tbFile.setCreatedate(new Date());
-            tbFile.setEditdate(new Date());
-            // todo 判断是否存在历史版本
-            tbFile.setFileversion(1);
-            tbFile.setFilepath(savePath);
+                TbFile newFile = new TbFile();
+                BeanUtils.copyProperties(tbFile, fileInfo);
+                TbFile newVersion = setFileProperties(file, fileInfo, savePath, newFile);
+                newVersion.setFileversion(tbFile.getFileversion() + 1);
 
-            fileRepository.save(tbFile);
+                BeanUtils.copyProperties(newVersion, tbFile);
+                fileVersion.setTbFile(tbFile);
+
+                fileVersionRepository.save(fileVersion);
+            }
         }
+
+    }
+
+    private TbFile setFileProperties(MultipartFile file, FileInfo fileInfo, String savePath, TbFile tbFile) {
+        BeanUtils.copyProperties(fileInfo, tbFile);
+
+        tbFile.setFilerealname(file.getOriginalFilename());
+        Double fileSize = file.getSize() * 1.0 / THOUSAND / THOUSAND;
+        tbFile.setFilesize(fileSize.floatValue());
+        tbFile.setCreatedate(new Date());
+        tbFile.setEditdate(new Date());
+        tbFile.setFileversion(1);
+        tbFile.setFilepath(savePath);
+        return tbFile;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteFile(Long docinfoid) {
-        // todo 数据库删除
+    public void deleteFile(FileInfo fileInfo) {
+        if (null != fileInfo.getFileid()) {
+            // 文件系统删除
+            TbFile file = fileRepository.findByFileid(fileInfo.getFileid());
+            String filePath = uploadPath + file.getFilepath();
+            FileUtils.deleteFile(filePath);
 
-        // todo 文件系统删除
+            List<TbFileVersion> fileVersions = file.getTbFileVersions();
+            for (int i = 0; i < fileVersions.size(); i++) {
+                TbFileVersion fileVersion = fileVersions.get(i);
+                filePath = uploadPath + fileVersion.getFilepath();
+                FileUtils.deleteFile(filePath);
+            }
+
+            // 数据库删除
+            fileRepository.delete(file);
+        }
+        if (null != fileInfo.getFileversionid()) {
+            //文件系统删除
+            TbFileVersion fileVersion = fileVersionRepository.findByFileversionid(fileInfo.getFileversionid());
+            String filePath = uploadPath + fileVersion.getFilepath();
+            FileUtils.deleteFile(filePath);
+
+            // 数据库删除
+            fileVersionRepository.delete(fileVersion);
+        }
 
     }
 

@@ -39,6 +39,14 @@ public class TbFileVersion implements Serializable {
 
     private String username;
 
+    private String usersid;
+
+    private String appname;
+
+    private Integer recordid;
+
+    private String recordsid;
+
     @Transient
     private Integer fileid;
 
@@ -47,6 +55,38 @@ public class TbFileVersion implements Serializable {
     private TbFile tbFile;
 
     public TbFileVersion() {
+    }
+
+    public String getUsersid() {
+        return usersid;
+    }
+
+    public void setUsersid(String usersid) {
+        this.usersid = usersid;
+    }
+
+    public String getAppname() {
+        return appname;
+    }
+
+    public void setAppname(String appname) {
+        this.appname = appname;
+    }
+
+    public Integer getRecordid() {
+        return recordid;
+    }
+
+    public void setRecordid(Integer recordid) {
+        this.recordid = recordid;
+    }
+
+    public String getRecordsid() {
+        return recordsid;
+    }
+
+    public void setRecordsid(String recordsid) {
+        this.recordsid = recordsid;
     }
 
     public Integer getFileid() {

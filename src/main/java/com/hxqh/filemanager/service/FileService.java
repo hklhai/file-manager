@@ -36,9 +36,9 @@ public interface FileService {
     /**
      * 删除文件
      *
-     * @param docinfoid
+     * @param fileInfo
      */
-    void deleteFile(Long docinfoid);
+    void deleteFile(FileInfo fileInfo);
 
     /**
      * 文件列表带条件的分页获取接口

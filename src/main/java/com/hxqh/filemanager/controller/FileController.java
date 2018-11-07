@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 /**
@@ -74,15 +73,16 @@ public class FileController {
 
     @ResponseBody
     @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)
-    public Message uploadfileUpload(@RequestParam("files") MultipartFile files,
-                                    @RequestParam(value = "appname") String appname,
-                                    @RequestParam(value = "userid", defaultValue = "0") Long userid,
-                                    @RequestParam(value = "usersid", defaultValue = "") String usersid,
-                                    @RequestParam(value = "recordid", defaultValue = "0") Long recordid,
-                                    @RequestParam(value = "recordsid", defaultValue = "") String recordsid) {
+    public Message uploadfile(@RequestParam("files") MultipartFile files,
+                              @RequestParam(value = "appname") String appname,
+                              @RequestParam(value = "userid", defaultValue = "0") Integer userid,
+                              @RequestParam(value = "usersid", defaultValue = "") String usersid,
+                              @RequestParam(value = "username", defaultValue = "") String username,
+                              @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
+                              @RequestParam(value = "recordsid", defaultValue = "") String recordsid) {
         Message message;
         try {
-            FileInfo fileInfo = new FileInfo(appname, userid, usersid, recordid, recordsid);
+            FileInfo fileInfo = new FileInfo(appname, userid, usersid, username, recordid, recordsid);
             fileService.saveFile(files, fileInfo);
             message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
         } catch (Exception e) {
@@ -93,11 +93,29 @@ public class FileController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/deleteFile", method = RequestMethod.POST)
-    public Message deleteFile(@RequestParam("docinfoid") Long docinfoid) {
+    @RequestMapping(value = "/uploadNewVersion", method = RequestMethod.POST)
+    public Message uploadNewVersion(@RequestParam("files") MultipartFile files,
+                                    @RequestParam("fileid") Integer fileid) {
+        Message message;
+        try {
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.setFileid(fileid);
+            fileService.saveFile(files, fileInfo);
+            message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/deleteFile", method = RequestMethod.DELETE)
+    public Message deleteFile(@RequestBody FileInfo fileInfo) {
         Message message = null;
         try {
-            fileService.deleteFile(docinfoid);
+            fileService.deleteFile(fileInfo);
             message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
@@ -126,11 +144,11 @@ public class FileController {
         } else {
             TbFileVersion fileVersion = fileService.findByFileversionid(fid);
             urlname = uploadPath + fileVersion.getFilepath();
-            fileName = fileVersion.getFilerealname();
+            fileName = fileVersion.getFilerealname() + "_" + fileVersion.getFileversion();
         }
 
-        if (urlname.contains("\\")) {
-            s = urlname.replace("\\", "\\\\");
+        if (urlname.contains(IConstants.SPLIT)) {
+            s = urlname.replace(IConstants.SPLIT, IConstants.DOUBLE_SPLIT);
         } else {
             s = urlname;
         }
@@ -147,12 +165,13 @@ public class FileController {
 
         String mimeType = URLConnection.guessContentTypeFromName(file.getName());
         if (mimeType == null) {
-            System.out.println("mimetype is not detectable, will take default");
             mimeType = "application/octet-stream";
         }
 
         response.setContentType(mimeType);
-        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "utf-8"));
+
+        String downloadName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+        response.setHeader("Content-Disposition", "attachment;filename=" + downloadName);
         response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         FileCopyUtils.copy(inputStream, response.getOutputStream());

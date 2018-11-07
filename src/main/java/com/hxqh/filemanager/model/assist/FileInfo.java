@@ -6,22 +6,42 @@ package com.hxqh.filemanager.model.assist;
  * @author Ocean lin
  */
 public class FileInfo {
-    private  String appname;
-    private Long userid;
+    private String appname;
+    private Integer userid;
     private String usersid;
-    private Long recordid;
+    private String username;
+    private Integer recordid;
     private String recordsid;
 
+    private Integer fileid;
+    private Integer fileversionid;
 
     public FileInfo() {
     }
 
-    public FileInfo(String appname, Long userid, String usersid, Long recordid, String recordsid) {
+    public FileInfo(String appname, Integer userid, String usersid, String username, Integer recordid, String recordsid) {
         this.appname = appname;
         this.userid = userid;
         this.usersid = usersid;
+        this.username = username;
         this.recordid = recordid;
         this.recordsid = recordsid;
+    }
+
+    public Integer getFileversionid() {
+        return fileversionid;
+    }
+
+    public void setFileversionid(Integer fileversionid) {
+        this.fileversionid = fileversionid;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getAppname() {
@@ -32,11 +52,11 @@ public class FileInfo {
         this.appname = appname;
     }
 
-    public Long getUserid() {
+    public Integer getUserid() {
         return userid;
     }
 
-    public void setUserid(Long userid) {
+    public void setUserid(Integer userid) {
         this.userid = userid;
     }
 
@@ -48,11 +68,11 @@ public class FileInfo {
         this.usersid = usersid;
     }
 
-    public Long getRecordid() {
+    public Integer getRecordid() {
         return recordid;
     }
 
-    public void setRecordid(Long recordid) {
+    public void setRecordid(Integer recordid) {
         this.recordid = recordid;
     }
 
@@ -62,5 +82,13 @@ public class FileInfo {
 
     public void setRecordsid(String recordsid) {
         this.recordsid = recordsid;
+    }
+
+    public Integer getFileid() {
+        return fileid;
+    }
+
+    public void setFileid(Integer fileid) {
+        this.fileid = fileid;
     }
 }
