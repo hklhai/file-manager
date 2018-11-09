@@ -1,5 +1,6 @@
 package com.hxqh.filemanager.service;
 
+import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.User;
@@ -11,6 +12,7 @@ import com.hxqh.filemanager.repository.FileVersionRepository;
 import com.hxqh.filemanager.repository.UserRepository;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtils;
+import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.hxqh.filemanager.common.IConstants.THOUSAND;
 
@@ -48,6 +51,9 @@ public class FileServiceImpl implements FileService {
 
     @Value(value = "${com.hxqh.filemanager.file.url}")
     private String webUrl;
+
+    @Value(value = "${com.hxqh.filemanager.file.download}")
+    private String downloadUrl;
 
     @Autowired
     private UserRepository userRepository;
@@ -72,6 +78,12 @@ public class FileServiceImpl implements FileService {
         Page<TbFile> files = fileRepository.findAll(specification, pageable);
 
         List<TbFile> fileList = files.getContent();
+        fileList.stream().map(e -> {
+            e.setWebUrl(webUrl + e.getFilepath());
+            e.setFilepath(downloadUrl + IConstants.DOWNLOAD_FILE + e.getFileid());
+            return e;
+        }).collect(Collectors.toList());
+
         Integer totalPages = files.getTotalPages();
         FileDto fileDto = new FileDto(pageable, totalPages, files.getTotalElements(), fileList);
         return fileDto;
@@ -99,6 +111,11 @@ public class FileServiceImpl implements FileService {
         Page<TbFileVersion> fileVersions = fileVersionRepository.findAll(specification, pageable);
 
         List<TbFileVersion> fileVersionList = fileVersions.getContent();
+        fileVersionList.stream().map(e -> {
+            e.setWebUrl(webUrl + e.getFilepath());
+            e.setFilepath(downloadUrl + IConstants.DOWNLOAD_VERSION + e.getFileversionid());
+            return e;
+        }).collect(Collectors.toList());
         Integer totalPages = fileVersions.getTotalPages();
         FileVersionDto fileVersionDto = new FileVersionDto(pageable, totalPages, fileVersions.getTotalElements(), fileVersionList);
         return fileVersionDto;
@@ -133,6 +150,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public void saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
         String filePath, savePath;
+        String md5String = null;
 
         File f = new File(uploadPath + "/" + DateUtils.getTodayMonth());
         if (!f.exists()) {
@@ -142,13 +160,13 @@ public class FileServiceImpl implements FileService {
         savePath = "/" + DateUtils.getTodayMonth() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
                 + "." + extensionName;
 
-
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
 
             filePath = uploadPath + savePath;
             FileOutputStream outputStream;
             try {
                 outputStream = new FileOutputStream(new File(filePath));
+                md5String = Md5Utils.getFileMD5String(file.getBytes());
                 outputStream.write(file.getBytes());
                 outputStream.flush();
                 outputStream.close();
@@ -160,6 +178,7 @@ public class FileServiceImpl implements FileService {
                 // 保存文件信息
                 TbFile tbFile = new TbFile();
                 setFileProperties(file, fileInfo, savePath, tbFile);
+                tbFile.setMd5(md5String);
                 fileRepository.save(tbFile);
             } else {
                 TbFile tbFile = fileRepository.findByFileid(fileInfo.getFileid());
@@ -173,7 +192,7 @@ public class FileServiceImpl implements FileService {
 
                 BeanUtils.copyProperties(newVersion, tbFile);
                 fileVersion.setTbFile(tbFile);
-
+                fileVersion.setMd5(md5String);
                 fileVersionRepository.save(fileVersion);
             }
         }

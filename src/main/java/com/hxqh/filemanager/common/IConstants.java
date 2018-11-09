@@ -9,12 +9,17 @@ public interface IConstants {
 
 
     String FILE = "file";
-    String VIERSION = "viersion";
     Integer SUCCESS = 1;
     Integer FAIL = 0;
     Integer OCCUPIED = -3;
     Integer THOUSAND = 1024;
+    String VERSION = "Viersion";
 
+    String DOWNLOAD_FILE= "file&fid=";
+    String DOWNLOAD_VERSION = "version&fid=";
+
+    String MSIE = "MSIE";
+    String TRIDENT = "Trident";
 
     String EDITNOMATCHCREATE = "The current user not match the creator";
     String OCCUPIEDINFO = "Already occupied";

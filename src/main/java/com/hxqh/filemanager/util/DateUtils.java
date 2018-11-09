@@ -12,11 +12,17 @@ import java.util.Date;
  */
 public class DateUtils {
 
-    public static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    public static final SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy");
-    public static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("yyyy-MM");
-    public static final SimpleDateFormat FILE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+//    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+//    private static final SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy");
+//    private static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("yyyy-MM");
+//    private static final SimpleDateFormat FILE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+
+    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String YEAR_FORMAT = "yyyy";
+    private static final String MONTH_FORMAT = "yyyy-MM";
+    private static final String FILE_TIME_FORMAT = "yyyy-MM-dd_HHmmss";
 
 
     /**
@@ -28,8 +34,10 @@ public class DateUtils {
      */
     public static boolean before(String time1, String time2) {
         try {
-            Date dateTime1 = TIME_FORMAT.parse(time1);
-            Date dateTime2 = TIME_FORMAT.parse(time2);
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
+            Date dateTime1 = dateFormat.parse(time1);
+            Date dateTime2 = dateFormat.parse(time2);
 
             if (dateTime1.before(dateTime2)) {
                 return true;
@@ -49,8 +57,9 @@ public class DateUtils {
      */
     public static boolean after(String time1, String time2) {
         try {
-            Date dateTime1 = TIME_FORMAT.parse(time1);
-            Date dateTime2 = TIME_FORMAT.parse(time2);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
+            Date dateTime1 = dateFormat.parse(time1);
+            Date dateTime2 = dateFormat.parse(time2);
 
             if (dateTime1.after(dateTime2)) {
                 return true;
@@ -70,8 +79,9 @@ public class DateUtils {
      */
     public static int minus(String time1, String time2) {
         try {
-            Date datetime1 = TIME_FORMAT.parse(time1);
-            Date datetime2 = TIME_FORMAT.parse(time2);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
+            Date datetime1 = dateFormat.parse(time1);
+            Date datetime2 = dateFormat.parse(time2);
 
             long millisecond = datetime1.getTime() - datetime2.getTime();
 
@@ -101,7 +111,8 @@ public class DateUtils {
      * @return 当天日期
      */
     public static String getTodayDate() {
-        return DATE_FORMAT.format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        return dateFormat.format(new Date());
     }
 
     /**
@@ -110,7 +121,8 @@ public class DateUtils {
      * @return 当天年份
      */
     public static String getTodayYear() {
-        return YEAR_FORMAT.format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(YEAR_FORMAT);
+        return dateFormat.format(new Date());
     }
 
     /**
@@ -119,7 +131,8 @@ public class DateUtils {
      * @return 当年份和月份
      */
     public static String getTodayMonth() {
-        return MONTH_FORMAT.format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(MONTH_FORMAT);
+        return dateFormat.format(new Date());
     }
 
     /**
@@ -128,7 +141,8 @@ public class DateUtils {
      * @return 当天日期
      */
     public static String getTodayTime() {
-        return FILE_TIME_FORMAT.format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(FILE_TIME_FORMAT);
+        return dateFormat.format(new Date());
     }
 
     /**
@@ -142,8 +156,8 @@ public class DateUtils {
         cal.add(Calendar.DAY_OF_YEAR, -1);
 
         Date date = cal.getTime();
-
-        return DATE_FORMAT.format(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        return dateFormat.format(date);
     }
 
     /**
@@ -153,7 +167,8 @@ public class DateUtils {
      * @return 格式化后的日期
      */
     public static String formatDate(Date date) {
-        return DATE_FORMAT.format(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        return dateFormat.format(date);
     }
 
     /**
@@ -163,7 +178,8 @@ public class DateUtils {
      * @return 格式化后的时间
      */
     public static String formatTime(Date date) {
-        return TIME_FORMAT.format(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
+        return dateFormat.format(date);
     }
 
 
@@ -175,7 +191,8 @@ public class DateUtils {
      */
     public static Date parseTime(String time) {
         try {
-            return TIME_FORMAT.parse(time);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_FORMAT);
+            return dateFormat.parse(time);
         } catch (ParseException e) {
             e.printStackTrace();
         }

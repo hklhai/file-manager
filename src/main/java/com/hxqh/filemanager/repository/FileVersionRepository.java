@@ -13,5 +13,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FileVersionRepository extends JpaRepository<TbFileVersion, Integer>, JpaSpecificationExecutor<TbFileVersion> {
-    TbFileVersion findByFileversionid(Integer fid);
+    /**
+     * 根据id获取FileVersion
+     *
+     * @param fileversionid FileVersion主键
+     * @return TbFileVersion实体类
+     */
+    TbFileVersion findByFileversionid(Integer fileversionid);
 }

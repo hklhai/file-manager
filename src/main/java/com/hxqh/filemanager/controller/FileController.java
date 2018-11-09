@@ -18,9 +18,11 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 /**
@@ -34,6 +36,7 @@ public class FileController {
 
     @Autowired
     private FileService fileService;
+
     @Value(value = "${com.hxqh.filemanager.upload}")
     private String uploadPath;
 
@@ -120,9 +123,8 @@ public class FileController {
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
             e.printStackTrace();
-        } finally {
-            return message;
         }
+        return message;
     }
 
     /**
@@ -132,9 +134,13 @@ public class FileController {
      * @throws IOException
      */
     @RequestMapping(value = "/downloadFile", method = RequestMethod.GET)
-    public void downloadFile(HttpServletResponse response,
+    public void downloadFile(HttpServletRequest request, HttpServletResponse response,
                              @RequestParam(value = "ftype", defaultValue = "") String ftype,
                              @RequestParam("fid") Integer fid) throws IOException {
+
+
+        String userAgent = request.getHeader("User-Agent");
+
         String s;
         String urlname, fileName = null;
         if (IConstants.FILE.equals(ftype)) {
@@ -144,7 +150,7 @@ public class FileController {
         } else {
             TbFileVersion fileVersion = fileService.findByFileversionid(fid);
             urlname = uploadPath + fileVersion.getFilepath();
-            fileName = fileVersion.getFilerealname() + "_" + fileVersion.getFileversion();
+            fileName = IConstants.VERSION + fileVersion.getFileversion() + "_" + fileVersion.getFilerealname();
         }
 
         if (urlname.contains(IConstants.SPLIT)) {
@@ -169,8 +175,14 @@ public class FileController {
         }
 
         response.setContentType(mimeType);
+        String downloadName;
+        // 针对IE或者以IE为内核的浏览器
+        if (userAgent.contains(IConstants.MSIE) || userAgent.contains(IConstants.TRIDENT)) {
+            downloadName = URLEncoder.encode(fileName, "UTF-8");
+        } else {
+            downloadName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+        }
 
-        String downloadName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
         response.setHeader("Content-Disposition", "attachment;filename=" + downloadName);
         response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));

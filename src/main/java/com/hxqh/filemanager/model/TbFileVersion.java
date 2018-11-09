@@ -1,5 +1,7 @@
 package com.hxqh.filemanager.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -47,14 +49,56 @@ public class TbFileVersion implements Serializable {
 
     private String recordsid;
 
+    private String md5;
+
+    private String refertab;
+
+    private Integer referid;
+
+    @Transient
+    private String webUrl;
+
     @Transient
     private Integer fileid;
 
+    @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "fileid")
     private TbFile tbFile;
 
     public TbFileVersion() {
+    }
+
+    public String getRefertab() {
+        return refertab;
+    }
+
+    public void setRefertab(String refertab) {
+        this.refertab = refertab;
+    }
+
+    public Integer getReferid() {
+        return referid;
+    }
+
+    public void setReferid(Integer referid) {
+        this.referid = referid;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
     }
 
     public String getUsersid() {

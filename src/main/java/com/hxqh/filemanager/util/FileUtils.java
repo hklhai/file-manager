@@ -154,8 +154,9 @@ public class FileUtils {
             // File("D:\\DwcrTmpFile\\" + filename),true);
             File file = new File(filename);
             //如果文件所在文件夹不存在 则 创建文件夹
-            if (!file.getParentFile().exists())
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
+            }
             try {
                 file.createNewFile();
             } catch (IOException e) {
@@ -179,8 +180,9 @@ public class FileUtils {
             // File("D:\\DwcrTmpFile\\" + filename),true);
             File file = new File(filename);
             //如果文件所在文件夹不存在 则 创建文件夹
-            if (!file.getParentFile().exists())
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
+            }
             try {
                 file.createNewFile();
             } catch (IOException e) {
@@ -209,12 +211,19 @@ public class FileUtils {
         }
     }
 
+    /**
+     * 删除文件
+     *
+     * @param filePath 输入要删除的文件位置
+     * @return
+     */
     public static boolean deleteFile(String filePath) {
         if (filePath != null && !"".equals(filePath)) {
             try {
-                File f = new File(filePath); // 输入要删除的文件位置
-                if (f.exists())
+                File f = new File(filePath);
+                if (f.exists()) {
                     return f.delete();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -246,14 +255,19 @@ public class FileUtils {
         return buffer;
     }
 
-    /*
+
+    /**
      * 往文件里写入字符串
+     *
+     * @param filePath
+     * @param context
      */
     public static void writeStringToFile(String filePath, String context) {
         try {
             File file = new File(filePath);
             PrintStream ps = new PrintStream(new FileOutputStream(file));
-            ps.println(context);// 往文件里写入字符串
+            // 往文件里写入字符串
+            ps.println(context);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -268,9 +282,11 @@ public class FileUtils {
     public static String txt2String(File file) {
         StringBuilder result = new StringBuilder();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(file));// 构造一个BufferedReader类来读取文件
+            // 构造一个BufferedReader类来读取文件
+            BufferedReader br = new BufferedReader(new FileReader(file));
             String s = null;
-            while ((s = br.readLine()) != null) {// 使用readLine方法，一次读一行
+            // 使用readLine方法，一次读一行
+            while ((s = br.readLine()) != null) {
                 result.append(System.lineSeparator() + s);
             }
             br.close();

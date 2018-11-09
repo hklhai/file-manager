@@ -46,11 +46,52 @@ public class TbFile implements Serializable {
     private Integer recordid;
     private String recordsid;
 
+    private String md5;
+
+    private String refertab;
+
+    private Integer referid;
+
+    @Transient
+    private String webUrl;
+
     @JSONField(serialize = false)
     @OneToMany(mappedBy = "tbFile", cascade = {CascadeType.ALL})
     private List<TbFileVersion> tbFileVersions;
 
     public TbFile() {
+    }
+
+    public String getRefertab() {
+        return refertab;
+    }
+
+    public void setRefertab(String refertab) {
+        this.refertab = refertab;
+    }
+
+    public Integer getReferid() {
+        return referid;
+    }
+
+    public void setReferid(Integer referid) {
+        this.referid = referid;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
     }
 
     public String getUsersid() {

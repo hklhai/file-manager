@@ -28,8 +28,9 @@ public interface FileService {
     /**
      * 保存文件
      *
-     * @param files
-     * @param fileInfo
+     * @param files    上传文件
+     * @param fileInfo 上传文件信息
+     * @throws Exception
      */
     void saveFile(MultipartFile files, FileInfo fileInfo) throws Exception;
 
@@ -43,22 +44,34 @@ public interface FileService {
     /**
      * 文件列表带条件的分页获取接口
      *
-     * @param file
-     * @param pageable
-     * @return
+     * @param file     文件实体类
+     * @param pageable 分页类
+     * @return 文件DTO
      */
     FileDto fileList(TbFile file, Pageable pageable);
 
     /**
      * 文件版本列表带条件的分页获取接口
      *
-     * @param fileVersion
-     * @param pageable
-     * @return
+     * @param fileVersion 文件版本实体类
+     * @param pageable    分页类
+     * @return 文件版本DTO
      */
     FileVersionDto fileVersionList(TbFileVersion fileVersion, Pageable pageable);
 
-    TbFile findByFileid(Integer fid);
+    /**
+     * 根据fileid查询File
+     *
+     * @param fileid 文件主键
+     * @return 文件实体类
+     */
+    TbFile findByFileid(Integer fileid);
 
-    TbFileVersion findByFileversionid(Integer fid);
+    /**
+     * 根据fileversionid查询FileVersion
+     *
+     * @param fileversionid FileVersion主键
+     * @return 文件版本实体类
+     */
+    TbFileVersion findByFileversionid(Integer fileversionid);
 }
