@@ -61,12 +61,22 @@ public class TbFileVersion implements Serializable {
     @Transient
     private Integer fileid;
 
+    private String extensionname;
+
     @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "fileid")
     private TbFile tbFile;
 
     public TbFileVersion() {
+    }
+
+    public String getExtensionname() {
+        return extensionname;
+    }
+
+    public void setExtensionname(String extensionname) {
+        this.extensionname = extensionname;
     }
 
     public String getRefertab() {

@@ -85,9 +85,13 @@ public class FileController {
                               @RequestParam(value = "recordsid", defaultValue = "") String recordsid) {
         Message message;
         try {
-            FileInfo fileInfo = new FileInfo(appname, userid, usersid, username, recordid, recordsid);
-            fileService.saveFile(files, fileInfo);
-            message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            if (0 == files.getSize()) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else {
+                FileInfo fileInfo = new FileInfo(appname, userid, usersid, username, recordid, recordsid);
+                fileService.saveFile(files, fileInfo);
+                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            }
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
             e.printStackTrace();
@@ -101,10 +105,18 @@ public class FileController {
                                     @RequestParam("fileid") Integer fileid) {
         Message message;
         try {
-            FileInfo fileInfo = new FileInfo();
-            fileInfo.setFileid(fileid);
-            fileService.saveFile(files, fileInfo);
-            message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            // 增加同一文件上传时，判断如果md5相同提示存在相同文件。
+            if (0 == files.getSize()) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else if (fileService.hasSameFIle(files, fileid)) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADSAME);
+            } else {
+                FileInfo fileInfo = new FileInfo();
+                fileInfo.setFileid(fileid);
+                fileService.saveFile(files, fileInfo);
+                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            }
+
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
             e.printStackTrace();

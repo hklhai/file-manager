@@ -12,18 +12,11 @@ import java.util.Date;
  */
 public class DateUtils {
 
-//    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-//    private static final SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy");
-//    private static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("yyyy-MM");
-//    private static final SimpleDateFormat FILE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
-
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String YEAR_FORMAT = "yyyy";
     private static final String MONTH_FORMAT = "yyyy-MM";
     private static final String FILE_TIME_FORMAT = "yyyy-MM-dd_HHmmss";
-
 
     /**
      * 判断一个时间是否在另一个时间之前

@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Created by Ocean lin on 2018/11/5.
  *
@@ -20,4 +22,8 @@ public interface FileVersionRepository extends JpaRepository<TbFileVersion, Inte
      * @return TbFileVersion实体类
      */
     TbFileVersion findByFileversionid(Integer fileversionid);
+
+    List<TbFileVersion> findByMd5(String md5String);
+
+    List<TbFileVersion> findByRefertabAndReferid(String fileRefer, Integer fileid);
 }

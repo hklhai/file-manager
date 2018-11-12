@@ -74,4 +74,6 @@ public interface FileService {
      * @return 文件版本实体类
      */
     TbFileVersion findByFileversionid(Integer fileversionid);
+
+    boolean hasSameFIle(MultipartFile files, Integer fileid) throws Exception;
 }

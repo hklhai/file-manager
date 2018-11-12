@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Created by Ocean lin on 2018/11/5.
  *
@@ -20,4 +22,8 @@ public interface FileRepository extends JpaRepository<TbFile, Integer>, JpaSpeci
      * @return File对象
      */
     TbFile findByFileid(Integer fid);
+
+    List<TbFile> findByMd5(String md5String);
+
+    List<TbFile> findByRefertabAndReferid(String fileRefer, Integer fileid);
 }

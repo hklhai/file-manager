@@ -15,7 +15,7 @@ public interface IConstants {
     Integer THOUSAND = 1024;
     String VERSION = "Viersion";
 
-    String DOWNLOAD_FILE= "file&fid=";
+    String DOWNLOAD_FILE = "file&fid=";
     String DOWNLOAD_VERSION = "version&fid=";
 
     String MSIE = "MSIE";
@@ -34,6 +34,10 @@ public interface IConstants {
     String DELETEFAIL = "DELETE Fail!";
     String UPLOADSUCCESS = "Upload Success!";
     String UPLOADFAIL = "Upload Fail!";
+    String UPLOADSIZE = "Upload Size is 0!";
+    String UPLOADSAME = "The same file exists!";
+    String FILE_REFER = "file";
+    String VERSION_REFER = "version";
 
 
     String IMPORTSUCCESS = "Import success!";

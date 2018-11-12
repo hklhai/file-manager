@@ -52,6 +52,8 @@ public class TbFile implements Serializable {
 
     private Integer referid;
 
+    private String extensionname;
+
     @Transient
     private String webUrl;
 
@@ -60,6 +62,14 @@ public class TbFile implements Serializable {
     private List<TbFileVersion> tbFileVersions;
 
     public TbFile() {
+    }
+
+    public String getExtensionname() {
+        return extensionname;
+    }
+
+    public void setExtensionname(String extensionname) {
+        this.extensionname = extensionname;
     }
 
     public String getRefertab() {
