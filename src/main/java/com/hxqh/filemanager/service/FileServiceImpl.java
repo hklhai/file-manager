@@ -269,8 +269,8 @@ public class FileServiceImpl implements FileService {
         tbFile.setFilerealname(file.getOriginalFilename());
         Double fileSize = file.getSize() * 1.0 / THOUSAND / THOUSAND;
         tbFile.setFilesize(fileSize.floatValue());
-        tbFile.setCreatedate(new Date());
-        tbFile.setEditdate(new Date());
+        tbFile.setStatustime(new Date());
+        tbFile.setUploadtime(new Date());
         tbFile.setFileversion(1);
         tbFile.setFilepath(savePath);
         return tbFile;

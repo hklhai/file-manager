@@ -1,7 +1,5 @@
 package com.hxqh.filemanager.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -9,23 +7,24 @@ import java.util.Date;
 
 /**
  * The persistent class for the tb_file_version database table.
- *
- * @author Lin
  */
 @Entity
 @Table(name = "tb_file_version")
 public class TbFileVersion implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = -953280945409228673L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer fileversionid;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdate;
+    private Integer appid;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date editdate;
+    private String appname;
+
+    private String deptfullname;
+
+    private Integer deptid;
+
+    private String extensionname;
 
     private String filename;
 
@@ -35,25 +34,31 @@ public class TbFileVersion implements Serializable {
 
     private Float filesize;
 
+    private String filestatus;
+
     private Integer fileversion;
+
+    private Date invaliddate;
+
+    private String md5;
+
+    private Integer pathid;
+
+    private Integer recordid;
+
+    private Integer referid;
+
+    private String refertab;
+
+    private Date statustime;
+
+    private Date uploadtime;
 
     private Integer userid;
 
     private String username;
 
-    private String usersid;
-
-    private String appname;
-
-    private Integer recordid;
-
-    private String recordsid;
-
-    private String md5;
-
-    private String refertab;
-
-    private Integer referid;
+    private Date validdate;
 
     @Transient
     private String webUrl;
@@ -61,46 +66,12 @@ public class TbFileVersion implements Serializable {
     @Transient
     private Integer fileid;
 
-    private String extensionname;
-
-    @JSONField(serialize = false)
+    //bi-directional many-to-one association to TbFile
     @ManyToOne
     @JoinColumn(name = "fileid")
     private TbFile tbFile;
 
     public TbFileVersion() {
-    }
-
-    public String getExtensionname() {
-        return extensionname;
-    }
-
-    public void setExtensionname(String extensionname) {
-        this.extensionname = extensionname;
-    }
-
-    public String getRefertab() {
-        return refertab;
-    }
-
-    public void setRefertab(String refertab) {
-        this.refertab = refertab;
-    }
-
-    public Integer getReferid() {
-        return referid;
-    }
-
-    public void setReferid(Integer referid) {
-        this.referid = referid;
-    }
-
-    public String getMd5() {
-        return md5;
-    }
-
-    public void setMd5(String md5) {
-        this.md5 = md5;
     }
 
     public String getWebUrl() {
@@ -109,38 +80,6 @@ public class TbFileVersion implements Serializable {
 
     public void setWebUrl(String webUrl) {
         this.webUrl = webUrl;
-    }
-
-    public String getUsersid() {
-        return usersid;
-    }
-
-    public void setUsersid(String usersid) {
-        this.usersid = usersid;
-    }
-
-    public String getAppname() {
-        return appname;
-    }
-
-    public void setAppname(String appname) {
-        this.appname = appname;
-    }
-
-    public Integer getRecordid() {
-        return recordid;
-    }
-
-    public void setRecordid(Integer recordid) {
-        this.recordid = recordid;
-    }
-
-    public String getRecordsid() {
-        return recordsid;
-    }
-
-    public void setRecordsid(String recordsid) {
-        this.recordsid = recordsid;
     }
 
     public Integer getFileid() {
@@ -159,20 +98,44 @@ public class TbFileVersion implements Serializable {
         this.fileversionid = fileversionid;
     }
 
-    public Date getCreatedate() {
-        return this.createdate;
+    public Integer getAppid() {
+        return this.appid;
     }
 
-    public void setCreatedate(Date createdate) {
-        this.createdate = createdate;
+    public void setAppid(Integer appid) {
+        this.appid = appid;
     }
 
-    public Date getEditdate() {
-        return this.editdate;
+    public String getAppname() {
+        return this.appname;
     }
 
-    public void setEditdate(Date editdate) {
-        this.editdate = editdate;
+    public void setAppname(String appname) {
+        this.appname = appname;
+    }
+
+    public String getDeptfullname() {
+        return this.deptfullname;
+    }
+
+    public void setDeptfullname(String deptfullname) {
+        this.deptfullname = deptfullname;
+    }
+
+    public Integer getDeptid() {
+        return this.deptid;
+    }
+
+    public void setDeptid(Integer deptid) {
+        this.deptid = deptid;
+    }
+
+    public String getExtensionname() {
+        return this.extensionname;
+    }
+
+    public void setExtensionname(String extensionname) {
+        this.extensionname = extensionname;
     }
 
     public String getFilename() {
@@ -199,12 +162,13 @@ public class TbFileVersion implements Serializable {
         this.filerealname = filerealname;
     }
 
-    public Float getFilesize() {
-        return this.filesize;
+
+    public String getFilestatus() {
+        return this.filestatus;
     }
 
-    public void setFilesize(Float filesize) {
-        this.filesize = filesize;
+    public void setFilestatus(String filestatus) {
+        this.filestatus = filestatus;
     }
 
     public Integer getFileversion() {
@@ -213,6 +177,78 @@ public class TbFileVersion implements Serializable {
 
     public void setFileversion(Integer fileversion) {
         this.fileversion = fileversion;
+    }
+
+    public Date getInvaliddate() {
+        return this.invaliddate;
+    }
+
+    public void setInvaliddate(Date invaliddate) {
+        this.invaliddate = invaliddate;
+    }
+
+    public String getMd5() {
+        return this.md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public Integer getPathid() {
+        return this.pathid;
+    }
+
+    public void setPathid(Integer pathid) {
+        this.pathid = pathid;
+    }
+
+    public Integer getRecordid() {
+        return this.recordid;
+    }
+
+    public void setRecordid(Integer recordid) {
+        this.recordid = recordid;
+    }
+
+    public Integer getReferid() {
+        return this.referid;
+    }
+
+    public void setReferid(Integer referid) {
+        this.referid = referid;
+    }
+
+    public String getRefertab() {
+        return this.refertab;
+    }
+
+    public void setRefertab(String refertab) {
+        this.refertab = refertab;
+    }
+
+    public Float getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(Float filesize) {
+        this.filesize = filesize;
+    }
+
+    public Date getStatustime() {
+        return statustime;
+    }
+
+    public void setStatustime(Date statustime) {
+        this.statustime = statustime;
+    }
+
+    public Date getUploadtime() {
+        return uploadtime;
+    }
+
+    public void setUploadtime(Date uploadtime) {
+        this.uploadtime = uploadtime;
     }
 
     public Integer getUserid() {
@@ -229,6 +265,14 @@ public class TbFileVersion implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Date getValiddate() {
+        return this.validdate;
+    }
+
+    public void setValiddate(Date validdate) {
+        this.validdate = validdate;
     }
 
     public TbFile getTbFile() {

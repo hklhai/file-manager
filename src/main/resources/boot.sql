@@ -6,3 +6,6 @@ delete from tb_file_version;
 delete from tb_file;
 
 
+-- New Database
+use apps_center;
+
