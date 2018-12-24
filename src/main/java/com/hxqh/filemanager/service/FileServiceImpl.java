@@ -3,6 +3,7 @@ package com.hxqh.filemanager.service;
 import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
+import com.hxqh.filemanager.model.TbPath;
 import com.hxqh.filemanager.model.User;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
@@ -10,6 +11,7 @@ import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.model.assist.Refer;
 import com.hxqh.filemanager.repository.FileRepository;
 import com.hxqh.filemanager.repository.FileVersionRepository;
+import com.hxqh.filemanager.repository.PathRepository;
 import com.hxqh.filemanager.repository.UserRepository;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtils;
@@ -30,10 +32,7 @@ import javax.persistence.criteria.Predicate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hxqh.filemanager.common.IConstants.THOUSAND;
@@ -62,16 +61,25 @@ public class FileServiceImpl implements FileService {
     private FileRepository fileRepository;
     @Autowired
     private FileVersionRepository fileVersionRepository;
+    @Autowired
+    private PathRepository pathRepository;
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public FileDto fileList(TbFile file, Pageable pageable) {
         Specification<TbFile> specification = (root, query, cb) -> {
-            List<Predicate> list = new ArrayList<>(5);
+            List<Predicate> list = new ArrayList<>(10);
 
+            if (StringUtils.isNotBlank(file.getAppname())) {
+                list.add(cb.equal(root.get("appname").as(String.class), file.getAppname()));
+            }
+            if (null != file.getRecordid()) {
+                list.add(cb.equal(root.get("recordid").as(Integer.class), file.getRecordid()));
+            }
             if (StringUtils.isNotBlank(file.getFilerealname())) {
                 list.add(cb.like(root.get("filerealname").as(String.class), "%" + file.getFilerealname() + "%"));
             }
+
             Predicate[] p = new Predicate[list.size()];
             return cb.and(list.toArray(p));
         };
@@ -81,7 +89,7 @@ public class FileServiceImpl implements FileService {
         List<TbFile> fileList = files.getContent();
         fileList.stream().map(e -> {
             e.setWebUrl(webUrl + e.getFilepath());
-            e.setFilepath(downloadUrl + IConstants.DOWNLOAD_FILE + e.getFileid());
+            e.setFilepath(webUrl + downloadUrl + IConstants.DOWNLOAD_FILE + e.getFileid());
             return e;
         }).collect(Collectors.toList());
 
@@ -114,7 +122,7 @@ public class FileServiceImpl implements FileService {
         List<TbFileVersion> fileVersionList = fileVersions.getContent();
         fileVersionList.stream().map(e -> {
             e.setWebUrl(webUrl + e.getFilepath());
-            e.setFilepath(downloadUrl + IConstants.DOWNLOAD_VERSION + e.getFileversionid());
+            e.setFilepath(webUrl + downloadUrl + IConstants.DOWNLOAD_VERSION + e.getFileversionid());
             return e;
         }).collect(Collectors.toList());
         Integer totalPages = fileVersions.getTotalPages();
@@ -207,6 +215,14 @@ public class FileServiceImpl implements FileService {
                 // 保存文件信息
                 TbFile tbFile = new TbFile();
                 setFileProperties(file, fileInfo, savePath, tbFile);
+
+                // todo 增加目录
+                if (null != fileInfo.getAppname()) {
+                    Optional<TbPath> path = pathRepository.findById(1);
+                    tbFile.setTbPath(path.get());
+                }
+
+                tbFile.setFilestatus(IConstants.STATUS_RELEASE);
                 tbFile.setMd5(md5String);
                 tbFile.setFilename(file.getOriginalFilename().split("\\.")[0]);
                 tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);

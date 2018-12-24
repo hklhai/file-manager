@@ -47,4 +47,6 @@ public interface IConstants {
     String SPLIT = "\\";
     String DOUBLE_SPLIT = "\\";
 
+    String STATUS_RELEASE = "已发布";
+
 }

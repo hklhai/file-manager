@@ -6,50 +6,18 @@ package com.hxqh.filemanager.model.assist;
  * @author Ocean lin
  */
 public class FileInfo {
-    private String appname;
     private Integer userid;
-    private String usersid;
     private String username;
+    private Integer deptid;
+    private String deptfullname;
+    private Integer appid;
+    private String appname;
     private Integer recordid;
-    private String recordsid;
 
     private Integer fileid;
     private Integer fileversionid;
 
     public FileInfo() {
-    }
-
-    public FileInfo(String appname, Integer userid, String usersid, String username, Integer recordid, String recordsid) {
-        this.appname = appname;
-        this.userid = userid;
-        this.usersid = usersid;
-        this.username = username;
-        this.recordid = recordid;
-        this.recordsid = recordsid;
-    }
-
-    public Integer getFileversionid() {
-        return fileversionid;
-    }
-
-    public void setFileversionid(Integer fileversionid) {
-        this.fileversionid = fileversionid;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getAppname() {
-        return appname;
-    }
-
-    public void setAppname(String appname) {
-        this.appname = appname;
     }
 
     public Integer getUserid() {
@@ -60,12 +28,44 @@ public class FileInfo {
         this.userid = userid;
     }
 
-    public String getUsersid() {
-        return usersid;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUsersid(String usersid) {
-        this.usersid = usersid;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Integer getDeptid() {
+        return deptid;
+    }
+
+    public void setDeptid(Integer deptid) {
+        this.deptid = deptid;
+    }
+
+    public String getDeptfullname() {
+        return deptfullname;
+    }
+
+    public void setDeptfullname(String deptfullname) {
+        this.deptfullname = deptfullname;
+    }
+
+    public Integer getAppid() {
+        return appid;
+    }
+
+    public void setAppid(Integer appid) {
+        this.appid = appid;
+    }
+
+    public String getAppname() {
+        return appname;
+    }
+
+    public void setAppname(String appname) {
+        this.appname = appname;
     }
 
     public Integer getRecordid() {
@@ -76,13 +76,6 @@ public class FileInfo {
         this.recordid = recordid;
     }
 
-    public String getRecordsid() {
-        return recordsid;
-    }
-
-    public void setRecordsid(String recordsid) {
-        this.recordsid = recordsid;
-    }
 
     public Integer getFileid() {
         return fileid;
@@ -90,5 +83,13 @@ public class FileInfo {
 
     public void setFileid(Integer fileid) {
         this.fileid = fileid;
+    }
+
+    public Integer getFileversionid() {
+        return fileversionid;
+    }
+
+    public void setFileversionid(Integer fileversionid) {
+        this.fileversionid = fileversionid;
     }
 }

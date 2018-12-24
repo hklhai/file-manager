@@ -40,6 +40,42 @@ public class FileController {
     @Value(value = "${com.hxqh.filemanager.upload}")
     private String uploadPath;
 
+
+    @ResponseBody
+    @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)
+    public Message uploadfile(@RequestParam("files") MultipartFile files,
+                              @RequestParam(value = "userid", defaultValue = "0") Integer userid,
+                              @RequestParam(value = "username", defaultValue = "") String username,
+                              @RequestParam(value = "deptid", defaultValue = "0") Integer deptid,
+                              @RequestParam(value = "deptfullname", defaultValue = "") String deptfullname,
+                              @RequestParam(value = "appid", defaultValue = "0") Integer appid,
+                              @RequestParam(value = "appname", defaultValue = "") String appname,
+                              @RequestParam(value = "recordid", defaultValue = "0") Integer recordid) {
+        Message message;
+        try {
+            if (0 == files.getSize()) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else {
+                FileInfo fileInfo = new FileInfo();
+                fileInfo.setUserid(userid);
+                fileInfo.setUsername(username);
+                fileInfo.setDeptid(deptid);
+                fileInfo.setDeptfullname(deptfullname);
+                fileInfo.setRecordid(recordid);
+                fileInfo.setAppid(appid);
+                fileInfo.setAppname(appname);
+
+                fileService.saveFile(files, fileInfo);
+                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            }
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+
     @ResponseBody
     @RequestMapping(value = "/fileList", method = RequestMethod.POST)
     public FileDto fileList(@RequestBody TbFile file,
@@ -71,32 +107,6 @@ public class FileController {
             e.printStackTrace();
         }
         return fileVersionDto;
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)
-    public Message uploadfile(@RequestParam("files") MultipartFile files,
-                              @RequestParam(value = "appname") String appname,
-                              @RequestParam(value = "userid", defaultValue = "0") Integer userid,
-                              @RequestParam(value = "usersid", defaultValue = "") String usersid,
-                              @RequestParam(value = "username", defaultValue = "") String username,
-                              @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
-                              @RequestParam(value = "recordsid", defaultValue = "") String recordsid) {
-        Message message;
-        try {
-            if (0 == files.getSize()) {
-                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
-            } else {
-                FileInfo fileInfo = new FileInfo(appname, userid, usersid, username, recordid, recordsid);
-                fileService.saveFile(files, fileInfo);
-                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
-            }
-        } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
-            e.printStackTrace();
-        }
-        return message;
     }
 
     @ResponseBody
