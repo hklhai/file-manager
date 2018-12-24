@@ -10,369 +10,381 @@ import java.util.List;
 
 /**
  * The persistent class for the tb_file database table.
- * 
+ *
+ * @author Lin
  */
 @Entity
-@Table(name="tb_file")
+@Table(name = "tb_file")
 public class TbFile implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	private Integer fileid;
+    @Id
+    private Integer fileid;
 
-	private Integer appid;
+    private Integer appid;
 
-	private String appname;
+    private String appname;
 
-	private String deptfullname;
+    private String deptfullname;
 
-	private Integer deptid;
+    private Integer deptid;
 
-	private String extensionname;
+    private String extensionname;
 
-	private String filename;
+    private String filename;
 
-	private String filepath;
+    private String filepath;
 
-	private String filerealname;
+    private String filerealname;
 
-	private Float filesize;
+    private Float filesize;
 
-	private String filestatus;
+    private String filestatus;
 
-	private Integer fileversion;
+    private Integer fileversion;
 
-	private Date invaliddate;
+    private Date invaliddate;
 
-	private String md5;
+    private String md5;
 
-	private Integer recordid;
+    private Integer recordid;
 
-	private Integer referid;
+    private Integer referid;
 
-	private String refertab;
+    private String refertab;
 
-	private Date statustime;
+    private Date statustime;
 
-	private Date uploadtime;
+    private Date uploadtime;
 
-	private Integer userid;
+    private Integer userid;
 
-	private String username;
+    private String username;
 
-	private Date validdate;
+    private Date validdate;
 
-	@Transient
-	private String webUrl;
+    @Transient
+    private String webUrl;
 
 
-	//bi-directional many-to-one association to TbCurrentFileLog
-	@OneToMany(mappedBy="tbFile")
-	@JSONField(serialize = false)
-	private List<TbCurrentFileLog> tbCurrentFileLogs;
+    /**
+     * bi-directional many-to-one association to TbCurrentFileLog
+     */
+    @OneToMany(mappedBy = "tbFile")
+    @JSONField(serialize = false)
+    private List<TbCurrentFileLog> tbCurrentFileLogs;
 
-	//bi-directional many-to-one association to TbPath
-	@ManyToOne
-	@JoinColumn(name="pathid")
-	private TbPath tbPath;
+    /**
+     * bi-directional many-to-one association to TbPath
+     */
+    @ManyToOne
+    @JoinColumn(name = "pathid")
+    @JSONField(serialize = false)
+    private TbPath tbPath;
 
-	//bi-directional many-to-one association to TbFileKeyword
-	@OneToMany(mappedBy="tbFile")
-	@JSONField(serialize = false)
-	private List<TbFileKeyword> tbFileKeywords;
+    /**
+     * bi-directional many-to-one association to TbFileKeyword
+     */
+    @OneToMany(mappedBy = "tbFile")
+    @JSONField(serialize = false)
+    private List<TbFileKeyword> tbFileKeywords;
 
-	//bi-directional many-to-one association to TbFileLog
-	@OneToMany(mappedBy="tbFile")
-	@JSONField(serialize = false)
-	private List<TbFileLog> tbFileLogs;
+    /**
+     * bi-directional many-to-one association to TbFileLog
+     */
+    @OneToMany(mappedBy = "tbFile")
+    @JSONField(serialize = false)
+    private List<TbFileLog> tbFileLogs;
 
-	//bi-directional many-to-one association to TbFileVersion
-	@OneToMany(mappedBy="tbFile")
-	@JSONField(serialize = false)
-	private List<TbFileVersion> tbFileVersions;
+    /**
+     * bi-directional many-to-one association to TbFileVersion
+     */
+    @OneToMany(mappedBy = "tbFile")
+    @JSONField(serialize = false)
+    private List<TbFileVersion> tbFileVersions;
 
-	public TbFile() {
-	}
+    public TbFile() {
+    }
 
-	public Integer getFileid() {
-		return this.fileid;
-	}
+    public Integer getFileid() {
+        return this.fileid;
+    }
 
-	public void setFileid(Integer fileid) {
-		this.fileid = fileid;
-	}
+    public void setFileid(Integer fileid) {
+        this.fileid = fileid;
+    }
 
-	public Integer getAppid() {
-		return this.appid;
-	}
+    public Integer getAppid() {
+        return this.appid;
+    }
 
-	public void setAppid(Integer appid) {
-		this.appid = appid;
-	}
+    public void setAppid(Integer appid) {
+        this.appid = appid;
+    }
 
-	public String getAppname() {
-		return this.appname;
-	}
+    public String getAppname() {
+        return this.appname;
+    }
 
-	public void setAppname(String appname) {
-		this.appname = appname;
-	}
+    public void setAppname(String appname) {
+        this.appname = appname;
+    }
 
-	public String getDeptfullname() {
-		return this.deptfullname;
-	}
+    public String getDeptfullname() {
+        return this.deptfullname;
+    }
 
-	public void setDeptfullname(String deptfullname) {
-		this.deptfullname = deptfullname;
-	}
+    public void setDeptfullname(String deptfullname) {
+        this.deptfullname = deptfullname;
+    }
 
-	public Integer getDeptid() {
-		return this.deptid;
-	}
+    public Integer getDeptid() {
+        return this.deptid;
+    }
 
-	public void setDeptid(Integer deptid) {
-		this.deptid = deptid;
-	}
+    public void setDeptid(Integer deptid) {
+        this.deptid = deptid;
+    }
 
-	public String getExtensionname() {
-		return this.extensionname;
-	}
+    public String getExtensionname() {
+        return this.extensionname;
+    }
 
-	public void setExtensionname(String extensionname) {
-		this.extensionname = extensionname;
-	}
+    public void setExtensionname(String extensionname) {
+        this.extensionname = extensionname;
+    }
 
-	public String getFilename() {
-		return this.filename;
-	}
+    public String getFilename() {
+        return this.filename;
+    }
 
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
-	public String getFilepath() {
-		return this.filepath;
-	}
+    public String getFilepath() {
+        return this.filepath;
+    }
 
-	public void setFilepath(String filepath) {
-		this.filepath = filepath;
-	}
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
+    }
 
-	public String getFilerealname() {
-		return this.filerealname;
-	}
+    public String getFilerealname() {
+        return this.filerealname;
+    }
 
-	public void setFilerealname(String filerealname) {
-		this.filerealname = filerealname;
-	}
+    public void setFilerealname(String filerealname) {
+        this.filerealname = filerealname;
+    }
 
 
-	public String getFilestatus() {
-		return this.filestatus;
-	}
+    public String getFilestatus() {
+        return this.filestatus;
+    }
 
-	public void setFilestatus(String filestatus) {
-		this.filestatus = filestatus;
-	}
+    public void setFilestatus(String filestatus) {
+        this.filestatus = filestatus;
+    }
 
-	public Integer getFileversion() {
-		return this.fileversion;
-	}
+    public Integer getFileversion() {
+        return this.fileversion;
+    }
 
-	public void setFileversion(Integer fileversion) {
-		this.fileversion = fileversion;
-	}
+    public void setFileversion(Integer fileversion) {
+        this.fileversion = fileversion;
+    }
 
-	public Date getInvaliddate() {
-		return this.invaliddate;
-	}
+    public Date getInvaliddate() {
+        return this.invaliddate;
+    }
 
-	public void setInvaliddate(Date invaliddate) {
-		this.invaliddate = invaliddate;
-	}
+    public void setInvaliddate(Date invaliddate) {
+        this.invaliddate = invaliddate;
+    }
 
-	public String getMd5() {
-		return this.md5;
-	}
+    public String getMd5() {
+        return this.md5;
+    }
 
-	public void setMd5(String md5) {
-		this.md5 = md5;
-	}
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
 
-	public Integer getRecordid() {
-		return this.recordid;
-	}
+    public Integer getRecordid() {
+        return this.recordid;
+    }
 
-	public void setRecordid(Integer recordid) {
-		this.recordid = recordid;
-	}
+    public void setRecordid(Integer recordid) {
+        this.recordid = recordid;
+    }
 
-	public Integer getReferid() {
-		return this.referid;
-	}
+    public Integer getReferid() {
+        return this.referid;
+    }
 
-	public void setReferid(Integer referid) {
-		this.referid = referid;
-	}
+    public void setReferid(Integer referid) {
+        this.referid = referid;
+    }
 
-	public String getRefertab() {
-		return this.refertab;
-	}
+    public String getRefertab() {
+        return this.refertab;
+    }
 
-	public void setRefertab(String refertab) {
-		this.refertab = refertab;
-	}
+    public void setRefertab(String refertab) {
+        this.refertab = refertab;
+    }
 
-	public Float getFilesize() {
-		return filesize;
-	}
+    public Float getFilesize() {
+        return filesize;
+    }
 
-	public void setFilesize(Float filesize) {
-		this.filesize = filesize;
-	}
+    public void setFilesize(Float filesize) {
+        this.filesize = filesize;
+    }
 
-	public Date getStatustime() {
-		return statustime;
-	}
+    public Date getStatustime() {
+        return statustime;
+    }
 
-	public void setStatustime(Date statustime) {
-		this.statustime = statustime;
-	}
+    public void setStatustime(Date statustime) {
+        this.statustime = statustime;
+    }
 
-	public Date getUploadtime() {
-		return uploadtime;
-	}
+    public Date getUploadtime() {
+        return uploadtime;
+    }
 
-	public void setUploadtime(Date uploadtime) {
-		this.uploadtime = uploadtime;
-	}
+    public void setUploadtime(Date uploadtime) {
+        this.uploadtime = uploadtime;
+    }
 
-	public String getWebUrl() {
-		return webUrl;
-	}
+    public String getWebUrl() {
+        return webUrl;
+    }
 
-	public void setWebUrl(String webUrl) {
-		this.webUrl = webUrl;
-	}
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
+    }
 
-	public Integer getUserid() {
-		return this.userid;
-	}
+    public Integer getUserid() {
+        return this.userid;
+    }
 
-	public void setUserid(Integer userid) {
-		this.userid = userid;
-	}
+    public void setUserid(Integer userid) {
+        this.userid = userid;
+    }
 
-	public String getUsername() {
-		return this.username;
-	}
+    public String getUsername() {
+        return this.username;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public Date getValiddate() {
-		return this.validdate;
-	}
+    public Date getValiddate() {
+        return this.validdate;
+    }
 
-	public void setValiddate(Date validdate) {
-		this.validdate = validdate;
-	}
+    public void setValiddate(Date validdate) {
+        this.validdate = validdate;
+    }
 
-	public List<TbCurrentFileLog> getTbCurrentFileLogs() {
-		return this.tbCurrentFileLogs;
-	}
+    public List<TbCurrentFileLog> getTbCurrentFileLogs() {
+        return this.tbCurrentFileLogs;
+    }
 
-	public void setTbCurrentFileLogs(List<TbCurrentFileLog> tbCurrentFileLogs) {
-		this.tbCurrentFileLogs = tbCurrentFileLogs;
-	}
+    public void setTbCurrentFileLogs(List<TbCurrentFileLog> tbCurrentFileLogs) {
+        this.tbCurrentFileLogs = tbCurrentFileLogs;
+    }
 
-	public TbCurrentFileLog addTbCurrentFileLog(TbCurrentFileLog tbCurrentFileLog) {
-		getTbCurrentFileLogs().add(tbCurrentFileLog);
-		tbCurrentFileLog.setTbFile(this);
+    public TbCurrentFileLog addTbCurrentFileLog(TbCurrentFileLog tbCurrentFileLog) {
+        getTbCurrentFileLogs().add(tbCurrentFileLog);
+        tbCurrentFileLog.setTbFile(this);
 
-		return tbCurrentFileLog;
-	}
+        return tbCurrentFileLog;
+    }
 
-	public TbCurrentFileLog removeTbCurrentFileLog(TbCurrentFileLog tbCurrentFileLog) {
-		getTbCurrentFileLogs().remove(tbCurrentFileLog);
-		tbCurrentFileLog.setTbFile(null);
+    public TbCurrentFileLog removeTbCurrentFileLog(TbCurrentFileLog tbCurrentFileLog) {
+        getTbCurrentFileLogs().remove(tbCurrentFileLog);
+        tbCurrentFileLog.setTbFile(null);
 
-		return tbCurrentFileLog;
-	}
+        return tbCurrentFileLog;
+    }
 
-	public TbPath getTbPath() {
-		return this.tbPath;
-	}
+    public TbPath getTbPath() {
+        return this.tbPath;
+    }
 
-	public void setTbPath(TbPath tbPath) {
-		this.tbPath = tbPath;
-	}
+    public void setTbPath(TbPath tbPath) {
+        this.tbPath = tbPath;
+    }
 
-	public List<TbFileKeyword> getTbFileKeywords() {
-		return this.tbFileKeywords;
-	}
+    public List<TbFileKeyword> getTbFileKeywords() {
+        return this.tbFileKeywords;
+    }
 
-	public void setTbFileKeywords(List<TbFileKeyword> tbFileKeywords) {
-		this.tbFileKeywords = tbFileKeywords;
-	}
+    public void setTbFileKeywords(List<TbFileKeyword> tbFileKeywords) {
+        this.tbFileKeywords = tbFileKeywords;
+    }
 
-	public TbFileKeyword addTbFileKeyword(TbFileKeyword tbFileKeyword) {
-		getTbFileKeywords().add(tbFileKeyword);
-		tbFileKeyword.setTbFile(this);
+    public TbFileKeyword addTbFileKeyword(TbFileKeyword tbFileKeyword) {
+        getTbFileKeywords().add(tbFileKeyword);
+        tbFileKeyword.setTbFile(this);
 
-		return tbFileKeyword;
-	}
+        return tbFileKeyword;
+    }
 
-	public TbFileKeyword removeTbFileKeyword(TbFileKeyword tbFileKeyword) {
-		getTbFileKeywords().remove(tbFileKeyword);
-		tbFileKeyword.setTbFile(null);
+    public TbFileKeyword removeTbFileKeyword(TbFileKeyword tbFileKeyword) {
+        getTbFileKeywords().remove(tbFileKeyword);
+        tbFileKeyword.setTbFile(null);
 
-		return tbFileKeyword;
-	}
+        return tbFileKeyword;
+    }
 
-	public List<TbFileLog> getTbFileLogs() {
-		return this.tbFileLogs;
-	}
+    public List<TbFileLog> getTbFileLogs() {
+        return this.tbFileLogs;
+    }
 
-	public void setTbFileLogs(List<TbFileLog> tbFileLogs) {
-		this.tbFileLogs = tbFileLogs;
-	}
+    public void setTbFileLogs(List<TbFileLog> tbFileLogs) {
+        this.tbFileLogs = tbFileLogs;
+    }
 
-	public TbFileLog addTbFileLog(TbFileLog tbFileLog) {
-		getTbFileLogs().add(tbFileLog);
-		tbFileLog.setTbFile(this);
+    public TbFileLog addTbFileLog(TbFileLog tbFileLog) {
+        getTbFileLogs().add(tbFileLog);
+        tbFileLog.setTbFile(this);
 
-		return tbFileLog;
-	}
+        return tbFileLog;
+    }
 
-	public TbFileLog removeTbFileLog(TbFileLog tbFileLog) {
-		getTbFileLogs().remove(tbFileLog);
-		tbFileLog.setTbFile(null);
+    public TbFileLog removeTbFileLog(TbFileLog tbFileLog) {
+        getTbFileLogs().remove(tbFileLog);
+        tbFileLog.setTbFile(null);
 
-		return tbFileLog;
-	}
+        return tbFileLog;
+    }
 
-	public List<TbFileVersion> getTbFileVersions() {
-		return this.tbFileVersions;
-	}
+    public List<TbFileVersion> getTbFileVersions() {
+        return this.tbFileVersions;
+    }
 
-	public void setTbFileVersions(List<TbFileVersion> tbFileVersions) {
-		this.tbFileVersions = tbFileVersions;
-	}
+    public void setTbFileVersions(List<TbFileVersion> tbFileVersions) {
+        this.tbFileVersions = tbFileVersions;
+    }
 
-	public TbFileVersion addTbFileVersion(TbFileVersion tbFileVersion) {
-		getTbFileVersions().add(tbFileVersion);
-		tbFileVersion.setTbFile(this);
+    public TbFileVersion addTbFileVersion(TbFileVersion tbFileVersion) {
+        getTbFileVersions().add(tbFileVersion);
+        tbFileVersion.setTbFile(this);
 
-		return tbFileVersion;
-	}
+        return tbFileVersion;
+    }
 
-	public TbFileVersion removeTbFileVersion(TbFileVersion tbFileVersion) {
-		getTbFileVersions().remove(tbFileVersion);
-		tbFileVersion.setTbFile(null);
+    public TbFileVersion removeTbFileVersion(TbFileVersion tbFileVersion) {
+        getTbFileVersions().remove(tbFileVersion);
+        tbFileVersion.setTbFile(null);
 
-		return tbFileVersion;
-	}
+        return tbFileVersion;
+    }
 
 }

@@ -23,7 +23,20 @@ public interface FileRepository extends JpaRepository<TbFile, Integer>, JpaSpeci
      */
     TbFile findByFileid(Integer fid);
 
+    /**
+     * 根据md5值获取文件对象
+     *
+     * @param md5String
+     * @return 文件对象列表
+     */
     List<TbFile> findByMd5(String md5String);
 
+    /**
+     * 根据应用关系获取文件对象
+     *
+     * @param fileRefer 引用表
+     * @param fileid    引用ID
+     * @return 文件对象列表
+     */
     List<TbFile> findByRefertabAndReferid(String fileRefer, Integer fileid);
 }

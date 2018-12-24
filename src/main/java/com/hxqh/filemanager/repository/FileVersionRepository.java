@@ -23,7 +23,21 @@ public interface FileVersionRepository extends JpaRepository<TbFileVersion, Inte
      */
     TbFileVersion findByFileversionid(Integer fileversionid);
 
+
+    /**
+     * 根据md5值获取文件版本对象
+     *
+     * @param md5String
+     * @return 文件版本对象列表
+     */
     List<TbFileVersion> findByMd5(String md5String);
 
+    /**
+     * 根据应用关系获取文件版本对象
+     *
+     * @param fileRefer 引用表
+     * @param fileid    引用ID
+     * @return 文件版本对象列表
+     */
     List<TbFileVersion> findByRefertabAndReferid(String fileRefer, Integer fileid);
 }

@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 /**
  * The persistent class for the tb_keyword_privilege database table.
+ *
+ * @author Lin
  */
 @Entity
 @Table(name = "tb_keyword_privilege")
@@ -33,7 +35,9 @@ public class TbKeywordPrivilege implements Serializable {
 
     private String username;
 
-    //bi-directional many-to-one association to TbKeyword
+    /**
+     * bi-directional many-to-one association to TbKeyword
+     */
     @ManyToOne
     @JoinColumn(name = "keywordid")
     private TbKeyword tbKeyword;

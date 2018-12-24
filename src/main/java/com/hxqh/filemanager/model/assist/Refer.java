@@ -1,5 +1,9 @@
 package com.hxqh.filemanager.model.assist;
 
+/**
+ *
+ * @author Lin
+ */
 public class Refer {
 
     private String refertab;

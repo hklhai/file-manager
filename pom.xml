@@ -128,7 +128,7 @@
                 <filtering>true</filtering>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>*.sql</exclude>
+                    <exclude>db/*.sql</exclude>
                     <exclude>*.pptx</exclude>
                 </excludes>
             </resource>

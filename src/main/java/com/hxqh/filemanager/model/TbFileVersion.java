@@ -1,5 +1,7 @@
 package com.hxqh.filemanager.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -7,6 +9,8 @@ import java.util.Date;
 
 /**
  * The persistent class for the tb_file_version database table.
+ *
+ * @author Lin
  */
 @Entity
 @Table(name = "tb_file_version")
@@ -66,9 +70,12 @@ public class TbFileVersion implements Serializable {
     @Transient
     private Integer fileid;
 
-    //bi-directional many-to-one association to TbFile
+    /**
+     * bi-directional many-to-one association to TbFile
+     */
     @ManyToOne
     @JoinColumn(name = "fileid")
+    @JSONField(serialize = false)
     private TbFile tbFile;
 
     public TbFileVersion() {

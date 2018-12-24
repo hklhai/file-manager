@@ -136,7 +136,7 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
-    public boolean hasSameFIle(MultipartFile files, Integer fileid) throws Exception {
+    public boolean hasSameFile(MultipartFile files, Integer fileid) throws Exception {
         String md5String = Md5Utils.getFileMD5String(files.getBytes());
         TbFile file = fileRepository.findByFileid(fileid);
         List<TbFileVersion> fileVersionByMd5 = fileVersionRepository.findByMd5(md5String);
