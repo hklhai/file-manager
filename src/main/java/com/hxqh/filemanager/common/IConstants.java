@@ -49,4 +49,10 @@ public interface IConstants {
 
     String STATUS_RELEASE = "已发布";
 
+
+    /**
+     * 初始化向量(IV)，aes 16位
+     */
+    String IV = "abcdefghijk1mnop";
+
 }

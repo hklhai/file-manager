@@ -11,6 +11,7 @@ import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.model.assist.Refer;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
+import com.hxqh.filemanager.util.EncryptionUtils;
 import com.hxqh.filemanager.util.FileUtil;
 import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.criteria.Predicate;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -192,12 +195,12 @@ public class FileServiceImpl implements FileService {
     @Override
     public void saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
         Refer refer = null;
+        String aesKey = null;
         String filePath, savePath;
         String md5String = Md5Utils.getFileMD5String(file.getBytes());
 
         List<TbFile> fileByMd5 = fileRepository.findByMd5(md5String);
         List<TbFileVersion> fileVersionByMd5 = fileVersionRepository.findByMd5(md5String);
-
 
         // 生成随机文件名称
         savePath = generateFileName(file);
@@ -213,10 +216,6 @@ public class FileServiceImpl implements FileService {
                     // 存储路径
                     mkdirStorePath(path);
                     TbPath tbPath = pathRepository.findByPathname(path);
-//                    List<TbFile> tbFiles = new ArrayList<>();
-//                    tbFiles.add(tbFile);
-//                    tbPath.setTbFiles(tbFiles);
-
                     tbFile.setTbPath(tbPath);
                 }
 
@@ -227,6 +226,8 @@ public class FileServiceImpl implements FileService {
                 //                if (null != refer) {
                 //                    BeanUtils.copyProperties(refer, tbFile);
                 //                }
+                aesKey = EncryptionUtils.getAutoCreateAESKey();
+                tbFile.setSecretkey(aesKey);
                 fileRepository.save(tbFile);
             } else {
                 // 保存文件版本信息
@@ -253,10 +254,41 @@ public class FileServiceImpl implements FileService {
                 filePath = uploadPath + savePath;
                 FileOutputStream outputStream;
                 try {
-                    outputStream = new FileOutputStream(new File(filePath));
-                    outputStream.write(file.getBytes());
-                    outputStream.flush();
+                    //读取保存密钥的文件
+                    File fileKey = new File(uploadPath+"/a.text");
+                    byte[] key = new byte[(int) fileKey.length()];
+                    FileInputStream fis = new FileInputStream(fileKey);
+                    fis.read(key);
+                    //根据给定的字节数组(密钥数组)构造一个AES密钥。
+                    SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
+                    //实例化一个密码器（CBC模式）
+                    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                    //初始化密码器
+                    cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
+
+                    //读取要加密的文件流
+                    byte[] bytes = file.getBytes();
+                    InputStream inputStream = new ByteArrayInputStream(bytes);
+                    //输出加密后的文件流
+                    outputStream = new FileOutputStream(filePath);
+                    //以加密流写入文件
+                    CipherInputStream cipherInputStream = new CipherInputStream(inputStream, cipher);
+                    byte[] b = new byte[1024];
+                    int len = 0;
+                    //没有读到文件末尾一直读
+                    while ((len = cipherInputStream.read(b)) != -1) {
+                        outputStream.write(b, 0, len);
+                        outputStream.flush();
+                    }
+                    cipherInputStream.close();
+                    inputStream.close();
                     outputStream.close();
+
+
+//                    outputStream = new FileOutputStream(new File(filePath));
+//                    outputStream.write(file.getBytes());
+//                    outputStream.flush();
+//                    outputStream.close();
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }

@@ -68,6 +68,8 @@ public class TbFile implements Serializable {
     private String webUrl;
 
 
+    private String secretkey;
+
     /**
      * bi-directional many-to-one association to TbCurrentFileLog
      */
@@ -105,6 +107,14 @@ public class TbFile implements Serializable {
     private List<TbFileVersion> tbFileVersions;
 
     public TbFile() {
+    }
+
+    public String getSecretkey() {
+        return secretkey;
+    }
+
+    public void setSecretkey(String secretkey) {
+        this.secretkey = secretkey;
     }
 
     public Integer getFileid() {

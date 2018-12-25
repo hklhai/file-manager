@@ -3,6 +3,7 @@ package com.hxqh.filemanager.controller;
 import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
+import com.hxqh.filemanager.model.TbPath;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
@@ -18,6 +19,10 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -92,6 +97,31 @@ public class FileController {
         return fileDto;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/createPath", method = RequestMethod.POST)
+    public Message createPath(@RequestBody TbPath tbPath) {
+        Message message;
+
+        try {
+            // todo
+            // 不合法
+
+            // 已存在
+
+            // 创建成功
+
+            // fileService.createPath(tbPath);
+            message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+
+    // todo 删除 判断是否存在文件； 判断是否有子文件夹； 删除表中关系
+
 
     @ResponseBody
     @RequestMapping(value = "/fileVersionList", method = RequestMethod.POST)
@@ -158,7 +188,7 @@ public class FileController {
     @RequestMapping(value = "/downloadFile", method = RequestMethod.GET)
     public void downloadFile(HttpServletRequest request, HttpServletResponse response,
                              @RequestParam(value = "ftype", defaultValue = "") String ftype,
-                             @RequestParam("fid") Integer fid) throws IOException {
+                             @RequestParam("fid") Integer fid) throws Exception {
 
 
         String userAgent = request.getHeader("User-Agent");
@@ -205,11 +235,41 @@ public class FileController {
             downloadName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
         }
 
-        response.setHeader("Content-Disposition", "attachment;filename=" + downloadName);
-        response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-        FileCopyUtils.copy(inputStream, response.getOutputStream());
-    }
+        File fileKey = new File(uploadPath + "/a.text");
+        byte[] key = new byte[(int) fileKey.length()];
+        FileInputStream fis = new FileInputStream(fileKey);
+        fis.read(key);
+        //根据给定的字节数组(密钥数组)构造一个AES密钥。
+        SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
+        //实例化一个密码器（CBC模式）
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        //初始化密码器
+        cipher.init(Cipher.DECRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
 
+        //解密文件流
+        FileOutputStream outputStream = new FileOutputStream(uploadPath + "/tmp");
+        //以解密流写出文件
+        CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
+        byte[] buffer = new byte[1024];
+        int r;
+        while ((r = inputStream.read(buffer)) >= 0) {
+            cipherOutputStream.write(buffer, 0, r);
+        }
+        cipherOutputStream.close();
+        outputStream.close();
+        inputStream.close();
+
+
+        InputStream stream = new BufferedInputStream(new FileInputStream(uploadPath + "/tmp"));
+        response.setHeader("Content-Disposition", "attachment;filename=" + downloadName);
+        // 设置强制下载不打开
+        response.setContentType("application/force-download");
+
+        File tmp = new File(uploadPath + "/tmp");
+        response.setContentLength((int) tmp.length());
+        FileCopyUtils.copy(stream, response.getOutputStream());
+        stream.close();
+    }
 
 }
