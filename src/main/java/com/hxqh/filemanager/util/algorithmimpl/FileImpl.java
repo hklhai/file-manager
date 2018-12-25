@@ -5,6 +5,8 @@ import java.io.*;
 
 /**
  * 文件相关的算法实现
+ *
+ *  @author Lin
  */
 public class FileImpl {
 

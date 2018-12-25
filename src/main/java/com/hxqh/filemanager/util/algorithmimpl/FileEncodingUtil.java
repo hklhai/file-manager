@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * 文件编码相关的一些工具函数
+ *
+ *  @author Lin
  */
 public class FileEncodingUtil {
     /**

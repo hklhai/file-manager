@@ -7,6 +7,8 @@ import java.util.Map;
 
 /**
  * 提供一些对象有效性校验的方法
+ *
+ *  @author Lin
  */
 @SuppressWarnings("rawtypes")
 public final class CheckUtil {
@@ -54,7 +56,7 @@ public final class CheckUtil {
      * 判断一个对象是否为空
      */
     public final static boolean valid(Object obj) {
-        return !(null == obj);
+        return null != obj;
     }
 
     /**

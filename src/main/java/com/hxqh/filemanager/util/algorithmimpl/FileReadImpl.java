@@ -6,6 +6,8 @@ import java.nio.channels.FileChannel;
 
 /**
  * 封装了集中常用的文件读的方法
+ *
+ *  @author Lin
  */
 public class FileReadImpl {
 

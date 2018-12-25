@@ -7,18 +7,30 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * 对比俩个字符串的相似度
+ *
+ * @author Lin
  */
 public class StringImpl {
-    //第一种实现方式
+
+
+    private static final String ISO8859 = "ISO-8859-1";
+
+    /**
+     * 第一种实现方式
+     *
+     * @param strA
+     * @param strB
+     * @return
+     */
     private static String longestCommonSubstring(String strA, String strB) {
-        char[] chars_strA = strA.toCharArray();
-        char[] chars_strB = strB.toCharArray();
-        int m = chars_strA.length;
-        int n = chars_strB.length;
+        char[] toCharArray = strA.toCharArray();
+        char[] charsStrB = strB.toCharArray();
+        int m = toCharArray.length;
+        int n = charsStrB.length;
         int[][] matrix = new int[m + 1][n + 1];
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= n; j++) {
-                if (chars_strA[i - 1] == chars_strB[j - 1]) {
+                if (toCharArray[i - 1] == charsStrB[j - 1]) {
                     matrix[i][j] = matrix[i - 1][j - 1] + 1;
                 } else {
                     matrix[i][j] = Math.max(matrix[i][j - 1], matrix[i - 1][j]);
@@ -33,7 +45,7 @@ public class StringImpl {
             } else if (matrix[m][n] == matrix[m - 1][n]) {
                 m--;
             } else {
-                result[currentIndex] = chars_strA[m - 1];
+                result[currentIndex] = toCharArray[m - 1];
                 currentIndex--;
                 n--;
                 m--;
@@ -64,7 +76,7 @@ public class StringImpl {
      * @return 俩个字符串的相似度
      * <p>summary</p>:较长的字符串放到前面有助于提交效率
      */
-    public static double SimilarDegree(String strA, String strB) {
+    public static double similarDegree(String strA, String strB) {
         String newStrA = removeSign(strA);
         String newStrB = removeSign(strB);
         int temp = Math.max(newStrA.length(), newStrB.length());
@@ -72,16 +84,28 @@ public class StringImpl {
         return temp2 * 1.0 / temp;
     }
 
-    //第二种实现方式
+    /**
+     * 第二种实现方式
+     *
+     * @param str
+     * @param target
+     * @return
+     */
     private static int compare(String str, String target) {
-        int d[][]; // 矩阵
+        // 矩阵
+        int[][] d;
         int n = str.length();
         int m = target.length();
-        int i; // 遍历str的
-        int j; // 遍历target的
-        char ch1; // str的
-        char ch2; // target的
-        int temp; // 记录相同字符,在某个矩阵位置值的增量,不是0就是1
+        // 遍历str的
+        int i;
+        // 遍历target的
+        int j;
+        // str的
+        char ch1;
+        // target的
+        char ch2;
+        // 记录相同字符,在某个矩阵位置值的增量,不是0就是1
+        int temp;
         if (n == 0) {
             return m;
         }
@@ -89,15 +113,16 @@ public class StringImpl {
             return n;
         }
         d = new int[n + 1][m + 1];
-        for (i = 0; i <= n; i++) { // 初始化第一列
+        // 初始化第一列
+        for (i = 0; i <= n; i++) {
             d[i][0] = i;
         }
-
-        for (j = 0; j <= m; j++) { // 初始化第一行
+// 初始化第一行
+        for (j = 0; j <= m; j++) {
             d[0][j] = j;
         }
-
-        for (i = 1; i <= n; i++) { // 遍历str
+// 遍历str
+        for (i = 1; i <= n; i++) {
             ch1 = str.charAt(i - 1);
             // 去匹配target
             for (j = 1; j <= m; j++) {
@@ -126,7 +151,7 @@ public class StringImpl {
      * @param target
      * @return
      */
-    public static double SimilarityRatio(String str, String target) {
+    public static double similarityRatio(String str, String target) {
         return 1 - (double) compare(str, target) / Math.max(str.length(), target.length());
     }
 
@@ -145,7 +170,7 @@ public class StringImpl {
             if (str.equals(new String(bs, CharsetUtil.GBK))) {
                 return CharsetUtil.GBK;
             }
-            if (str.equals(new String(bs, "ISO-8859-1"))) {
+            if (str.equals(new String(bs, ISO8859))) {
                 return "ISO-8859-1";
             }
         } catch (UnsupportedEncodingException e) {

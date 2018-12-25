@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * 利用文件头来实现的一些文件类型的方法封装
+ *
+ *  @author Lin
  */
 public class FileTypeImpl {
 

@@ -123,21 +123,21 @@ public class SysUtil {
     /**
      * 获取JVM内存总量
      */
-    public final static long JVMtotalMem() {
+    public final static long jvmTotalMem() {
         return Runtime.getRuntime().totalMemory() / kb;
     }
 
     /**
      * 虚拟机空闲内存量
      */
-    public final static long JVMfreeMem() {
+    public final static long jvmFreeMem() {
         return Runtime.getRuntime().freeMemory() / kb;
     }
 
     /**
      * 虚拟机使用最大内存量
      */
-    public final static long JVMmaxMem() {
+    public final static long jvmMaxMem() {
         return Runtime.getRuntime().maxMemory() / kb;
     }
 

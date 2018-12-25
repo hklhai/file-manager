@@ -12,8 +12,16 @@ import java.util.regex.Pattern;
 
 /**
  * 提供些常用的字符串相关的工具方法
+ *
+ * @author Lin
  */
 public final class StringUtil {
+
+    private static String BLANK = "\\s*|\t|\r|\n";
+    private static Character UPPER_A = 'A';
+    private static Character UPPER_Z = 'Z';
+    private static Character LOWER_A = 'a';
+    private static Character LOWER_Z = 'z';
 
     /**
      * 判断是否是空字符串 null和"" 都返回 true
@@ -22,7 +30,7 @@ public final class StringUtil {
      * @return 是否有效
      */
     public static boolean isEmpty(String str) {
-        return str == null || str.equals("");
+        return str == null || "".equals(str);
     }
 
     /**
@@ -294,7 +302,7 @@ public final class StringUtil {
      */
     public static String replaceBlank(String str) {
         if (str != null) {
-            Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+            Pattern p = Pattern.compile(BLANK);
             Matcher m = p.matcher(str);
             str = m.replaceAll("");
         }
@@ -367,13 +375,13 @@ public final class StringUtil {
     /**
      * 字符串相似度比较(速度较快)
      */
-    public static double SimilarityRatio(String str1, String str2) {
+    public static double similarityRatio(String str1, String str2) {
         str1 = StringUtil.trimPunct(str1);
         str2 = StringUtil.trimPunct(str2);
         if (str1.length() > str2.length()) {
-            return StringImpl.SimilarityRatio(str1, str2);
+            return StringImpl.similarityRatio(str1, str2);
         } else {
-            return StringImpl.SimilarityRatio(str2, str1);
+            return StringImpl.similarityRatio(str2, str1);
         }
 
     }
@@ -381,13 +389,13 @@ public final class StringUtil {
     /**
      * 字符串相似度比较(速度较快)
      */
-    public static double SimilarDegree(String str1, String str2) {
+    public static double similarDegree(String str1, String str2) {
         str1 = StringUtil.trimPunct(str1);
         str2 = StringUtil.trimPunct(str2);
         if (str1.length() > str2.length()) {
-            return StringImpl.SimilarDegree(str1, str2);
+            return StringImpl.similarDegree(str1, str2);
         } else {
-            return StringImpl.SimilarDegree(str2, str1);
+            return StringImpl.similarDegree(str2, str1);
         }
     }
 
@@ -483,7 +491,7 @@ public final class StringUtil {
             return "";
         }
         char[] cs = str.toCharArray();
-        if ((cs[0] >= 'a') && (cs[0] <= 'z')) {
+        if ((cs[0] >= LOWER_A) && (cs[0] <= LOWER_Z)) {
             cs[0] -= (char) 0x20;
         }
         return String.valueOf(cs);
@@ -500,7 +508,7 @@ public final class StringUtil {
             return "";
         }
         char[] cs = str.toCharArray();
-        if ((cs[0] >= 'A') && (cs[0] <= 'Z')) {
+        if ((cs[0] >= UPPER_A) && (cs[0] <= UPPER_Z)) {
             cs[0] += (char) 0x20;
         }
         return String.valueOf(cs);

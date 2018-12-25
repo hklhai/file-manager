@@ -211,43 +211,10 @@ public class FileServiceImpl implements FileService {
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
-                TbFile tbFile = new TbFile();
-                setFileProperties(file, fileInfo, savePath, tbFile);
-
-                if (null != fileInfo.getAppname()) {
-                    String path = uploadPath + "/" + DateUtils.getTodayMonth();
-                    // 存储路径
-                    mkdirStorePath(path);
-                    TbPath tbPath = pathRepository.findByPathname(path);
-                    tbFile.setTbPath(tbPath);
-                }
-
-                tbFile.setFilestatus(IConstants.STATUS_RELEASE);
-                tbFile.setMd5(md5String);
-                tbFile.setFilename(file.getOriginalFilename().split("\\.")[0]);
-                tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
-                //                if (null != refer) {
-                //                    BeanUtils.copyProperties(refer, tbFile);
-                //                }
-                fileRepository.save(tbFile);
+                saveFileIno(file, fileInfo, refer, savePath, md5String);
             } else {
                 // 保存文件版本信息
-                TbFile tbFile = fileRepository.findByFileid(fileInfo.getFileid());
-                TbFileVersion fileVersion = new TbFileVersion();
-                BeanUtils.copyProperties(tbFile, fileVersion);
-
-                TbFile newFile = new TbFile();
-                BeanUtils.copyProperties(tbFile, fileInfo);
-                TbFile newVersion = setFileProperties(file, fileInfo, savePath, newFile);
-                newVersion.setFileversion(tbFile.getFileversion() + 1);
-
-                BeanUtils.copyProperties(newVersion, tbFile);
-                fileVersion.setTbFile(tbFile);
-                fileVersion.setMd5(md5String);
-                if (null != refer) {
-                    BeanUtils.copyProperties(refer, fileVersion);
-                }
-                fileVersionRepository.save(fileVersion);
+                saveFileVersion(file, fileInfo, refer, savePath, md5String);
             }
 
             // 保存至文件系统
@@ -285,6 +252,47 @@ public class FileServiceImpl implements FileService {
             }
         }
 
+    }
+
+    private void saveFileIno(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
+        TbFile tbFile = new TbFile();
+        setFileProperties(file, fileInfo, savePath, tbFile);
+
+        if (null != fileInfo.getAppname()) {
+            String path = uploadPath + "/" + DateUtils.getTodayMonth();
+            // 存储路径
+            mkdirStorePath(path);
+            TbPath tbPath = pathRepository.findByPathname(path);
+            tbFile.setTbPath(tbPath);
+        }
+
+        tbFile.setFilestatus(IConstants.STATUS_RELEASE);
+        tbFile.setMd5(md5String);
+        tbFile.setFilename(file.getOriginalFilename().split("\\.")[0]);
+        tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
+        if (null != refer) {
+            BeanUtils.copyProperties(refer, tbFile);
+        }
+        fileRepository.save(tbFile);
+    }
+
+    private void saveFileVersion(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
+        TbFile tbFile = fileRepository.findByFileid(fileInfo.getFileid());
+        TbFileVersion fileVersion = new TbFileVersion();
+        BeanUtils.copyProperties(tbFile, fileVersion);
+
+        TbFile newFile = new TbFile();
+        BeanUtils.copyProperties(tbFile, fileInfo);
+        TbFile newVersion = setFileProperties(file, fileInfo, savePath, newFile);
+        newVersion.setFileversion(tbFile.getFileversion() + 1);
+
+        BeanUtils.copyProperties(newVersion, tbFile);
+        fileVersion.setTbFile(tbFile);
+        fileVersion.setMd5(md5String);
+        if (null != refer) {
+            BeanUtils.copyProperties(refer, fileVersion);
+        }
+        fileVersionRepository.save(fileVersion);
     }
 
     private Cipher getCipherEncrpt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
@@ -349,7 +357,7 @@ public class FileServiceImpl implements FileService {
         return tbFile;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+
     @Override
     public void deleteFile(FileInfo fileInfo) {
 
@@ -360,30 +368,12 @@ public class FileServiceImpl implements FileService {
 
             // 先查询主记录是否存在被引用情况
             List<TbFile> fileList = fileRepository.findByRefertabAndReferid(IConstants.FILE_REFER, file.getFileid());
-            // 选取一条设置
-            for (int i = 0; i < fileList.size(); i++) {
-                if (0 == i) {
-                    fileList.get(0).setReferid(null);
-                    fileList.get(0).setRefertab(null);
-                    fileRepository.save(fileList.get(0));
-                } else {
-                    fileList.get(i).setReferid(fileList.get(0).getFileid());
-                    fileRepository.save(fileList.get(i));
-                }
-            }
+            // 重置引用关系
+            resetFileList(fileList);
 
             List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(IConstants.FILE_REFER, file.getFileid());
-            // 选取一条设置
-            for (int i = 0; i < fileVersionList.size(); i++) {
-                TbFileVersion fileVersion = fileVersionList.get(i);
-                if (i == 0) {
-                    fileVersion.setReferid(null);
-                    fileVersion.setRefertab(null);
-                } else {
-                    fileVersion.setReferid(fileVersionList.get(0).getFileid());
-                }
-                fileVersionRepository.save(fileVersion);
-            }
+            // 重置引用关系
+            resetFileVersionList(fileVersionList);
 
 
             if (fileList.size() == 0 && fileVersionList.size() == 0) {
@@ -404,12 +394,52 @@ public class FileServiceImpl implements FileService {
             //文件系统删除
             TbFileVersion fileVersion = fileVersionRepository.findByFileversionid(fileInfo.getFileversionid());
             String filePath = uploadPath + fileVersion.getFilepath();
-            FileUtil.deleteFile(filePath);
+
+            // 先查询主记录是否存在被引用情况
+            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
+            // 重置引用关系
+            resetFileList(fileList);
+
+            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
+            // 重置引用关系
+            resetFileVersionList(fileVersionList);
+
+            if (fileList.size() == 0 && fileVersionList.size() == 0) {
+                FileUtil.deleteFile(filePath);
+            }
 
             // 数据库删除
             fileVersionRepository.delete(fileVersion);
         }
 
+    }
+
+    private void resetFileVersionList(List<TbFileVersion> fileVersionList) {
+        // 选取一条设置
+        for (int i = 0; i < fileVersionList.size(); i++) {
+            TbFileVersion fileVersion = fileVersionList.get(i);
+            if (i == 0) {
+                fileVersion.setReferid(null);
+                fileVersion.setRefertab(null);
+            } else {
+                fileVersion.setReferid(fileVersionList.get(0).getFileid());
+            }
+            fileVersionRepository.save(fileVersion);
+        }
+    }
+
+    private void resetFileList(List<TbFile> fileList) {
+        // 选取一条设置
+        for (int i = 0; i < fileList.size(); i++) {
+            if (0 == i) {
+                fileList.get(0).setReferid(null);
+                fileList.get(0).setRefertab(null);
+                fileRepository.save(fileList.get(0));
+            } else {
+                fileList.get(i).setReferid(fileList.get(0).getFileid());
+                fileRepository.save(fileList.get(i));
+            }
+        }
     }
 
 
