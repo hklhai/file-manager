@@ -18,6 +18,7 @@ public class TbFileVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer fileversionid;
 
     private Integer appid;

@@ -9,12 +9,9 @@ import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.model.assist.Refer;
-import com.hxqh.filemanager.repository.FileRepository;
-import com.hxqh.filemanager.repository.FileVersionRepository;
-import com.hxqh.filemanager.repository.PathRepository;
-import com.hxqh.filemanager.repository.UserRepository;
+import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
-import com.hxqh.filemanager.util.FileUtils;
+import com.hxqh.filemanager.util.FileUtil;
 import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -32,7 +29,10 @@ import javax.persistence.criteria.Predicate;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.hxqh.filemanager.common.IConstants.THOUSAND;
@@ -49,6 +49,9 @@ public class FileServiceImpl implements FileService {
     @Value(value = "${com.hxqh.filemanager.upload}")
     private String uploadPath;
 
+    @Value(value = "${com.hxqh.filemanager.private}")
+    private String privatePath;
+
     @Value(value = "${com.hxqh.filemanager.file.url}")
     private String webUrl;
 
@@ -63,9 +66,17 @@ public class FileServiceImpl implements FileService {
     private FileVersionRepository fileVersionRepository;
     @Autowired
     private PathRepository pathRepository;
+    @Autowired
+    private CurrentFileLogRepository currentFileLogRepository;
+    @Autowired
+    private FileLogRepository fileLogRepository;
+    @Autowired
+    private KeywordRepository keywordRepository;
+
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
+
     public FileDto fileList(TbFile file, Pageable pageable) {
         Specification<TbFile> specification = (root, query, cb) -> {
             List<Predicate> list = new ArrayList<>(10);
@@ -187,8 +198,6 @@ public class FileServiceImpl implements FileService {
         List<TbFile> fileByMd5 = fileRepository.findByMd5(md5String);
         List<TbFileVersion> fileVersionByMd5 = fileVersionRepository.findByMd5(md5String);
 
-        // 存储路径
-        mkdirStorePath();
 
         // 生成随机文件名称
         savePath = generateFileName(file);
@@ -218,8 +227,12 @@ public class FileServiceImpl implements FileService {
 
                 // todo 增加目录
                 if (null != fileInfo.getAppname()) {
-                    Optional<TbPath> path = pathRepository.findById(1);
-                    tbFile.setTbPath(path.get());
+                    String path = uploadPath + "/" + DateUtils.getTodayMonth();
+
+                    // 存储路径
+                    mkdirStorePath(path);
+                    TbPath tbPath = pathRepository.findByPathname(uploadPath);
+                    tbFile.setTbPath(tbPath);
                 }
 
                 tbFile.setFilestatus(IConstants.STATUS_RELEASE);
@@ -272,11 +285,18 @@ public class FileServiceImpl implements FileService {
         return savePath;
     }
 
-    private void mkdirStorePath() {
-        File f = new File(uploadPath + "/" + DateUtils.getTodayMonth());
-        if (!f.exists()) {
-            f.mkdirs();
+    private void mkdirStorePath(String path) {
+        FileUtil.createPaths(path);
+        // 保存至path中
+        TbPath tbPath = pathRepository.findByPathname(path);
+        TbPath tbParentPath = pathRepository.findByPathname(uploadPath);
+        if (null == tbPath) {
+            tbPath = new TbPath();
+            tbPath.setParentid(tbParentPath.getPathid());
+            tbPath.setPathname(path);
+            tbPath.setParentname(uploadPath);
         }
+        pathRepository.save(tbPath);
     }
 
     private TbFile setFileProperties(MultipartFile file, FileInfo fileInfo, String savePath, TbFile tbFile) {
@@ -330,14 +350,14 @@ public class FileServiceImpl implements FileService {
 
 
             if (fileList.size() == 0 && fileVersionList.size() == 0) {
-                FileUtils.deleteFile(filePath);
+                FileUtil.deleteFile(filePath);
             }
 
             List<TbFileVersion> fileVersions = file.getTbFileVersions();
             for (int i = 0; i < fileVersions.size(); i++) {
                 TbFileVersion fileVersion = fileVersions.get(i);
                 filePath = uploadPath + fileVersion.getFilepath();
-                FileUtils.deleteFile(filePath);
+                FileUtil.deleteFile(filePath);
             }
 
             // 数据库删除
@@ -347,7 +367,7 @@ public class FileServiceImpl implements FileService {
             //文件系统删除
             TbFileVersion fileVersion = fileVersionRepository.findByFileversionid(fileInfo.getFileversionid());
             String filePath = uploadPath + fileVersion.getFilepath();
-            FileUtils.deleteFile(filePath);
+            FileUtil.deleteFile(filePath);
 
             // 数据库删除
             fileVersionRepository.delete(fileVersion);

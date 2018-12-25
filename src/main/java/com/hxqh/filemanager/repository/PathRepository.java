@@ -11,4 +11,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PathRepository extends JpaRepository<TbPath, Integer> {
+    /**
+     * 查询路径
+     *
+     * @param path
+     * @return
+     */
+    TbPath findByPathname(String path);
 }

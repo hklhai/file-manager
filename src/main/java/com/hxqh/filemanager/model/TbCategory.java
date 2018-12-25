@@ -2,10 +2,7 @@ package com.hxqh.filemanager.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Time;
 import java.util.List;
@@ -22,6 +19,7 @@ public class TbCategory implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer categoryid;
 
     private String categoryname;
