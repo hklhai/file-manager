@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,9 @@ import java.io.*;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by Ocean Lin on 2018/10/30.
@@ -236,16 +240,7 @@ public class FileController {
         }
 
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-        File fileKey = new File(uploadPath + "/a.text");
-        byte[] key = new byte[(int) fileKey.length()];
-        FileInputStream fis = new FileInputStream(fileKey);
-        fis.read(key);
-        //根据给定的字节数组(密钥数组)构造一个AES密钥。
-        SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
-        //实例化一个密码器（CBC模式）
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        //初始化密码器
-        cipher.init(Cipher.DECRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
+        Cipher cipher = getCipherDecrypt();
 
         //解密文件流
         FileOutputStream outputStream = new FileOutputStream(uploadPath + "/tmp");
@@ -270,6 +265,20 @@ public class FileController {
         response.setContentLength((int) tmp.length());
         FileCopyUtils.copy(stream, response.getOutputStream());
         stream.close();
+    }
+
+    private Cipher getCipherDecrypt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+        File fileKey = new File(uploadPath + "/a.text");
+        byte[] key = new byte[(int) fileKey.length()];
+        FileInputStream fis = new FileInputStream(fileKey);
+        fis.read(key);
+        //根据给定的字节数组(密钥数组)构造一个AES密钥。
+        SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
+        //实例化一个密码器（CBC模式）
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        //初始化密码器
+        cipher.init(Cipher.DECRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
+        return  cipher;
     }
 
 }

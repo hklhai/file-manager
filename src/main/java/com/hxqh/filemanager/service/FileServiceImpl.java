@@ -11,7 +11,6 @@ import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.model.assist.Refer;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
-import com.hxqh.filemanager.util.EncryptionUtils;
 import com.hxqh.filemanager.util.FileUtil;
 import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,10 +27,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.criteria.Predicate;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -226,8 +229,6 @@ public class FileServiceImpl implements FileService {
                 //                if (null != refer) {
                 //                    BeanUtils.copyProperties(refer, tbFile);
                 //                }
-                aesKey = EncryptionUtils.getAutoCreateAESKey();
-                tbFile.setSecretkey(aesKey);
                 fileRepository.save(tbFile);
             } else {
                 // 保存文件版本信息
@@ -255,16 +256,7 @@ public class FileServiceImpl implements FileService {
                 FileOutputStream outputStream;
                 try {
                     //读取保存密钥的文件
-                    File fileKey = new File(uploadPath+"/a.text");
-                    byte[] key = new byte[(int) fileKey.length()];
-                    FileInputStream fis = new FileInputStream(fileKey);
-                    fis.read(key);
-                    //根据给定的字节数组(密钥数组)构造一个AES密钥。
-                    SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
-                    //实例化一个密码器（CBC模式）
-                    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                    //初始化密码器
-                    cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
+                    Cipher cipher = getCipherEncrpt();
 
                     //读取要加密的文件流
                     byte[] bytes = file.getBytes();
@@ -284,11 +276,6 @@ public class FileServiceImpl implements FileService {
                     inputStream.close();
                     outputStream.close();
 
-
-//                    outputStream = new FileOutputStream(new File(filePath));
-//                    outputStream.write(file.getBytes());
-//                    outputStream.flush();
-//                    outputStream.close();
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
@@ -298,6 +285,20 @@ public class FileServiceImpl implements FileService {
             }
         }
 
+    }
+
+    private Cipher getCipherEncrpt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+        File fileKey = new File(uploadPath+"/a.text");
+        byte[] key = new byte[(int) fileKey.length()];
+        FileInputStream fis = new FileInputStream(fileKey);
+        fis.read(key);
+        //根据给定的字节数组(密钥数组)构造一个AES密钥。
+        SecretKeySpec sKeySpec = new SecretKeySpec(key, "AES");
+        //实例化一个密码器（CBC模式）
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        //初始化密码器
+        cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
+        return cipher;
     }
 
     private Refer getSavePath(List<TbFile> fileByMd5, List<TbFileVersion> fileVersionByMd5) {
