@@ -203,35 +203,20 @@ public class FileServiceImpl implements FileService {
         savePath = generateFileName(file);
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
-            // 保存至文件系统
-            if (fileByMd5.size() == 0 && fileVersionByMd5.size() == 0) {
-                filePath = uploadPath + savePath;
-                FileOutputStream outputStream;
-                try {
-                    outputStream = new FileOutputStream(new File(filePath));
-                    outputStream.write(file.getBytes());
-                    outputStream.flush();
-                    outputStream.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            } else {
-                refer = getSavePath(fileByMd5, fileVersionByMd5);
-                savePath = refer.getSavePath();
-            }
-
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
                 TbFile tbFile = new TbFile();
                 setFileProperties(file, fileInfo, savePath, tbFile);
 
-                // todo 增加目录
                 if (null != fileInfo.getAppname()) {
                     String path = uploadPath + "/" + DateUtils.getTodayMonth();
-
                     // 存储路径
                     mkdirStorePath(path);
-                    TbPath tbPath = pathRepository.findByPathname(uploadPath);
+                    TbPath tbPath = pathRepository.findByPathname(path);
+//                    List<TbFile> tbFiles = new ArrayList<>();
+//                    tbFiles.add(tbFile);
+//                    tbPath.setTbFiles(tbFiles);
+
                     tbFile.setTbPath(tbPath);
                 }
 
@@ -239,9 +224,9 @@ public class FileServiceImpl implements FileService {
                 tbFile.setMd5(md5String);
                 tbFile.setFilename(file.getOriginalFilename().split("\\.")[0]);
                 tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
-                if (null != refer) {
-                    BeanUtils.copyProperties(refer, tbFile);
-                }
+                //                if (null != refer) {
+                //                    BeanUtils.copyProperties(refer, tbFile);
+                //                }
                 fileRepository.save(tbFile);
             } else {
                 // 保存文件版本信息
@@ -261,6 +246,23 @@ public class FileServiceImpl implements FileService {
                     BeanUtils.copyProperties(refer, fileVersion);
                 }
                 fileVersionRepository.save(fileVersion);
+            }
+
+            // 保存至文件系统
+            if (fileByMd5.size() == 0 && fileVersionByMd5.size() == 0) {
+                filePath = uploadPath + savePath;
+                FileOutputStream outputStream;
+                try {
+                    outputStream = new FileOutputStream(new File(filePath));
+                    outputStream.write(file.getBytes());
+                    outputStream.flush();
+                    outputStream.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                }
+            } else {
+                refer = getSavePath(fileByMd5, fileVersionByMd5);
+                savePath = refer.getSavePath();
             }
         }
 
@@ -285,8 +287,9 @@ public class FileServiceImpl implements FileService {
         return savePath;
     }
 
-    private void mkdirStorePath(String path) {
+    private TbPath mkdirStorePath(String path) {
         FileUtil.createPaths(path);
+
         // 保存至path中
         TbPath tbPath = pathRepository.findByPathname(path);
         TbPath tbParentPath = pathRepository.findByPathname(uploadPath);
@@ -295,8 +298,9 @@ public class FileServiceImpl implements FileService {
             tbPath.setParentid(tbParentPath.getPathid());
             tbPath.setPathname(path);
             tbPath.setParentname(uploadPath);
+            pathRepository.save(tbPath);
         }
-        pathRepository.save(tbPath);
+        return tbPath;
     }
 
     private TbFile setFileProperties(MultipartFile file, FileInfo fileInfo, String savePath, TbFile tbFile) {
