@@ -35,10 +35,7 @@ import java.io.*;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hxqh.filemanager.common.IConstants.THOUSAND;
@@ -198,7 +195,6 @@ public class FileServiceImpl implements FileService {
     @Override
     public void saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
         Refer refer = null;
-        String aesKey = null;
         String filePath, savePath;
         String md5String = Md5Utils.getFileMD5String(file.getBytes());
 
@@ -209,19 +205,18 @@ public class FileServiceImpl implements FileService {
         savePath = generateFileName(file);
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
-            if (null == fileInfo.getFileid()) {
-                // 保存文件信息
-                saveFileIno(file, fileInfo, refer, savePath, md5String);
-            } else {
-                // 保存文件版本信息
-                saveFileVersion(file, fileInfo, refer, savePath, md5String);
-            }
-
             // 保存至文件系统
             if (fileByMd5.size() == 0 && fileVersionByMd5.size() == 0) {
-                filePath = uploadPath + savePath;
+                if (0 == fileInfo.getPathid()) {
+                    filePath = uploadPath + savePath;
+                } else {
+                    // todo 待测试
+                    Optional<TbPath> path = pathRepository.findById(fileInfo.getPathid());
+                    filePath = path.get().getPathname() + savePath;
+                }
                 FileOutputStream outputStream;
                 try {
+                    System.out.println("start:" + new Date());
                     //读取保存密钥的文件
                     Cipher cipher = getCipherEncrpt();
 
@@ -232,7 +227,7 @@ public class FileServiceImpl implements FileService {
                     outputStream = new FileOutputStream(filePath);
                     //以加密流写入文件
                     CipherInputStream cipherInputStream = new CipherInputStream(inputStream, cipher);
-                    byte[] b = new byte[1024];
+                    byte[] b = new byte[2048];
                     int len = 0;
                     //没有读到文件末尾一直读
                     while ((len = cipherInputStream.read(b)) != -1) {
@@ -242,7 +237,7 @@ public class FileServiceImpl implements FileService {
                     cipherInputStream.close();
                     inputStream.close();
                     outputStream.close();
-
+                    System.out.println("end:" + new Date());
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
@@ -250,6 +245,15 @@ public class FileServiceImpl implements FileService {
                 refer = getSavePath(fileByMd5, fileVersionByMd5);
                 savePath = refer.getSavePath();
             }
+
+            if (null == fileInfo.getFileid()) {
+                // 保存文件信息
+                saveFileIno(file, fileInfo, refer, savePath, md5String);
+            } else {
+                // 保存文件版本信息
+                saveFileVersion(file, fileInfo, refer, savePath, md5String);
+            }
+
         }
 
     }
@@ -261,7 +265,7 @@ public class FileServiceImpl implements FileService {
         if (null != fileInfo.getAppname()) {
             String path = uploadPath + "/" + DateUtils.getTodayMonth();
             // 存储路径
-            mkdirStorePath(path);
+            mkdirStorePath(path, DateUtils.getTodayMonth());
             TbPath tbPath = pathRepository.findByPathname(path);
             tbFile.setTbPath(tbPath);
         }
@@ -296,7 +300,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private Cipher getCipherEncrpt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-        File fileKey = new File(uploadPath+"/a.text");
+        File fileKey = new File(uploadPath + "/a.text");
         byte[] key = new byte[(int) fileKey.length()];
         FileInputStream fis = new FileInputStream(fileKey);
         fis.read(key);
@@ -328,7 +332,7 @@ public class FileServiceImpl implements FileService {
         return savePath;
     }
 
-    private TbPath mkdirStorePath(String path) {
+    private TbPath mkdirStorePath(String path, String folderName) {
         FileUtil.createPaths(path);
 
         // 保存至path中
@@ -339,6 +343,7 @@ public class FileServiceImpl implements FileService {
             tbPath.setParentid(tbParentPath.getPathid());
             tbPath.setPathname(path);
             tbPath.setParentname(uploadPath);
+            tbPath.setFoldername(folderName);
             pathRepository.save(tbPath);
         }
         return tbPath;
@@ -357,7 +362,7 @@ public class FileServiceImpl implements FileService {
         return tbFile;
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteFile(FileInfo fileInfo) {
 
@@ -442,5 +447,40 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public boolean isExist(TbPath tbPath) {
+        TbPath path = pathRepository.findParentIdAndFoldername(tbPath.getParentid(), tbPath.getFoldername());
+        if (null != path) {
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void createPath(TbPath tbPath) {
+        Optional<TbPath> path = pathRepository.findById(tbPath.getParentid());
+        String parentPathName = path.get().getPathname();
+        String newPath = parentPathName + "/" + tbPath.getFoldername();
+        TbPath newTbPath = new TbPath();
+
+        newTbPath.setPathname(newPath);
+        newTbPath.setParentname(parentPathName);
+        newTbPath.setParentid(path.get().getPathid());
+        newTbPath.setFoldername(tbPath.getFoldername());
+
+        pathRepository.save(newTbPath);
+
+        // 创建文件夹
+        FileUtil.createPaths(newPath);
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public List<TbPath> pathList(TbPath path) {
+        List<TbPath> pathList = pathRepository.findByParentid(path.getPathid());
+        return pathList;
+    }
 
 }

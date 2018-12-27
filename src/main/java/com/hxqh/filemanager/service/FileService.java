@@ -2,12 +2,15 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
+import com.hxqh.filemanager.model.TbPath;
 import com.hxqh.filemanager.model.User;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * Created by Ocean lin on 2018/10/30.
@@ -84,4 +87,24 @@ public interface FileService {
      * @throws Exception
      */
     boolean hasSameFile(MultipartFile files, Integer fileid) throws Exception;
+
+    /**
+     *
+     * @param tbPath 目录实体类
+     * @return
+     */
+    boolean isExist(TbPath tbPath);
+
+    /**
+     *
+     * @param tbPath 目录实体类
+     */
+    void createPath(TbPath tbPath);
+
+    /**
+     *
+     * @param path
+     * @return
+     */
+    List<TbPath> pathList(TbPath path);
 }

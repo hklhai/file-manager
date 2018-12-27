@@ -35,9 +35,16 @@ public interface IConstants {
     String UPLOADSUCCESS = "Upload Success!";
     String UPLOADFAIL = "Upload Fail!";
     String UPLOADSIZE = "Upload Size is 0!";
+    String UPLOADDOT = "名称中包含“.”，请修改后重试！";
     String UPLOADSAME = "The same file exists!";
     String FILE_REFER = "file";
     String VERSION_REFER = "version";
+
+
+    String PATHINVALID = "文件目录不合法！";
+    String PATHEXIST = "文件目录已存在！";
+    String PATHSUCCESS = "文件目录创建成功！";
+    String PATHFAIL = "文件目录创建失败！";
 
 
     String IMPORTSUCCESS = "Import success!";
@@ -48,6 +55,8 @@ public interface IConstants {
     String DOUBLE_SPLIT = "\\";
 
     String STATUS_RELEASE = "已发布";
+
+    String DOT = "\\.";
 
 
     /**

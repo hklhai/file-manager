@@ -25,7 +25,7 @@ public final class FileUtil {
      * Buffer的大小
      */
     private static Integer BUFFER_SIZE = 1024 * 1024 * 10;
-
+    private static Integer NUM = 255;
     public static MessageDigest MD5 = null;
 
     static {
@@ -590,7 +590,6 @@ public final class FileUtil {
     }
 
 
-
     /**
      * 罗列指定路径下的全部文件包括文件夹
      *
@@ -720,5 +719,14 @@ public final class FileUtil {
     public final static String suffix(File file) {
         String fileName = file.getName();
         return fileName.substring(fileName.indexOf(".") + 1);
+    }
+
+
+    public static boolean isValidFileName(String fileName) {
+        if (fileName == null || fileName.length() > NUM) {
+            return false;
+        } else {
+            return fileName.matches("[^\\s\\\\/:\\*\\?\\\"<>\\|](\\x20|[^\\s\\\\/:\\*\\?\\\"<>\\|])*[^\\s\\\\/:\\*\\?\\\"<>\\|\\.]$");
+        }
     }
 }
