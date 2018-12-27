@@ -9,9 +9,9 @@ import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.service.FileService;
+import com.hxqh.filemanager.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * Created by Ocean Lin on 2018/10/30.
@@ -43,6 +44,9 @@ import java.security.NoSuchAlgorithmException;
 @Controller
 @RequestMapping("/file")
 public class FileController {
+
+
+    private final static Integer NUM = 3;
 
     @Autowired
     private FileService fileService;
@@ -60,11 +64,14 @@ public class FileController {
                               @RequestParam(value = "deptfullname", defaultValue = "") String deptfullname,
                               @RequestParam(value = "appid", defaultValue = "0") Integer appid,
                               @RequestParam(value = "appname", defaultValue = "") String appname,
-                              @RequestParam(value = "recordid", defaultValue = "0") Integer recordid) {
+                              @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
+                              @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
         Message message;
         try {
             if (0 == files.getSize()) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
             } else {
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.setUserid(userid);
@@ -74,7 +81,7 @@ public class FileController {
                 fileInfo.setRecordid(recordid);
                 fileInfo.setAppid(appid);
                 fileInfo.setAppname(appname);
-
+                fileInfo.setPathid(pathid);
                 fileService.saveFile(files, fileInfo);
                 message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
             }
@@ -105,25 +112,46 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/createPath", method = RequestMethod.POST)
     public Message createPath(@RequestBody TbPath tbPath) {
+        // todo 系统判断
+        if (0 == tbPath.getParentid()) {
+            tbPath.setParentid(2);
+        }
+
         Message message;
-
         try {
-            // todo
             // 不合法
-
-            // 已存在
-
-            // 创建成功
-
-            // fileService.createPath(tbPath);
-            message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            if (!FileUtil.isValidFileName(tbPath.getFoldername())) {
+                message = new Message(IConstants.FAIL, IConstants.PATHINVALID);
+                // 已存在
+            } else if (fileService.isExist(tbPath)) {
+                message = new Message(IConstants.FAIL, IConstants.PATHEXIST);
+                // 创建成功
+            } else {
+                fileService.createPath(tbPath);
+                message = new Message(IConstants.SUCCESS, IConstants.PATHSUCCESS);
+            }
         } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
+            message = new Message(IConstants.FAIL, IConstants.PATHFAIL);
             e.printStackTrace();
         }
         return message;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/pathList", method = RequestMethod.POST)
+    public List<TbPath> pathList(@RequestBody TbPath path) {
+
+        if (0 == path.getPathid()) {
+            path.setPathid(2);
+        }
+        List<TbPath> pathList = null;
+        try {
+            pathList = fileService.pathList(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pathList;
+    }
 
     // todo 删除 判断是否存在文件； 判断是否有子文件夹； 删除表中关系
 
@@ -153,6 +181,8 @@ public class FileController {
             // 增加同一文件上传时，判断如果md5相同提示存在相同文件。
             if (0 == files.getSize()) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
             } else if (fileService.hasSameFile(files, fileid)) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADSAME);
             } else {
@@ -161,7 +191,6 @@ public class FileController {
                 fileService.saveFile(files, fileInfo);
                 message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
             }
-
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
             e.printStackTrace();
@@ -279,7 +308,7 @@ public class FileController {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         //初始化密码器
         cipher.init(Cipher.DECRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
-        return  cipher;
+        return cipher;
     }
 
 }

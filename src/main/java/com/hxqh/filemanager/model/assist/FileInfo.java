@@ -17,7 +17,17 @@ public class FileInfo {
     private Integer fileid;
     private Integer fileversionid;
 
+    private Integer pathid;
+
     public FileInfo() {
+    }
+
+    public Integer getPathid() {
+        return pathid;
+    }
+
+    public void setPathid(Integer pathid) {
+        this.pathid = pathid;
     }
 
     public Integer getUserid() {

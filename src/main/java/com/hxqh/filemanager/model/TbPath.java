@@ -27,6 +27,7 @@ public class TbPath implements Serializable {
 
     private String pathname;
 
+    private String foldername;
     /**
      * bi-directional many-to-one association to TbFile
      */
@@ -35,6 +36,14 @@ public class TbPath implements Serializable {
     private List<TbFile> tbFiles;
 
     public TbPath() {
+    }
+
+    public String getFoldername() {
+        return foldername;
+    }
+
+    public void setFoldername(String foldername) {
+        this.foldername = foldername;
     }
 
     public Integer getPathid() {
