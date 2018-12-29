@@ -153,7 +153,33 @@ public class FileController {
         return pathList;
     }
 
-    // todo 删除 判断是否存在文件； 判断是否有子文件夹； 删除表中关系
+
+    @ResponseBody
+    @RequestMapping(value = "/deletePath/{id}", method = RequestMethod.DELETE)
+    public Message deletePath(@PathVariable("id") Integer pathId) {
+        Message message;
+
+        if (0 == pathId) {
+            message = new Message(IConstants.FAIL, IConstants.DELETEROOT);
+            return message;
+        }
+        try {
+            // todo 删除 判断是否存在文件； 判断是否有子文件夹； 删除表中关系
+            if (fileService.hasFile(pathId)) {
+                message = new Message(IConstants.FAIL, IConstants.DELETEHASFILE);
+            } else if (fileService.hasPath(pathId)) {
+                message = new Message(IConstants.FAIL, IConstants.DELETEHASPATH);
+            } else {
+
+
+                message = new Message(IConstants.FAIL, IConstants.DELETEROOT);
+            }
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.PATHFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
 
 
     @ResponseBody
@@ -200,11 +226,11 @@ public class FileController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/deleteFile", method = RequestMethod.DELETE)
-    public Message deleteFile(@RequestBody FileInfo fileInfo) {
-        Message message = null;
+    @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
+    public Message deleteFile(@PathVariable("id") Integer fileId) {
+        Message message;
         try {
-            fileService.deleteFile(fileInfo);
+            fileService.deleteFile(fileId);
             message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);

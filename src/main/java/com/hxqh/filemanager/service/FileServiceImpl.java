@@ -364,11 +364,11 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteFile(FileInfo fileInfo) {
+    public void deleteFile(Integer fileId) {
 
-        if (null != fileInfo.getFileid()) {
+        if (null != fileId) {
             // 文件系统删除
-            TbFile file = fileRepository.findByFileid(fileInfo.getFileid());
+            TbFile file = fileRepository.findByFileid(fileId);
             String filePath = uploadPath + file.getFilepath();
 
             // 先查询主记录是否存在被引用情况
@@ -395,29 +395,30 @@ public class FileServiceImpl implements FileService {
             // 数据库删除
             fileRepository.delete(file);
         }
-        if (null != fileInfo.getFileversionid()) {
-            //文件系统删除
-            TbFileVersion fileVersion = fileVersionRepository.findByFileversionid(fileInfo.getFileversionid());
-            String filePath = uploadPath + fileVersion.getFilepath();
 
-            // 先查询主记录是否存在被引用情况
-            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
-            // 重置引用关系
-            resetFileList(fileList);
+        // todo 后期检查
+//        if (null != fileInfo.getFileversionid()) {
+//            //文件系统删除
+//            TbFileVersion fileVersion = fileVersionRepository.findByFileversionid(fileInfo.getFileversionid());
+//            String filePath = uploadPath + fileVersion.getFilepath();
+//
+//            // 先查询主记录是否存在被引用情况
+//            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
+//            // 重置引用关系
+//            resetFileList(fileList);
+//
+//            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
+//            // 重置引用关系
+//            resetFileVersionList(fileVersionList);
+//
+//            if (fileList.size() == 0 && fileVersionList.size() == 0) {
+//                FileUtil.deleteFile(filePath);
+//            }
 
-            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
-            // 重置引用关系
-            resetFileVersionList(fileVersionList);
-
-            if (fileList.size() == 0 && fileVersionList.size() == 0) {
-                FileUtil.deleteFile(filePath);
-            }
-
-            // 数据库删除
-            fileVersionRepository.delete(fileVersion);
-        }
-
+        // 数据库删除
+//            fileVersionRepository.delete(fileVersion);
     }
+
 
     private void resetFileVersionList(List<TbFileVersion> fileVersionList) {
         // 选取一条设置
@@ -481,6 +482,28 @@ public class FileServiceImpl implements FileService {
     public List<TbPath> pathList(TbPath path) {
         List<TbPath> pathList = pathRepository.findByParentid(path.getPathid());
         return pathList;
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public boolean hasFile(Integer pathId) {
+        TbFile tbFile = fileRepository.findByPathid(pathId);
+        if (null != tbFile) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public boolean hasPath(Integer pathId) {
+        List<TbPath> tbPaths = pathRepository.findByParentid(pathId);
+        if (null != tbPaths && tbPaths.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

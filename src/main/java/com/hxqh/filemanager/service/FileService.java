@@ -40,9 +40,9 @@ public interface FileService {
     /**
      * 删除文件
      *
-     * @param fileInfo
+     * @param fileId
      */
-    void deleteFile(FileInfo fileInfo);
+    void deleteFile(Integer fileId);
 
     /**
      * 文件列表带条件的分页获取接口
@@ -81,7 +81,7 @@ public interface FileService {
     /**
      * 是否存在相同文件
      *
-     * @param files 文件
+     * @param files  文件
      * @param fileid 文件ID
      * @return
      * @throws Exception
@@ -89,22 +89,33 @@ public interface FileService {
     boolean hasSameFile(MultipartFile files, Integer fileid) throws Exception;
 
     /**
-     *
      * @param tbPath 目录实体类
      * @return
      */
     boolean isExist(TbPath tbPath);
 
     /**
-     *
      * @param tbPath 目录实体类
      */
     void createPath(TbPath tbPath);
 
     /**
-     *
      * @param path
      * @return
      */
     List<TbPath> pathList(TbPath path);
+
+
+    /**
+     *
+     * @param pathId
+     * @return
+     */
+    boolean hasFile(Integer pathId);
+
+    /**
+     * @param pathId
+     * @return
+     */
+    boolean hasPath(Integer pathId);
 }

@@ -47,6 +47,10 @@ public interface IConstants {
     String PATHFAIL = "文件目录创建失败！";
 
 
+    String DELETEROOT = "不允许删除根目录！";
+    String DELETEHASFILE = "该目录下存在子文件！";
+    String DELETEHASPATH = "该目录下存在子目录！";
+
     String IMPORTSUCCESS = "Import success!";
     String IMPORTFAIL = "Import Fail!";
 

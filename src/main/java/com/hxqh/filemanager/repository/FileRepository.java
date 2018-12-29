@@ -4,6 +4,7 @@ package com.hxqh.filemanager.repository;
 import com.hxqh.filemanager.model.TbFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,4 +40,12 @@ public interface FileRepository extends JpaRepository<TbFile, Integer>, JpaSpeci
      * @return 文件对象列表
      */
     List<TbFile> findByRefertabAndReferid(String fileRefer, Integer fileid);
+
+
+    /**
+     * @param pathId
+     * @return
+     */
+    @Query("select u from TbFile u where u.tbPath.pathid=?1 ")
+    TbFile findByPathid(Integer pathId);
 }
