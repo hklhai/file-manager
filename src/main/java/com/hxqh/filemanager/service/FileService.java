@@ -123,4 +123,10 @@ public interface FileService {
      * @return
      */
     List<TbFile> findFileByPathId(TbPath path);
+
+    /**
+     *
+     * @param pathId
+     */
+    void deletePath(Integer pathId);
 }

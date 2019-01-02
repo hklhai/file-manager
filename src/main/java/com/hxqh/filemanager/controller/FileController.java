@@ -145,8 +145,8 @@ public class FileController {
         if (0 == path.getPathid()) {
             path.setPathid(2);
         }
-        List<TbPath> pathList = null;
-        List<TbFile> fileList = null;
+        List<TbPath> pathList;
+        List<TbFile> fileList;
         PathDto pathDto = null;
 
         try {
@@ -170,14 +170,13 @@ public class FileController {
             return message;
         }
         try {
-            // todo 删除 判断是否存在文件； 判断是否有子文件夹； 删除表中关系
+            // 删除 判断是否存在文件； 判断是否有子文件夹； 删除表中关系
             if (fileService.hasFile(pathId)) {
                 message = new Message(IConstants.FAIL, IConstants.DELETEHASFILE);
             } else if (fileService.hasPath(pathId)) {
                 message = new Message(IConstants.FAIL, IConstants.DELETEHASPATH);
             } else {
-
-
+                fileService.deletePath(pathId);
                 message = new Message(IConstants.FAIL, IConstants.DELETEROOT);
             }
         } catch (Exception e) {

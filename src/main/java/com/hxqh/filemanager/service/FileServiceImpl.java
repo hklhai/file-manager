@@ -210,9 +210,11 @@ public class FileServiceImpl implements FileService {
                 if (0 == fileInfo.getPathid()) {
                     filePath = uploadPath + savePath;
                 } else {
-                    // todo 待测试
                     Optional<TbPath> path = pathRepository.findById(fileInfo.getPathid());
                     filePath = path.get().getPathname() + savePath;
+                    // TODO: 2019/1/2  增加记录
+                    // TODO: 2019/1/2  根据最新记录更新
+
                 }
                 FileOutputStream outputStream;
                 try {
@@ -514,6 +516,12 @@ public class FileServiceImpl implements FileService {
     public List<TbFile> findFileByPathId(TbPath path) {
         List<TbFile> fileList = fileRepository.findByPathidAndUserId(path.getPathid(), path.getUserid());
         return fileList;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void deletePath(Integer pathId) {
+        pathRepository.deleteById(pathId);
     }
 
 }
