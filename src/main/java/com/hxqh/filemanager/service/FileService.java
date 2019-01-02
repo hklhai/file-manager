@@ -107,7 +107,6 @@ public interface FileService {
 
 
     /**
-     *
      * @param pathId
      * @return
      */
@@ -118,4 +117,10 @@ public interface FileService {
      * @return
      */
     boolean hasPath(Integer pathId);
+
+    /**
+     * @param path
+     * @return
+     */
+    List<TbFile> findFileByPathId(TbPath path);
 }

@@ -35,7 +35,18 @@ public class TbPath implements Serializable {
     @JSONField(serialize = false)
     private List<TbFile> tbFiles;
 
+    @Transient
+    private Integer userid;
+
     public TbPath() {
+    }
+
+    public Integer getUserid() {
+        return userid;
+    }
+
+    public void setUserid(Integer userid) {
+        this.userid = userid;
     }
 
     public String getFoldername() {

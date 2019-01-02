@@ -7,6 +7,7 @@ import com.hxqh.filemanager.model.TbPath;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
+import com.hxqh.filemanager.model.assist.PathDto;
 import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.service.FileService;
 import com.hxqh.filemanager.util.FileUtil;
@@ -139,18 +140,23 @@ public class FileController {
 
     @ResponseBody
     @RequestMapping(value = "/pathList", method = RequestMethod.POST)
-    public List<TbPath> pathList(@RequestBody TbPath path) {
+    public PathDto pathList(@RequestBody TbPath path) {
 
         if (0 == path.getPathid()) {
             path.setPathid(2);
         }
         List<TbPath> pathList = null;
+        List<TbFile> fileList = null;
+        PathDto pathDto = null;
+
         try {
             pathList = fileService.pathList(path);
+            fileList = fileService.findFileByPathId(path);
+            pathDto = new PathDto(pathList, fileList);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return pathList;
+        return pathDto;
     }
 
 

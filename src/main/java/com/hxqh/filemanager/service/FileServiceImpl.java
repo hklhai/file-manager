@@ -202,7 +202,7 @@ public class FileServiceImpl implements FileService {
         List<TbFileVersion> fileVersionByMd5 = fileVersionRepository.findByMd5(md5String);
 
         // 生成随机文件名称
-        savePath = generateFileName(file);
+        savePath = generateFileName(file, uploadPath);
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             // 保存至文件系统
@@ -324,7 +324,10 @@ public class FileServiceImpl implements FileService {
         return refer;
     }
 
-    private String generateFileName(MultipartFile file) {
+    private String generateFileName(MultipartFile file, String uploadPath) {
+        String path = uploadPath + "/" + DateUtils.getTodayMonth();
+        FileUtil.createPaths(path);
+
         String savePath;
         String extensionName = file.getOriginalFilename().split("\\.")[1];
         savePath = "/" + DateUtils.getTodayMonth() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
@@ -487,8 +490,8 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public boolean hasFile(Integer pathId) {
-        TbFile tbFile = fileRepository.findByPathid(pathId);
-        if (null != tbFile) {
+        List<TbFile> tbFiles = fileRepository.findByPathid(pathId);
+        if (null != tbFiles) {
             return true;
         } else {
             return false;
@@ -504,6 +507,13 @@ public class FileServiceImpl implements FileService {
         } else {
             return false;
         }
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public List<TbFile> findFileByPathId(TbPath path) {
+        List<TbFile> fileList = fileRepository.findByPathidAndUserId(path.getPathid(), path.getUserid());
+        return fileList;
     }
 
 }
