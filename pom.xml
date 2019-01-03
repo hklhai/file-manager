@@ -131,6 +131,7 @@
                 <excludes>
                     <exclude>db/*.sql</exclude>
                     <exclude>*.pptx</exclude>
+                    <exclude>jar/*</exclude>
                 </excludes>
             </resource>
         </resources>
