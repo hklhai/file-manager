@@ -54,9 +54,14 @@ public interface IConstants {
     String DELETEROOT = "不允许删除根目录！";
     String DELETEHASFILE = "该目录下存在子文件！";
     String DELETEHASPATH = "该目录下存在子目录！";
+    String DELETEPATHFAIL = "文件目录删除失败！";
 
     String IMPORTSUCCESS = "Import success!";
     String IMPORTFAIL = "Import Fail!";
+
+
+    String KEYWORD_SUCCESS = "关键字设置成功！";
+    String KEYWORD_FAIL = "关键字设置失败！";
 
 
     String SPLIT = "\\";

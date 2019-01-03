@@ -19,27 +19,38 @@ public class TbFileKeyword implements Serializable {
     private Integer filekeywordid;
 
     /**
-     * bi-directional many-to-one association to TbCategory
-     */
-    @ManyToOne
-    @JoinColumn(name = "categoryid")
-    private TbCategory tbCategory;
-
-    /**
      * bi-directional many-to-one association to TbFile
      */
     @ManyToOne
     @JoinColumn(name = "fileid")
     private TbFile tbFile;
 
-    /**
-     * bi-directional many-to-one association to TbKeyword
-     */
-    @ManyToOne
-    @JoinColumn(name = "keywordid")
-    private TbKeyword tbKeyword;
+    private Integer categoryid;
+
+    private Integer keywordid;
+
 
     public TbFileKeyword() {
+    }
+
+    public void setFilekeywordid(Integer filekeywordid) {
+        this.filekeywordid = filekeywordid;
+    }
+
+    public Integer getCategoryid() {
+        return categoryid;
+    }
+
+    public void setCategoryid(Integer categoryid) {
+        this.categoryid = categoryid;
+    }
+
+    public Integer getKeywordid() {
+        return keywordid;
+    }
+
+    public void setKeywordid(Integer keywordid) {
+        this.keywordid = keywordid;
     }
 
     public Integer getFilekeywordid() {
@@ -50,13 +61,6 @@ public class TbFileKeyword implements Serializable {
         this.filekeywordid = filekeywordid;
     }
 
-    public TbCategory getTbCategory() {
-        return this.tbCategory;
-    }
-
-    public void setTbCategory(TbCategory tbCategory) {
-        this.tbCategory = tbCategory;
-    }
 
     public TbFile getTbFile() {
         return this.tbFile;
@@ -66,12 +70,5 @@ public class TbFileKeyword implements Serializable {
         this.tbFile = tbFile;
     }
 
-    public TbKeyword getTbKeyword() {
-        return this.tbKeyword;
-    }
-
-    public void setTbKeyword(TbKeyword tbKeyword) {
-        this.tbKeyword = tbKeyword;
-    }
 
 }

@@ -5,6 +5,7 @@ import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.TbPath;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
+import com.hxqh.filemanager.model.assist.FileKeyword;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,4 +121,11 @@ public interface FileService {
      * @param pathId
      */
     void deletePath(Integer pathId);
+
+
+    /**
+     *
+     * @param fileKeyword
+     */
+    void fileBindKeyword(FileKeyword fileKeyword);
 }
