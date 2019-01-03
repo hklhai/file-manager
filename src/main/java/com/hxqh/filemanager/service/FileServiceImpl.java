@@ -59,8 +59,6 @@ public class FileServiceImpl implements FileService {
     private String downloadUrl;
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private FileRepository fileRepository;
     @Autowired
     private FileVersionRepository fileVersionRepository;
@@ -173,12 +171,6 @@ public class FileServiceImpl implements FileService {
     }
 
 
-    @Transactional(readOnly = true, rollbackFor = Exception.class)
-    @Override
-    public User findByUserid(Integer userId) {
-        return userRepository.findByUserid(userId);
-    }
-
     /**
      * 保存文件
      * <p>
@@ -212,7 +204,6 @@ public class FileServiceImpl implements FileService {
                 }
                 FileOutputStream outputStream;
                 try {
-                    // System.out.println("start:" + new Date());
                     //读取保存密钥的文件
                     Cipher cipher = getCipherEncrpt();
 
@@ -233,7 +224,6 @@ public class FileServiceImpl implements FileService {
                     cipherInputStream.close();
                     inputStream.close();
                     outputStream.close();
-                    // System.out.println("end:" + new Date());
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
@@ -280,6 +270,7 @@ public class FileServiceImpl implements FileService {
         fileLog.setOperatetime(new Date());
         fileLog.setOperatecount(1);
         fileLog.setOperatetype(IConstants.UPDATE_STATE);
+        fileLog.setTbFile(tbFile);
         List<TbFileLog> fileLogList = new ArrayList<>();
         fileLogList.add(fileLog);
 
@@ -288,12 +279,16 @@ public class FileServiceImpl implements FileService {
         tbCurrentFileLog.setOperatetime(new Date());
         tbCurrentFileLog.setOperatecount(1);
         tbCurrentFileLog.setOperatetype(IConstants.UPDATE_STATE);
+        tbCurrentFileLog.setTbFile(tbFile);
         List<TbCurrentFileLog> tbCurrentFileLogList = new ArrayList<>();
         tbCurrentFileLogList.add(tbCurrentFileLog);
 
         tbFile.setTbFileLogs(fileLogList);
         tbFile.setTbCurrentFileLogs(tbCurrentFileLogList);
+
         fileRepository.save(tbFile);
+        fileLogRepository.save(fileLog);
+        currentFileLogRepository.save(tbCurrentFileLog);
         return tbFile;
     }
 
@@ -411,6 +406,17 @@ public class FileServiceImpl implements FileService {
                 filePath = uploadPath + fileVersion.getFilepath();
                 FileUtil.deleteFile(filePath);
             }
+
+//            List<TbFileVersion> tbFileVersions = file.getTbFileVersions();
+//            for (TbFileVersion fileVersion : tbFileVersions) {
+//                fileVersionRepository.delete(fileVersion);
+//            }
+//
+//            List<TbCurrentFileLog> tbCurrentFileLogs = file.getTbCurrentFileLogs();
+//            for (TbCurrentFileLog currentFileLog : tbCurrentFileLogs) {
+//                currentFileLogRepository.delete(currentFileLog);
+//            }
+
 
             // 数据库删除
             fileRepository.delete(file);

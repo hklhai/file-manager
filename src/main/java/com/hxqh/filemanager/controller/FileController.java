@@ -165,6 +165,19 @@ public class FileController {
         return pathDto;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
+    public Message deleteFile(@PathVariable("id") Integer fileId) {
+        Message message;
+        try {
+            fileService.deleteFile(fileId);
+            message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
 
     @ResponseBody
     @RequestMapping(value = "/deletePath/{id}", method = RequestMethod.DELETE)
@@ -230,21 +243,6 @@ public class FileController {
             }
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
-            e.printStackTrace();
-        }
-        return message;
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
-    public Message deleteFile(@PathVariable("id") Integer fileId) {
-        Message message;
-        try {
-            fileService.deleteFile(fileId);
-            message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
-        } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
             e.printStackTrace();
         }
         return message;
