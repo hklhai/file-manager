@@ -1,10 +1,7 @@
 package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.common.IConstants;
-import com.hxqh.filemanager.model.TbFile;
-import com.hxqh.filemanager.model.TbFileVersion;
-import com.hxqh.filemanager.model.TbPath;
-import com.hxqh.filemanager.model.User;
+import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
@@ -248,21 +245,7 @@ public class FileServiceImpl implements FileService {
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
                 TbFile tbFile = saveFileIno(file, fileInfo, refer, savePath, md5String);
-// todo
-//                // 全部日志
-//                TbFileLog fileLog = new TbFileLog();
-//                BeanUtils.copyProperties(tbFile, fileLog);
-//                fileLog.setOperatetime(new Date());
-//                fileLog.setOperatecount();
-//                if (null == fileLog.getOperatecount()) {
-//                    f
-//                }
-//
-//                fileLog.setTbFile(tbFile);
-//                fileLogRepository.save(tbFileVersion);
-//
-//                // 新记录更新
-//                file
+
 
             } else {
                 // 保存文件版本信息
@@ -292,6 +275,24 @@ public class FileServiceImpl implements FileService {
         if (null != refer) {
             BeanUtils.copyProperties(refer, tbFile);
         }
+        TbFileLog fileLog = new TbFileLog();
+        BeanUtils.copyProperties(tbFile, fileLog);
+        fileLog.setOperatetime(new Date());
+        fileLog.setOperatecount(1);
+        fileLog.setOperatetype(IConstants.UPDATE_STATE);
+        List<TbFileLog> fileLogList = new ArrayList<>();
+        fileLogList.add(fileLog);
+
+        TbCurrentFileLog tbCurrentFileLog = new TbCurrentFileLog();
+        BeanUtils.copyProperties(fileLog, tbCurrentFileLog);
+        tbCurrentFileLog.setOperatetime(new Date());
+        tbCurrentFileLog.setOperatecount(1);
+        tbCurrentFileLog.setOperatetype(IConstants.UPDATE_STATE);
+        List<TbCurrentFileLog> tbCurrentFileLogList = new ArrayList<>();
+        tbCurrentFileLogList.add(tbCurrentFileLog);
+
+        tbFile.setTbFileLogs(fileLogList);
+        tbFile.setTbCurrentFileLogs(tbCurrentFileLogList);
         fileRepository.save(tbFile);
         return tbFile;
     }
@@ -536,6 +537,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public void deletePath(Integer pathId) {
         pathRepository.deleteById(pathId);
+        // todo 删除文件目录
     }
 
 }

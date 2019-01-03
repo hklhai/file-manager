@@ -67,6 +67,9 @@ public interface IConstants {
     String DOT = "\\.";
 
 
+    String UPDATE_STATE= "UPLOAD";
+
+
     /**
      * 初始化向量(IV)，aes 16位
      */

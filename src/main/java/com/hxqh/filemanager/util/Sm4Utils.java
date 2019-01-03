@@ -98,6 +98,32 @@ public class Sm4Utils {
         }
     }
 
+
+    public String encryptDataEcB(byte[] bytes) {
+
+        try {
+            Sm4Context ctx = new Sm4Context();
+            ctx.isPadding = true;
+            ctx.mode = Sm4.SM4_ENCRYPT;
+
+            byte[] keyBytes;
+            keyBytes = secretKey.getBytes();
+            Sm4 sm4 = new Sm4();
+            sm4.sm4_setkey_enc(ctx, keyBytes);
+            byte[] encrypted = sm4.sm4_crypt_ecb(ctx, bytes);
+            String cipherText = new BASE64Encoder().encode(encrypted);
+            if (cipherText != null && cipherText.trim().length() > 0) {
+                Pattern p = Pattern.compile(PATTERN);
+                Matcher m = p.matcher(cipherText);
+                cipherText = m.replaceAll("");
+            }
+            return cipherText;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public String encryptData_CBC(String plainText) {
         try {
             Sm4Context ctx = new Sm4Context();
