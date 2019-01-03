@@ -212,13 +212,10 @@ public class FileServiceImpl implements FileService {
                 } else {
                     Optional<TbPath> path = pathRepository.findById(fileInfo.getPathid());
                     filePath = path.get().getPathname() + savePath;
-                    // TODO: 2019/1/2  增加记录
-                    // TODO: 2019/1/2  根据最新记录更新
-
                 }
                 FileOutputStream outputStream;
                 try {
-                    System.out.println("start:" + new Date());
+                    // System.out.println("start:" + new Date());
                     //读取保存密钥的文件
                     Cipher cipher = getCipherEncrpt();
 
@@ -239,7 +236,7 @@ public class FileServiceImpl implements FileService {
                     cipherInputStream.close();
                     inputStream.close();
                     outputStream.close();
-                    System.out.println("end:" + new Date());
+                    // System.out.println("end:" + new Date());
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
@@ -250,7 +247,23 @@ public class FileServiceImpl implements FileService {
 
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
-                saveFileIno(file, fileInfo, refer, savePath, md5String);
+                TbFile tbFile = saveFileIno(file, fileInfo, refer, savePath, md5String);
+// todo
+//                // 全部日志
+//                TbFileLog fileLog = new TbFileLog();
+//                BeanUtils.copyProperties(tbFile, fileLog);
+//                fileLog.setOperatetime(new Date());
+//                fileLog.setOperatecount();
+//                if (null == fileLog.getOperatecount()) {
+//                    f
+//                }
+//
+//                fileLog.setTbFile(tbFile);
+//                fileLogRepository.save(tbFileVersion);
+//
+//                // 新记录更新
+//                file
+
             } else {
                 // 保存文件版本信息
                 saveFileVersion(file, fileInfo, refer, savePath, md5String);
@@ -260,7 +273,7 @@ public class FileServiceImpl implements FileService {
 
     }
 
-    private void saveFileIno(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
+    private TbFile saveFileIno(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
         TbFile tbFile = new TbFile();
         setFileProperties(file, fileInfo, savePath, tbFile);
 
@@ -280,6 +293,7 @@ public class FileServiceImpl implements FileService {
             BeanUtils.copyProperties(refer, tbFile);
         }
         fileRepository.save(tbFile);
+        return tbFile;
     }
 
     private void saveFileVersion(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {

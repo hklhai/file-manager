@@ -67,6 +67,13 @@ public class FileController {
                               @RequestParam(value = "appname", defaultValue = "") String appname,
                               @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
                               @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
+
+        if (0 == pathid && 0 != appid) {
+            pathid = IConstants.DETAIL_PATH;
+        } else if (0 == pathid && 0 == appid) {
+            pathid = IConstants.PRIVATE_PATH;
+        }
+
         Message message;
         try {
             if (0 == files.getSize()) {
@@ -113,7 +120,6 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/createPath", method = RequestMethod.POST)
     public Message createPath(@RequestBody TbPath tbPath) {
-        // todo 系统判断
         if (0 == tbPath.getParentid()) {
             tbPath.setParentid(2);
         }

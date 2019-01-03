@@ -8,6 +8,10 @@ package com.hxqh.filemanager.common;
 public interface IConstants {
 
 
+    String os = System.getProperty("os.name");
+    Integer PRIVATE_PATH = os.toLowerCase().startsWith("win") == true ? 2 : 4;
+    Integer DETAIL_PATH = os.toLowerCase().startsWith("win") == true ? 1 : 3;
+
     String FILE = "file";
     Integer SUCCESS = 1;
     Integer FAIL = 0;
