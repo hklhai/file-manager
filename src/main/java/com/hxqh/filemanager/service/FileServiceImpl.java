@@ -2,10 +2,7 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.*;
-import com.hxqh.filemanager.model.assist.FileDto;
-import com.hxqh.filemanager.model.assist.FileInfo;
-import com.hxqh.filemanager.model.assist.FileVersionDto;
-import com.hxqh.filemanager.model.assist.Refer;
+import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtil;
@@ -59,8 +56,6 @@ public class FileServiceImpl implements FileService {
     private String downloadUrl;
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private FileRepository fileRepository;
     @Autowired
     private FileVersionRepository fileVersionRepository;
@@ -72,7 +67,8 @@ public class FileServiceImpl implements FileService {
     private FileLogRepository fileLogRepository;
     @Autowired
     private KeywordRepository keywordRepository;
-
+    @Autowired
+    private FileKeywordRepository fileKeywordRepository;
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
@@ -173,12 +169,6 @@ public class FileServiceImpl implements FileService {
     }
 
 
-    @Transactional(readOnly = true, rollbackFor = Exception.class)
-    @Override
-    public User findByUserid(Integer userId) {
-        return userRepository.findByUserid(userId);
-    }
-
     /**
      * 保存文件
      * <p>
@@ -212,7 +202,6 @@ public class FileServiceImpl implements FileService {
                 }
                 FileOutputStream outputStream;
                 try {
-                    // System.out.println("start:" + new Date());
                     //读取保存密钥的文件
                     Cipher cipher = getCipherEncrpt();
 
@@ -233,7 +222,6 @@ public class FileServiceImpl implements FileService {
                     cipherInputStream.close();
                     inputStream.close();
                     outputStream.close();
-                    // System.out.println("end:" + new Date());
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
@@ -280,6 +268,7 @@ public class FileServiceImpl implements FileService {
         fileLog.setOperatetime(new Date());
         fileLog.setOperatecount(1);
         fileLog.setOperatetype(IConstants.UPDATE_STATE);
+        fileLog.setTbFile(tbFile);
         List<TbFileLog> fileLogList = new ArrayList<>();
         fileLogList.add(fileLog);
 
@@ -288,12 +277,16 @@ public class FileServiceImpl implements FileService {
         tbCurrentFileLog.setOperatetime(new Date());
         tbCurrentFileLog.setOperatecount(1);
         tbCurrentFileLog.setOperatetype(IConstants.UPDATE_STATE);
+        tbCurrentFileLog.setTbFile(tbFile);
         List<TbCurrentFileLog> tbCurrentFileLogList = new ArrayList<>();
         tbCurrentFileLogList.add(tbCurrentFileLog);
 
         tbFile.setTbFileLogs(fileLogList);
         tbFile.setTbCurrentFileLogs(tbCurrentFileLogList);
+
         fileRepository.save(tbFile);
+        fileLogRepository.save(fileLog);
+        currentFileLogRepository.save(tbCurrentFileLog);
         return tbFile;
     }
 
@@ -412,6 +405,17 @@ public class FileServiceImpl implements FileService {
                 FileUtil.deleteFile(filePath);
             }
 
+//            List<TbFileVersion> tbFileVersions = file.getTbFileVersions();
+//            for (TbFileVersion fileVersion : tbFileVersions) {
+//                fileVersionRepository.delete(fileVersion);
+//            }
+//
+//            List<TbCurrentFileLog> tbCurrentFileLogs = file.getTbCurrentFileLogs();
+//            for (TbCurrentFileLog currentFileLog : tbCurrentFileLogs) {
+//                currentFileLogRepository.delete(currentFileLog);
+//            }
+
+
             // 数据库删除
             fileRepository.delete(file);
         }
@@ -508,7 +512,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public boolean hasFile(Integer pathId) {
         List<TbFile> tbFiles = fileRepository.findByPathid(pathId);
-        if (null != tbFiles) {
+        if (null != tbFiles && tbFiles.size() > 0) {
             return true;
         } else {
             return false;
@@ -536,8 +540,24 @@ public class FileServiceImpl implements FileService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void deletePath(Integer pathId) {
+        TbPath tbPath = pathRepository.findById(pathId).get();
         pathRepository.deleteById(pathId);
-        // todo 删除文件目录
+        FileUtil.deleteDir(new File(tbPath.getPathname()));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void fileBindKeyword(FileKeyword fileKeyword) {
+        List<CategoryKeyword> categoryKeywordList = fileKeyword.getCategoryKeywordList();
+        List<TbFileKeyword> keywordList = new ArrayList<>(50);
+        TbFile tbFile = fileRepository.findById(fileKeyword.getFileid()).get();
+        for (CategoryKeyword categoryKeyword : categoryKeywordList) {
+            TbFileKeyword tbFileKeyword = new TbFileKeyword();
+            BeanUtils.copyProperties(categoryKeyword, tbFileKeyword);
+            tbFileKeyword.setTbFile(tbFile);
+            keywordList.add(tbFileKeyword);
+        }
+        fileKeywordRepository.saveAll(keywordList);
     }
 
 }

@@ -3,9 +3,9 @@ package com.hxqh.filemanager.service;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.TbPath;
-import com.hxqh.filemanager.model.User;
 import com.hxqh.filemanager.model.assist.FileDto;
 import com.hxqh.filemanager.model.assist.FileInfo;
+import com.hxqh.filemanager.model.assist.FileKeyword;
 import com.hxqh.filemanager.model.assist.FileVersionDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,14 +18,6 @@ import java.util.List;
  * @author Ocean lin
  */
 public interface FileService {
-
-    /**
-     * 获取用户对象
-     *
-     * @param userId user主键
-     * @return 用户实体类
-     */
-    User findByUserid(Integer userId);
 
 
     /**
@@ -129,4 +121,11 @@ public interface FileService {
      * @param pathId
      */
     void deletePath(Integer pathId);
+
+
+    /**
+     *
+     * @param fileKeyword
+     */
+    void fileBindKeyword(FileKeyword fileKeyword);
 }

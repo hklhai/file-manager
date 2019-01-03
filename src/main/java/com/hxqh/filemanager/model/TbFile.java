@@ -2,8 +2,8 @@ package com.hxqh.filemanager.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
-import java.io.Serializable;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class TbFile implements Serializable {
     /**
      * bi-directional many-to-one association to TbCurrentFileLog
      */
-    @OneToMany(mappedBy = "tbFile")
+    @OneToMany(mappedBy = "tbFile", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JSONField(serialize = false)
     private List<TbCurrentFileLog> tbCurrentFileLogs;
 
@@ -95,7 +95,7 @@ public class TbFile implements Serializable {
     /**
      * bi-directional many-to-one association to TbFileLog
      */
-    @OneToMany(mappedBy = "tbFile")
+    @OneToMany(mappedBy = "tbFile", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JSONField(serialize = false)
     private List<TbFileLog> tbFileLogs;
 

@@ -10,13 +10,21 @@ import java.io.Serializable;
  * @author Lin
  */
 @Entity
-@Table(name = "tb_keyword_privilege")
+@Table(name = "tb_keyword_privilege2")
 public class TbKeywordPrivilege implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer keywordprivilegeid;
+    private Integer id;
+
+    private Integer keywordid;
+
+    private Integer userid;
+
+    private String username;
+
+    private Integer categoryid;
 
     private Integer filedelete;
 
@@ -32,106 +40,104 @@ public class TbKeywordPrivilege implements Serializable {
 
     private Integer fileupload;
 
-    private Integer userid;
-
-    private String username;
-
-    /**
-     * bi-directional many-to-one association to TbKeyword
-     */
-    @ManyToOne
-    @JoinColumn(name = "keywordid")
-    private TbKeyword tbKeyword;
 
     public TbKeywordPrivilege() {
     }
 
-    public Integer getKeywordprivilegeid() {
-        return this.keywordprivilegeid;
+
+    public Integer getId() {
+        return id;
     }
 
-    public void setKeywordprivilegeid(int keywordprivilegeid) {
-        this.keywordprivilegeid = keywordprivilegeid;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public Integer getFiledelete() {
-        return this.filedelete;
+    public Integer getKeywordid() {
+        return keywordid;
     }
 
-    public void setFiledelete(int filedelete) {
-        this.filedelete = filedelete;
-    }
-
-    public Integer getFiledownload() {
-        return this.filedownload;
-    }
-
-    public void setFiledownload(int filedownload) {
-        this.filedownload = filedownload;
-    }
-
-    public Integer getFileduplicate() {
-        return this.fileduplicate;
-    }
-
-    public void setFileduplicate(int fileduplicate) {
-        this.fileduplicate = fileduplicate;
-    }
-
-    public Integer getFileedit() {
-        return this.fileedit;
-    }
-
-    public void setFileedit(int fileedit) {
-        this.fileedit = fileedit;
-    }
-
-    public Integer getFileprint() {
-        return this.fileprint;
-    }
-
-    public void setFileprint(int fileprint) {
-        this.fileprint = fileprint;
-    }
-
-    public Integer getFileread() {
-        return this.fileread;
-    }
-
-    public void setFileread(int fileread) {
-        this.fileread = fileread;
-    }
-
-    public Integer getFileupload() {
-        return this.fileupload;
-    }
-
-    public void setFileupload(int fileupload) {
-        this.fileupload = fileupload;
+    public void setKeywordid(Integer keywordid) {
+        this.keywordid = keywordid;
     }
 
     public Integer getUserid() {
-        return this.userid;
+        return userid;
     }
 
-    public void setUserid(int userid) {
+    public void setUserid(Integer userid) {
         this.userid = userid;
     }
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public TbKeyword getTbKeyword() {
-        return this.tbKeyword;
+    public Integer getCategoryid() {
+        return categoryid;
     }
 
-    public void setTbKeyword(TbKeyword tbKeyword) {
-        this.tbKeyword = tbKeyword;
+    public void setCategoryid(Integer categoryid) {
+        this.categoryid = categoryid;
     }
 
+    public Integer getFiledelete() {
+        return filedelete;
+    }
+
+    public void setFiledelete(Integer filedelete) {
+        this.filedelete = filedelete;
+    }
+
+    public Integer getFiledownload() {
+        return filedownload;
+    }
+
+    public void setFiledownload(Integer filedownload) {
+        this.filedownload = filedownload;
+    }
+
+    public Integer getFileduplicate() {
+        return fileduplicate;
+    }
+
+    public void setFileduplicate(Integer fileduplicate) {
+        this.fileduplicate = fileduplicate;
+    }
+
+    public Integer getFileedit() {
+        return fileedit;
+    }
+
+    public void setFileedit(Integer fileedit) {
+        this.fileedit = fileedit;
+    }
+
+    public Integer getFileprint() {
+        return fileprint;
+    }
+
+    public void setFileprint(Integer fileprint) {
+        this.fileprint = fileprint;
+    }
+
+    public Integer getFileread() {
+        return fileread;
+    }
+
+    public void setFileread(Integer fileread) {
+        this.fileread = fileread;
+    }
+
+    public Integer getFileupload() {
+        return fileupload;
+    }
+
+    public void setFileupload(Integer fileupload) {
+        this.fileupload = fileupload;
+    }
 }

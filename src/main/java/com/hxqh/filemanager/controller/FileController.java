@@ -4,10 +4,7 @@ import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.TbPath;
-import com.hxqh.filemanager.model.assist.FileDto;
-import com.hxqh.filemanager.model.assist.FileInfo;
-import com.hxqh.filemanager.model.assist.FileVersionDto;
-import com.hxqh.filemanager.model.assist.PathDto;
+import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.service.FileService;
 import com.hxqh.filemanager.util.FileUtil;
@@ -118,10 +115,25 @@ public class FileController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/fileKeyword", method = RequestMethod.POST)
+    public Message fileKeyword(@RequestBody FileKeyword fileKeyword) {
+        Message message;
+        try {
+            fileService.fileBindKeyword(fileKeyword);
+            message = new Message(IConstants.SUCCESS, IConstants.KEYWORD_SUCCESS);
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.KEYWORD_FAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+
+    @ResponseBody
     @RequestMapping(value = "/createPath", method = RequestMethod.POST)
     public Message createPath(@RequestBody TbPath tbPath) {
         if (0 == tbPath.getParentid()) {
-            tbPath.setParentid(2);
+            tbPath.setParentid(IConstants.PRIVATE_PATH);
         }
 
         Message message;
@@ -149,7 +161,7 @@ public class FileController {
     public PathDto pathList(@RequestBody TbPath path) {
 
         if (0 == path.getPathid()) {
-            path.setPathid(2);
+            path.setPathid(IConstants.PRIVATE_PATH);
         }
         List<TbPath> pathList;
         List<TbFile> fileList;
@@ -165,13 +177,27 @@ public class FileController {
         return pathDto;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
+    public Message deleteFile(@PathVariable("id") Integer fileId) {
+        Message message;
+        try {
+            // todo 判断关键是否存在
+            fileService.deleteFile(fileId);
+            message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
 
     @ResponseBody
     @RequestMapping(value = "/deletePath/{id}", method = RequestMethod.DELETE)
     public Message deletePath(@PathVariable("id") Integer pathId) {
         Message message;
 
-        if (0 == pathId) {
+        if (0 == pathId || 4 == pathId) {
             message = new Message(IConstants.FAIL, IConstants.DELETEROOT);
             return message;
         }
@@ -183,10 +209,10 @@ public class FileController {
                 message = new Message(IConstants.FAIL, IConstants.DELETEHASPATH);
             } else {
                 fileService.deletePath(pathId);
-                message = new Message(IConstants.FAIL, IConstants.DELETEROOT);
+                message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
             }
         } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.PATHFAIL);
+            message = new Message(IConstants.FAIL, IConstants.DELETEPATHFAIL);
             e.printStackTrace();
         }
         return message;
@@ -230,21 +256,6 @@ public class FileController {
             }
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
-            e.printStackTrace();
-        }
-        return message;
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
-    public Message deleteFile(@PathVariable("id") Integer fileId) {
-        Message message;
-        try {
-            fileService.deleteFile(fileId);
-            message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
-        } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
             e.printStackTrace();
         }
         return message;

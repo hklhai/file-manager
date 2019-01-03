@@ -1,6 +1,5 @@
 package com.hxqh.filemanager;
 
-import com.hxqh.filemanager.model.User;
 import com.hxqh.filemanager.repository.FileRepository;
 import com.hxqh.filemanager.repository.FileVersionRepository;
 import com.hxqh.filemanager.service.FileService;
@@ -35,11 +34,6 @@ public class FileManagerApplicationTests {
     @Value(value = "${com.hxqh.filemanager.private}")
     private String privatePath;
 
-    @Test
-    public void userList() {
-        User user = fileService.findByUserid(1);
-        Assert.assertTrue("admin".equals(user.getName()));
-    }
 
     @Test
     public void fileList() {
