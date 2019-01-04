@@ -88,7 +88,7 @@ public class TbFile implements Serializable {
     /**
      * bi-directional many-to-one association to TbFileKeyword
      */
-    @OneToMany(mappedBy = "tbFile", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tbFile", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @JSONField(serialize = false)
     private List<TbFileKeyword> tbFileKeywords;
 

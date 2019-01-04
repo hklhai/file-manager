@@ -1,6 +1,5 @@
 package com.hxqh.filemanager.model.assist;
 
-import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbPath;
 
 import java.util.List;
@@ -12,12 +11,12 @@ import java.util.List;
  */
 public class PathDto {
     private List<TbPath> pathList;
-    private List<TbFile> fileList;
+    FileDto fileList;
 
     public PathDto() {
     }
 
-    public PathDto(List<TbPath> pathList, List<TbFile> fileList) {
+    public PathDto(List<TbPath> pathList, FileDto fileList) {
         this.pathList = pathList;
         this.fileList = fileList;
     }
@@ -30,11 +29,11 @@ public class PathDto {
         this.pathList = pathList;
     }
 
-    public List<TbFile> getFileList() {
+    public FileDto getFileList() {
         return fileList;
     }
 
-    public void setFileList(List<TbFile> fileList) {
+    public void setFileList(FileDto fileList) {
         this.fileList = fileList;
     }
 }

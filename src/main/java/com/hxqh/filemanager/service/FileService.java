@@ -3,11 +3,9 @@ package com.hxqh.filemanager.service;
 import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbFileVersion;
 import com.hxqh.filemanager.model.TbPath;
-import com.hxqh.filemanager.model.assist.FileDto;
-import com.hxqh.filemanager.model.assist.FileInfo;
-import com.hxqh.filemanager.model.assist.FileKeyword;
-import com.hxqh.filemanager.model.assist.FileVersionDto;
+import com.hxqh.filemanager.model.assist.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -114,18 +112,23 @@ public interface FileService {
      * @param path
      * @return
      */
-    List<TbFile> findFileByPathId(TbPath path);
+    FileDto findFileByPathId(TbPath path, Sort sort, int page, int size);
 
     /**
-     *
      * @param pathId
      */
     void deletePath(Integer pathId);
 
 
     /**
-     *
      * @param fileKeyword
      */
     void fileBindKeyword(FileKeyword fileKeyword);
+
+    /**
+     * @param filePrivilegeDto
+     * @return
+     */
+    FilePrivilege privilege(FilePrivilegeDto filePrivilegeDto);
+
 }

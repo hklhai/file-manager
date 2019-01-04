@@ -158,18 +158,20 @@ public class FileController {
 
     @ResponseBody
     @RequestMapping(value = "/pathList", method = RequestMethod.POST)
-    public PathDto pathList(@RequestBody TbPath path) {
-
+    public PathDto pathList(@RequestBody TbPath path,
+                            @RequestParam(value = "page", defaultValue = "0") int page,
+                            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Sort sort = new Sort(Sort.Direction.DESC, "fileid");
         if (0 == path.getPathid()) {
             path.setPathid(IConstants.PRIVATE_PATH);
         }
         List<TbPath> pathList;
-        List<TbFile> fileList;
+        FileDto fileList;
         PathDto pathDto = null;
 
         try {
             pathList = fileService.pathList(path);
-            fileList = fileService.findFileByPathId(path);
+            fileList = fileService.findFileByPathId(path, sort, page, size);
             pathDto = new PathDto(pathList, fileList);
         } catch (Exception e) {
             e.printStackTrace();
@@ -182,7 +184,6 @@ public class FileController {
     public Message deleteFile(@PathVariable("id") Integer fileId) {
         Message message;
         try {
-            // todo 判断关键是否存在
             fileService.deleteFile(fileId);
             message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
         } catch (Exception e) {
@@ -234,6 +235,20 @@ public class FileController {
         }
         return fileVersionDto;
     }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/privilege", method = RequestMethod.POST)
+    public FilePrivilege privilege(@RequestBody FilePrivilegeDto filePrivilegeDto) {
+        FilePrivilege filePrivilege = null;
+        try {
+            filePrivilege = fileService.privilege(filePrivilegeDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filePrivilege;
+    }
+
 
     @ResponseBody
     @RequestMapping(value = "/uploadNewVersion", method = RequestMethod.POST)

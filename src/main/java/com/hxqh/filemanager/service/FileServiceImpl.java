@@ -9,11 +9,15 @@ import com.hxqh.filemanager.util.FileUtil;
 import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,7 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.Predicate;
 import java.io.*;
 import java.security.InvalidAlgorithmParameterException;
@@ -54,6 +59,14 @@ public class FileServiceImpl implements FileService {
 
     @Value(value = "${com.hxqh.filemanager.file.download}")
     private String downloadUrl;
+
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+
+    public Session getSession() {
+        return entityManagerFactory.unwrap(SessionFactory.class).openSession();
+    }
+
 
     @Autowired
     private FileRepository fileRepository;
@@ -405,17 +418,6 @@ public class FileServiceImpl implements FileService {
                 FileUtil.deleteFile(filePath);
             }
 
-//            List<TbFileVersion> tbFileVersions = file.getTbFileVersions();
-//            for (TbFileVersion fileVersion : tbFileVersions) {
-//                fileVersionRepository.delete(fileVersion);
-//            }
-//
-//            List<TbCurrentFileLog> tbCurrentFileLogs = file.getTbCurrentFileLogs();
-//            for (TbCurrentFileLog currentFileLog : tbCurrentFileLogs) {
-//                currentFileLogRepository.delete(currentFileLog);
-//            }
-
-
             // 数据库删除
             fileRepository.delete(file);
         }
@@ -532,9 +534,28 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
-    public List<TbFile> findFileByPathId(TbPath path) {
-        List<TbFile> fileList = fileRepository.findByPathidAndUserId(path.getPathid(), path.getUserid());
-        return fileList;
+    public FileDto findFileByPathId(TbPath path, Sort sort, int page, int size) {
+
+        Specification<TbFile> specification = (root, query, cb) -> {
+            List<Predicate> list = new ArrayList<>(10);
+
+            if (null != path.getPathid()) {
+                list.add(cb.equal(root.get("tbPath").get("pathid").as(Integer.class), path.getPathid()));
+            }
+            if (null != path.getUserid()) {
+                list.add(cb.equal(root.get("userid").as(Integer.class), path.getUserid()));
+            }
+            Predicate[] p = new Predicate[list.size()];
+            return cb.and(list.toArray(p));
+        };
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<TbFile> files = fileRepository.findAll(specification, pageable);
+
+        List<TbFile> fileList = files.getContent();
+        Integer totalPages = files.getTotalPages();
+        FileDto fileDto = new FileDto(pageable, totalPages, files.getTotalElements(), fileList);
+        // List<TbFile> fileList = fileRepository.findByPathidAndUserId(path.getPathid(), path.getUserid());
+        return fileDto;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -558,6 +579,88 @@ public class FileServiceImpl implements FileService {
             keywordList.add(tbFileKeyword);
         }
         fileKeywordRepository.saveAll(keywordList);
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public FilePrivilege privilege(FilePrivilegeDto filePrivilegeDto) {
+        List<FilePrivilege> list = getSession().createSQLQuery("SELECT\n" +
+                "\ttb_file_keyword.filekeywordid,\n" +
+                "\ttb_file.fileid,\n" +
+                "\ttb_file.filerealname,\n" +
+                "\ttb_file.filename,\n" +
+                "\ttb_file_keyword.categoryid ,\n" +
+                "\ttb_file_keyword.keywordid ,\n" +
+                "\ttb_keyword_privilege2.categoryid as categoryid2,\n" +
+                "\ttb_keyword_privilege2.keywordid as keywordid2,\n" +
+                "\ttb_keyword_privilege2.userid,\n" +
+                "\ttb_keyword_privilege2.username,\n" +
+                "\ttb_keyword_privilege2.fileread,\n" +
+                "\ttb_keyword_privilege2.fileedit,\n" +
+                "\ttb_keyword_privilege2.fileprint,\n" +
+                "\ttb_keyword_privilege2.fileupload,\n" +
+                "\ttb_keyword_privilege2.filedownload,\n" +
+                "\ttb_keyword_privilege2.fileduplicate,\n" +
+                "\ttb_keyword_privilege2.filedelete\n" +
+                "FROM\n" +
+                "\ttb_file_keyword\n" +
+                "INNER JOIN tb_file ON tb_file_keyword.fileid = tb_file.fileid and tb_file.fileid = :fileid \n" +
+                "LEFT OUTER JOIN tb_keyword_privilege2 ON tb_file_keyword.categoryid = tb_keyword_privilege2.categoryid\n" +
+                "AND tb_file_keyword.keywordid = tb_keyword_privilege2.keywordid and tb_keyword_privilege2.userid = :userid ")
+                .addEntity(FilePrivilege.class).setParameter("fileid", filePrivilegeDto.getFileid())
+                .setParameter("userid", filePrivilegeDto.getUserid()).list();
+        /**
+         * 1. 遍历categoryid与categoryid2相同放入CommonSet
+         * 2. 不相同放入DenySet
+         * 3. 判断如果DenySet不存在于CommonSet 不允许访问
+         * 4. 若DenySet存在于CommonSet 允许访问
+         * 5. 权限做设置
+         *
+         */
+
+        Set<Integer> commonSet = new HashSet<>(50);
+        Set<FilePrivilege> commonPrivilegeSet = new HashSet<>(50);
+        Set<Integer> denySet = new HashSet<>(50);
+
+        for (FilePrivilege privilege : list) {
+            if (privilege.getCategoryid().equals(privilege.getCategoryid2())) {
+                commonSet.add(privilege.getCategoryid());
+                commonPrivilegeSet.add(privilege);
+            } else {
+                denySet.add(privilege.getCategoryid());
+            }
+        }
+
+        FilePrivilege filePrivilege = new FilePrivilege();
+        if (commonSet.containsAll(denySet)) {
+            for (FilePrivilege common : commonPrivilegeSet) {
+                filePrivilege.setFilekeywordid(common.getFilekeywordid());
+                filePrivilege.setFileid(common.getFileid());
+                filePrivilege.setFilerealname(common.getFilerealname());
+                filePrivilege.setCategoryid(common.getCategoryid());
+                filePrivilege.setKeywordid(common.getKeywordid());
+                filePrivilege.setUserid(common.getUserid());
+
+                Integer fileread = common.getFileread() == 1 ? 1 : 0;
+                Integer fileedit = common.getFileedit() == 1 ? 1 : 0;
+                Integer fileprint = common.getFileprint() == 1 ? 1 : 0;
+                Integer fileupload = common.getFileupload() == 1 ? 1 : 0;
+                Integer filedownload = common.getFiledownload() == 1 ? 1 : 0;
+                Integer fileduplicate = common.getFileduplicate() == 1 ? 1 : 0;
+                Integer filedelete = common.getFiledelete() == 1 ? 1 : 0;
+                filePrivilege.setFileread(fileread);
+                filePrivilege.setFileedit(fileedit);
+                filePrivilege.setFileprint(fileprint);
+                filePrivilege.setFileupload(fileupload);
+                filePrivilege.setFiledownload(filedownload);
+                filePrivilege.setFileduplicate(fileduplicate);
+                filePrivilege.setFiledelete(filedelete);
+            }
+        } else {
+            filePrivilege.setFilekeywordid(0);
+        }
+
+        return filePrivilege;
     }
 
 }
