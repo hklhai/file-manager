@@ -1,6 +1,7 @@
 package com.hxqh.filemanager.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -43,7 +44,7 @@ public class TbFile implements Serializable {
     private String filestatus;
 
     private Integer fileversion;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date invaliddate;
 
     private String md5;
@@ -53,22 +54,37 @@ public class TbFile implements Serializable {
     private Integer referid;
 
     private String refertab;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date statustime;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date uploadtime;
 
     private Integer userid;
 
     private String username;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date validdate;
 
     @Transient
     private String webUrl;
 
-
     private String secretkey;
+
+    @Transient
+    private Integer fileread;
+    @Transient
+    private Integer fileedit;
+    @Transient
+    private Integer fileprint;
+    @Transient
+    private Integer fileupload;
+    @Transient
+    private Integer filedownload;
+    @Transient
+    private Integer fileduplicate;
+    @Transient
+    private Integer filedelete;
+
 
     /**
      * bi-directional many-to-one association to TbCurrentFileLog
@@ -107,6 +123,62 @@ public class TbFile implements Serializable {
     private List<TbFileVersion> tbFileVersions;
 
     public TbFile() {
+    }
+
+    public Integer getFileread() {
+        return fileread;
+    }
+
+    public void setFileread(Integer fileread) {
+        this.fileread = fileread;
+    }
+
+    public Integer getFileedit() {
+        return fileedit;
+    }
+
+    public void setFileedit(Integer fileedit) {
+        this.fileedit = fileedit;
+    }
+
+    public Integer getFileprint() {
+        return fileprint;
+    }
+
+    public void setFileprint(Integer fileprint) {
+        this.fileprint = fileprint;
+    }
+
+    public Integer getFileupload() {
+        return fileupload;
+    }
+
+    public void setFileupload(Integer fileupload) {
+        this.fileupload = fileupload;
+    }
+
+    public Integer getFiledownload() {
+        return filedownload;
+    }
+
+    public void setFiledownload(Integer filedownload) {
+        this.filedownload = filedownload;
+    }
+
+    public Integer getFileduplicate() {
+        return fileduplicate;
+    }
+
+    public void setFileduplicate(Integer fileduplicate) {
+        this.fileduplicate = fileduplicate;
+    }
+
+    public Integer getFiledelete() {
+        return filedelete;
+    }
+
+    public void setFiledelete(Integer filedelete) {
+        this.filedelete = filedelete;
     }
 
     public String getSecretkey() {

@@ -72,12 +72,34 @@ public interface IConstants {
     String DOT = "\\.";
 
 
-    String UPDATE_STATE= "UPLOAD";
+    String UPDATE_STATE = "UPLOAD";
 
 
     /**
      * 初始化向量(IV)，aes 16位
      */
     String IV = "abcdefghijk1mnop";
+
+
+    String SQL_1 = "SELECT \n" +
+            "tb_file_keyword.filekeywordid,\n" +
+            "tb_file.fileid,\n" +
+            "tb_file_keyword.categoryid ,\n" +
+            "tb_keyword_privilege2.categoryid as categoryid2,\n" +
+            "tb_keyword_privilege2.userid,\n" +
+            "tb_keyword_privilege2.fileread,\n" +
+            "tb_keyword_privilege2.fileedit,\n" +
+            "tb_keyword_privilege2.fileprint,\n" +
+            "tb_keyword_privilege2.fileupload,\n" +
+            "tb_keyword_privilege2.filedownload,\n" +
+            "tb_keyword_privilege2.fileduplicate,\n" +
+            "tb_keyword_privilege2.filedelete\n" +
+            "FROM tb_file_keyword\n" +
+            "INNER JOIN tb_file ON tb_file_keyword.fileid = tb_file.fileid and tb_file.fileid =";
+
+    String SQL_2 = " LEFT OUTER JOIN tb_keyword_privilege2 ON tb_file_keyword.categoryid = tb_keyword_privilege2.categoryid " +
+            "AND tb_file_keyword.keywordid = tb_keyword_privilege2.keywordid and tb_keyword_privilege2.userid = ";
+
+    String UNION_ALL = " union all ";
 
 }

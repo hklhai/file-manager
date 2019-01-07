@@ -12,20 +12,16 @@ public class FilePrivilege {
     @Id
     private Integer filekeywordid;
     private Integer fileid;
-    private String filerealname;
-    private String filename;
     private Integer categoryid;
-    private Integer keywordid;
     private Integer categoryid2;
-    private Integer keywordid2;
     private Integer userid;
-    private Integer fileread;
-    private Integer fileedit;
-    private Integer fileprint;
-    private Integer fileupload;
-    private Integer filedownload;
-    private Integer fileduplicate;
-    private Integer filedelete;
+    private Integer fileread = 0;
+    private Integer fileedit = 0;
+    private Integer fileprint = 0;
+    private Integer fileupload = 0;
+    private Integer filedownload = 0;
+    private Integer fileduplicate = 0;
+    private Integer filedelete = 0;
 
     public FilePrivilege() {
     }
@@ -46,22 +42,6 @@ public class FilePrivilege {
         this.fileid = fileid;
     }
 
-    public String getFilerealname() {
-        return filerealname;
-    }
-
-    public void setFilerealname(String filerealname) {
-        this.filerealname = filerealname;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
     public Integer getCategoryid() {
         return categoryid;
     }
@@ -70,28 +50,12 @@ public class FilePrivilege {
         this.categoryid = categoryid;
     }
 
-    public Integer getKeywordid() {
-        return keywordid;
-    }
-
-    public void setKeywordid(Integer keywordid) {
-        this.keywordid = keywordid;
-    }
-
     public Integer getCategoryid2() {
         return categoryid2;
     }
 
     public void setCategoryid2(Integer categoryid2) {
         this.categoryid2 = categoryid2;
-    }
-
-    public Integer getKeywordid2() {
-        return keywordid2;
-    }
-
-    public void setKeywordid2(Integer keywordid2) {
-        this.keywordid2 = keywordid2;
     }
 
     public Integer getUserid() {
@@ -156,26 +120,5 @@ public class FilePrivilege {
 
     public void setFiledelete(Integer filedelete) {
         this.filedelete = filedelete;
-    }
-
-    @Override
-    public String toString() {
-        return "FilePrivilege{" +
-                "fileid=" + fileid +
-                ", filerealname='" + filerealname + '\'' +
-                ", filename='" + filename + '\'' +
-                ", categoryid=" + categoryid +
-                ", keywordid=" + keywordid +
-                ", categoryid2=" + categoryid2 +
-                ", keywordid2=" + keywordid2 +
-                ", userid=" + userid +
-                ", fileread=" + fileread +
-                ", fileedit=" + fileedit +
-                ", fileprint=" + fileprint +
-                ", fileupload=" + fileupload +
-                ", filedownload=" + filedownload +
-                ", fileduplicate=" + fileduplicate +
-                ", filedelete=" + filedelete +
-                '}';
     }
 }

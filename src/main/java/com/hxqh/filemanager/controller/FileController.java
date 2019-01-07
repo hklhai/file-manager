@@ -288,6 +288,8 @@ public class FileController {
                              @RequestParam("fid") Integer fid) throws Exception {
 
 
+        // todo 记录下载日志
+
         String userAgent = request.getHeader("User-Agent");
 
         String s;
@@ -347,6 +349,8 @@ public class FileController {
         cipherOutputStream.close();
         outputStream.close();
         inputStream.close();
+
+
 
 
         InputStream stream = new BufferedInputStream(new FileInputStream(uploadPath + "/tmp"));

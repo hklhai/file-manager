@@ -1,11 +1,11 @@
 package com.hxqh.filemanager.service;
 
-import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtil;
+import com.hxqh.filemanager.util.GroupListUtil;
 import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,7 +37,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hxqh.filemanager.common.IConstants.THOUSAND;
+import static com.hxqh.filemanager.common.IConstants.*;
 
 /**
  * Created by Ocean lin on 2018/10/30.
@@ -109,7 +109,7 @@ public class FileServiceImpl implements FileService {
         List<TbFile> fileList = files.getContent();
         fileList.stream().map(e -> {
             e.setWebUrl(webUrl + e.getFilepath());
-            e.setFilepath(webUrl + downloadUrl + IConstants.DOWNLOAD_FILE + e.getFileid());
+            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
             return e;
         }).collect(Collectors.toList());
 
@@ -142,7 +142,7 @@ public class FileServiceImpl implements FileService {
         List<TbFileVersion> fileVersionList = fileVersions.getContent();
         fileVersionList.stream().map(e -> {
             e.setWebUrl(webUrl + e.getFilepath());
-            e.setFilepath(webUrl + downloadUrl + IConstants.DOWNLOAD_VERSION + e.getFileversionid());
+            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_VERSION + e.getFileversionid());
             return e;
         }).collect(Collectors.toList());
         Integer totalPages = fileVersions.getTotalPages();
@@ -269,7 +269,7 @@ public class FileServiceImpl implements FileService {
             tbFile.setTbPath(tbPath);
         }
 
-        tbFile.setFilestatus(IConstants.STATUS_RELEASE);
+        tbFile.setFilestatus(STATUS_RELEASE);
         tbFile.setMd5(md5String);
         tbFile.setFilename(file.getOriginalFilename().split("\\.")[0]);
         tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
@@ -280,7 +280,7 @@ public class FileServiceImpl implements FileService {
         BeanUtils.copyProperties(tbFile, fileLog);
         fileLog.setOperatetime(new Date());
         fileLog.setOperatecount(1);
-        fileLog.setOperatetype(IConstants.UPDATE_STATE);
+        fileLog.setOperatetype(UPDATE_STATE);
         fileLog.setTbFile(tbFile);
         List<TbFileLog> fileLogList = new ArrayList<>();
         fileLogList.add(fileLog);
@@ -289,7 +289,7 @@ public class FileServiceImpl implements FileService {
         BeanUtils.copyProperties(fileLog, tbCurrentFileLog);
         tbCurrentFileLog.setOperatetime(new Date());
         tbCurrentFileLog.setOperatecount(1);
-        tbCurrentFileLog.setOperatetype(IConstants.UPDATE_STATE);
+        tbCurrentFileLog.setOperatetype(UPDATE_STATE);
         tbCurrentFileLog.setTbFile(tbFile);
         List<TbCurrentFileLog> tbCurrentFileLogList = new ArrayList<>();
         tbCurrentFileLogList.add(tbCurrentFileLog);
@@ -332,17 +332,17 @@ public class FileServiceImpl implements FileService {
         //实例化一个密码器（CBC模式）
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         //初始化密码器
-        cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
+        cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, new IvParameterSpec(IV.getBytes()));
         return cipher;
     }
 
     private Refer getSavePath(List<TbFile> fileByMd5, List<TbFileVersion> fileVersionByMd5) {
         Refer refer = null;
         if (fileByMd5.size() > 0) {
-            refer = new Refer(IConstants.FILE_REFER, fileByMd5.get(0).getFileid(), fileByMd5.get(0).getFilepath());
+            refer = new Refer(FILE_REFER, fileByMd5.get(0).getFileid(), fileByMd5.get(0).getFilepath());
         }
         if (fileVersionByMd5.size() > 0) {
-            refer = new Refer(IConstants.VERSION_REFER, fileVersionByMd5.get(0).getFileversionid(), fileVersionByMd5.get(0).getFilepath());
+            refer = new Refer(VERSION_REFER, fileVersionByMd5.get(0).getFileversionid(), fileVersionByMd5.get(0).getFilepath());
         }
         return refer;
     }
@@ -398,11 +398,11 @@ public class FileServiceImpl implements FileService {
             String filePath = uploadPath + file.getFilepath();
 
             // 先查询主记录是否存在被引用情况
-            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(IConstants.FILE_REFER, file.getFileid());
+            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(FILE_REFER, file.getFileid());
             // 重置引用关系
             resetFileList(fileList);
 
-            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(IConstants.FILE_REFER, file.getFileid());
+            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(FILE_REFER, file.getFileid());
             // 重置引用关系
             resetFileVersionList(fileVersionList);
 
@@ -418,6 +418,12 @@ public class FileServiceImpl implements FileService {
                 FileUtil.deleteFile(filePath);
             }
 
+            // 删除tb_file_keyword
+            List<TbFileKeyword> fileKeywords = fileKeywordRepository.findByFileId(file.getFileid());
+            for (TbFileKeyword fileKeyword : fileKeywords) {
+                fileKeywordRepository.deleteById(fileKeyword.getFilekeywordid());
+            }
+
             // 数据库删除
             fileRepository.delete(file);
         }
@@ -429,11 +435,11 @@ public class FileServiceImpl implements FileService {
 //            String filePath = uploadPath + fileVersion.getFilepath();
 //
 //            // 先查询主记录是否存在被引用情况
-//            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
+//            List<TbFile> fileList = fileRepository.findByRefertabAndReferid(VERSION_REFER, fileVersion.getFileversionid());
 //            // 重置引用关系
 //            resetFileList(fileList);
 //
-//            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(IConstants.VERSION_REFER, fileVersion.getFileversionid());
+//            List<TbFileVersion> fileVersionList = fileVersionRepository.findByRefertabAndReferid(VERSION_REFER, fileVersion.getFileversionid());
 //            // 重置引用关系
 //            resetFileVersionList(fileVersionList);
 //
@@ -535,6 +541,7 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public FileDto findFileByPathId(TbPath path, Sort sort, int page, int size) {
+        List<TbFile> privilegeList = new ArrayList<>(10);
 
         Specification<TbFile> specification = (root, query, cb) -> {
             List<Predicate> list = new ArrayList<>(10);
@@ -553,8 +560,45 @@ public class FileServiceImpl implements FileService {
 
         List<TbFile> fileList = files.getContent();
         Integer totalPages = files.getTotalPages();
-        FileDto fileDto = new FileDto(pageable, totalPages, files.getTotalElements(), fileList);
-        // List<TbFile> fileList = fileRepository.findByPathidAndUserId(path.getPathid(), path.getUserid());
+
+//        // mockdata
+//        List<TbFile> fileList = new ArrayList<>();
+//
+//        TbFile m1 = fileRepository.findById(110).get();
+//        TbFile m2 = fileRepository.findById(125).get();
+//        fileList.add(m1);
+//        fileList.add(m2);
+
+        // 拼接SQL
+        if (null != fileList && fileList.size() > 0) {
+            StringBuilder builder = new StringBuilder(2 * THOUSAND);
+            for (TbFile file : fileList) {
+                builder.append(SQL_1 + file.getFileid() + SQL_2 + path.getUserid() + UNION_ALL);
+            }
+            String sql = builder.toString().substring(0, builder.length() - 11);
+            List<FilePrivilege> list = getSession().createSQLQuery(sql).addEntity(FilePrivilege.class).list();
+            // 分组做权限处理
+            Map<Integer, List<FilePrivilege>> listMap = GroupListUtil.group(list, (obj) -> {
+                FilePrivilege d = (FilePrivilege) obj;
+                return d.getFileid();
+            });
+
+            Map<Integer, FilePrivilege> privilegeMap = new HashMap<>(10);
+            for (Map.Entry<Integer, List<FilePrivilege>> entry : listMap.entrySet()) {
+                List<FilePrivilege> value = entry.getValue();
+                FilePrivilege filePrivilege = getFilePrivilege(value);
+                privilegeMap.put(entry.getKey(), filePrivilege);
+            }
+
+            // 对象拷贝
+            for (TbFile file : fileList) {
+                FilePrivilege privilege = privilegeMap.get(file.getFileid());
+                BeanUtils.copyProperties(privilege, file);
+                privilegeList.add(file);
+            }
+        }
+
+        FileDto fileDto = new FileDto(pageable, totalPages, files.getTotalElements(), privilegeList);
         return fileDto;
     }
 
@@ -584,40 +628,21 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public FilePrivilege privilege(FilePrivilegeDto filePrivilegeDto) {
-        List<FilePrivilege> list = getSession().createSQLQuery("SELECT\n" +
-                "\ttb_file_keyword.filekeywordid,\n" +
-                "\ttb_file.fileid,\n" +
-                "\ttb_file.filerealname,\n" +
-                "\ttb_file.filename,\n" +
-                "\ttb_file_keyword.categoryid ,\n" +
-                "\ttb_file_keyword.keywordid ,\n" +
-                "\ttb_keyword_privilege2.categoryid as categoryid2,\n" +
-                "\ttb_keyword_privilege2.keywordid as keywordid2,\n" +
-                "\ttb_keyword_privilege2.userid,\n" +
-                "\ttb_keyword_privilege2.username,\n" +
-                "\ttb_keyword_privilege2.fileread,\n" +
-                "\ttb_keyword_privilege2.fileedit,\n" +
-                "\ttb_keyword_privilege2.fileprint,\n" +
-                "\ttb_keyword_privilege2.fileupload,\n" +
-                "\ttb_keyword_privilege2.filedownload,\n" +
-                "\ttb_keyword_privilege2.fileduplicate,\n" +
-                "\ttb_keyword_privilege2.filedelete\n" +
-                "FROM\n" +
-                "\ttb_file_keyword\n" +
-                "INNER JOIN tb_file ON tb_file_keyword.fileid = tb_file.fileid and tb_file.fileid = :fileid \n" +
-                "LEFT OUTER JOIN tb_keyword_privilege2 ON tb_file_keyword.categoryid = tb_keyword_privilege2.categoryid\n" +
-                "AND tb_file_keyword.keywordid = tb_keyword_privilege2.keywordid and tb_keyword_privilege2.userid = :userid ")
+        List<FilePrivilege> list = getSession().createSQLQuery(SQL_1 + " :fileid \n" + SQL_2 + " :userid ")
                 .addEntity(FilePrivilege.class).setParameter("fileid", filePrivilegeDto.getFileid())
                 .setParameter("userid", filePrivilegeDto.getUserid()).list();
-        /**
-         * 1. 遍历categoryid与categoryid2相同放入CommonSet
-         * 2. 不相同放入DenySet
-         * 3. 判断如果DenySet不存在于CommonSet 不允许访问
-         * 4. 若DenySet存在于CommonSet 允许访问
-         * 5. 权限做设置
-         *
-         */
 
+        return getFilePrivilege(list);
+    }
+
+    /**
+     * 1. 遍历categoryid与categoryid2相同放入CommonSet
+     * 2. 不相同放入DenySet
+     * 3. 判断如果DenySet不存在于CommonSet 不允许访问
+     * 4. 若DenySet存在于CommonSet 允许访问
+     * 5. 权限做设置
+     */
+    private FilePrivilege getFilePrivilege(List<FilePrivilege> list) {
         Set<Integer> commonSet = new HashSet<>(50);
         Set<FilePrivilege> commonPrivilegeSet = new HashSet<>(50);
         Set<Integer> denySet = new HashSet<>(50);
@@ -636,9 +661,7 @@ public class FileServiceImpl implements FileService {
             for (FilePrivilege common : commonPrivilegeSet) {
                 filePrivilege.setFilekeywordid(common.getFilekeywordid());
                 filePrivilege.setFileid(common.getFileid());
-                filePrivilege.setFilerealname(common.getFilerealname());
                 filePrivilege.setCategoryid(common.getCategoryid());
-                filePrivilege.setKeywordid(common.getKeywordid());
                 filePrivilege.setUserid(common.getUserid());
 
                 Integer fileread = common.getFileread() == 1 ? 1 : 0;
