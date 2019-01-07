@@ -1,8 +1,6 @@
 package com.hxqh.filemanager.service;
 
-import com.hxqh.filemanager.model.TbFile;
-import com.hxqh.filemanager.model.TbFileVersion;
-import com.hxqh.filemanager.model.TbPath;
+import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -131,4 +129,18 @@ public interface FileService {
      */
     FilePrivilege privilege(FilePrivilegeDto filePrivilegeDto);
 
+    /**
+     * 记录并更新最新记录
+     *
+     * @param tbFileLog
+     * @return
+     */
+    TbCurrentFileLog logAndReturnCurrent(TbFileLog tbFileLog);
+
+    /**
+     *
+     * @param pathid
+     * @return
+     */
+    TbPath findPathById(Integer pathid);
 }

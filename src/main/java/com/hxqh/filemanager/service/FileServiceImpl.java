@@ -201,7 +201,7 @@ public class FileServiceImpl implements FileService {
         List<TbFileVersion> fileVersionByMd5 = fileVersionRepository.findByMd5(md5String);
 
         // 生成随机文件名称
-        savePath = generateFileName(file, fileInfo.getDeptfullname(), uploadPath);
+        savePath = generateFileName(file, fileInfo, uploadPath);
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             // 保存至文件系统
@@ -260,12 +260,16 @@ public class FileServiceImpl implements FileService {
         TbFile tbFile = new TbFile();
         setFileProperties(file, fileInfo, savePath, tbFile);
 
-        if (null != fileInfo.getAppname()) {
+        if (0 != fileInfo.getAppid()) {
             String path = uploadPath + "/" + fileInfo.getDeptfullname();
             // 存储路径
             mkdirStorePath(path, fileInfo.getDeptfullname(), fileInfo);
             TbPath tbPath = pathRepository.findByPathname(path);
             tbFile.setTbPath(tbPath);
+        } else {
+            Optional<TbPath> path = pathRepository.findById(fileInfo.getPathid());
+            //String filePath = path.get().getPathname() + savePath;
+            tbFile.setTbPath(path.get());
         }
 
         tbFile.setFilestatus(STATUS_RELEASE);
@@ -275,6 +279,7 @@ public class FileServiceImpl implements FileService {
         if (null != refer) {
             BeanUtils.copyProperties(refer, tbFile);
         }
+
         TbFileLog fileLog = new TbFileLog();
         BeanUtils.copyProperties(tbFile, fileLog);
         fileLog.setOperatetime(new Date());
@@ -346,14 +351,18 @@ public class FileServiceImpl implements FileService {
         return refer;
     }
 
-    private String generateFileName(MultipartFile file, String deptName, String uploadPath) {
-        String path = uploadPath + "/" + deptName;
-        FileUtil.createPaths(path);
-
-        String savePath;
-        String extensionName = file.getOriginalFilename().split("\\.")[1];
-        savePath = "/" + deptName + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
-                + "." + extensionName;
+    private String generateFileName(MultipartFile file, FileInfo fileInfo, String uploadPath) {
+        String savePath = null;
+        if (0 != fileInfo.getAppid()) {
+            String path = uploadPath + "/" + fileInfo.getDeptfullname();
+            FileUtil.createPaths(path);
+            String extensionName = file.getOriginalFilename().split("\\.")[1];
+            savePath = "/" + fileInfo.getDeptfullname() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID() + "." + extensionName;
+        } else {
+            String path = "/" + fileInfo.getDeptfullname();
+            String extensionName = file.getOriginalFilename().split("\\.")[1];
+            savePath = "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID() + "." + extensionName;
+        }
         return savePath;
     }
 
@@ -607,6 +616,33 @@ public class FileServiceImpl implements FileService {
                 .setParameter("userid", filePrivilegeDto.getUserid()).list();
 
         return getFilePrivilege(list);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public TbCurrentFileLog logAndReturnCurrent(TbFileLog tbFileLog) {
+        TbCurrentFileLog currentFileLog = currentFileLogRepository.findByFileid(tbFileLog.getFileid());
+        currentFileLog.setUserid(tbFileLog.getUserid());
+        currentFileLog.setUsername(tbFileLog.getUsername());
+        currentFileLog.setDeptid(tbFileLog.getDeptid());
+        currentFileLog.setDeptfullname(tbFileLog.getDeptfullname());
+        currentFileLog.setOperatetype(DOWNLOAD_STATE);
+        currentFileLog.setOperatetime(new Date());
+
+        currentFileLog.setOperatecount(currentFileLog.getOperatecount() + 1);
+        currentFileLogRepository.save(currentFileLog);
+
+        TbFileLog fileLog = new TbFileLog();
+        BeanUtils.copyProperties(currentFileLog, fileLog);
+        fileLogRepository.save(fileLog);
+        return currentFileLog;
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public TbPath findPathById(Integer pathid) {
+        Optional<TbPath> path = pathRepository.findById(pathid);
+        return path.get();
     }
 
     /**

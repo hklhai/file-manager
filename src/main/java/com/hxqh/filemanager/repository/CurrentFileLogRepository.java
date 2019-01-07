@@ -13,5 +13,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CurrentFileLogRepository extends JpaRepository<TbCurrentFileLog, Integer> {
 
-
+    /**
+     * @param fileid
+     * @return
+     */
+    @Query("select u from TbCurrentFileLog u where u.tbFile.fileid=?1")
+    TbCurrentFileLog findByFileid(Integer fileid);
 }

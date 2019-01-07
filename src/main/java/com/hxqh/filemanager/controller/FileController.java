@@ -1,9 +1,7 @@
 package com.hxqh.filemanager.controller;
 
 import com.hxqh.filemanager.common.IConstants;
-import com.hxqh.filemanager.model.TbFile;
-import com.hxqh.filemanager.model.TbFileVersion;
-import com.hxqh.filemanager.model.TbPath;
+import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.service.FileService;
@@ -75,7 +73,7 @@ public class FileController {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
             } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
-            } else if (null != deptfullname || "".equals(deptfullname)) {
+            } else if (null == deptfullname || "".equals(deptfullname)) {
                 message = new Message(IConstants.FAIL, IConstants.DEPT_IS_NULL);
             } else {
                 FileInfo fileInfo = new FileInfo();
@@ -133,13 +131,15 @@ public class FileController {
     @RequestMapping(value = "/createPath", method = RequestMethod.POST)
     public Message createPath(@RequestBody TbPath tbPath) {
         Message message;
-        if (0 == tbPath.getParentid()) {
-            tbPath.setParentid(IConstants.PATH);
-        }
+
+        //tbPath.setParentid(IConstants.PATH);
         try {
             // 不合法
             if (!FileUtil.isValidFileName(tbPath.getFoldername())) {
                 message = new Message(IConstants.FAIL, IConstants.PATHINVALID);
+                // 根目录不允许创建
+            } else if (0 == tbPath.getParentid()) {
+                message = new Message(IConstants.FAIL, IConstants.PATHROOT);
                 // 已存在
             } else if (fileService.isExist(tbPath)) {
                 message = new Message(IConstants.FAIL, IConstants.PATHEXIST);
@@ -286,23 +286,31 @@ public class FileController {
                              @RequestParam(value = "ftype", defaultValue = "") String ftype,
                              @RequestParam("fid") Integer fid,
                              @RequestParam("userid") Integer userid,
-                             @RequestParam("fid") Integer username,
-                             @RequestParam("fid") Integer operatetype,
-                             @RequestParam("fid") Integer deptid,
-                             @RequestParam("fid") Integer deptfullname,
-                             @RequestParam("fid") Integer operatetime,
-                             @RequestParam("fid") Integer operatecount) throws Exception {
+                             @RequestParam("username") String username,
+                             @RequestParam("deptid") Integer deptid,
+                             @RequestParam("deptfullname") String deptfullname) throws Exception {
 
-        // todo 记录下载日志
+        TbFileLog tbFileLog = new TbFileLog();
+        tbFileLog.setFileid(fid);
+        tbFileLog.setUserid(userid);
+        tbFileLog.setUsername(username);
+        tbFileLog.setDeptid(deptid);
+        tbFileLog.setDeptfullname(deptfullname);
 
+        TbCurrentFileLog tbCurrentFileLog = fileService.logAndReturnCurrent(tbFileLog);
+        System.out.println(tbCurrentFileLog);
 
         String userAgent = request.getHeader("User-Agent");
-
         String s;
         String urlname, fileName = null;
         if (IConstants.FILE.equals(ftype)) {
             TbFile file = fileService.findByFileid(fid);
-            urlname = uploadPath + file.getFilepath();
+            if (0 != file.getAppid()) {
+                urlname = uploadPath + file.getFilepath();
+            } else {
+                TbPath path = fileService.findPathById(file.getTbPath().getPathid());
+                urlname = path.getPathname() + file.getFilepath();
+            }
             fileName = file.getFilerealname();
         } else {
             TbFileVersion fileVersion = fileService.findByFileversionid(fid);

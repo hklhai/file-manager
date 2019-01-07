@@ -9,7 +9,6 @@ public interface IConstants {
 
 
     String os = System.getProperty("os.name");
-    //    Integer PRIVATE_PATH = os.toLowerCase().startsWith("win") == true ? 2 : 4;
     Integer PATH = os.toLowerCase().startsWith("win") == true ? 1 : 3;
 
     String FILE = "file";
@@ -33,21 +32,22 @@ public interface IConstants {
     String AUTHORIZATIONSUCCESS = "Authorization Success!";
     String USEREXISTS = "User name already exists";
     String ROLEEXISTS = "Role name already exists";
-    String ADDFAIL = "Add Fail!";
-    String DELETESUCCESS = "DELETE Success!";
-    String DELETEFAIL = "DELETE Fail!";
-    String UPLOADSUCCESS = "Upload Success!";
-    String UPLOADFAIL = "Upload Fail!";
-    String UPLOADSIZE = "Upload Size is 0!";
+    String ADDFAIL = "添加失败!";
+    String DELETESUCCESS = "删除成功!";
+    String DELETEFAIL = "删除失败!";
+    String UPLOADSUCCESS = "上传成功!";
+    String UPLOADFAIL = "上传失败!";
+    String UPLOADSIZE = "文件大小不能为0!";
     String UPLOADDOT = "名称中包含“.”，请修改后重试！";
     String DEPT_IS_NULL = "组织机构名称不能为空！";
-    String UPLOADSAME = "The same file exists!";
+    String UPLOADSAME = "已存在相同名称文件!";
     String FILE_REFER = "file";
     String VERSION_REFER = "version";
 
 
     String PATHINVALID = "文件目录不合法！";
     String PATHEXIST = "文件目录已存在！";
+    String PATHROOT = "根目录下无法创建文件夹，请在Private目录下创建！";
     String PATHSUCCESS = "文件目录创建成功！";
     String PATHFAIL = "文件目录创建失败！";
 
@@ -56,9 +56,6 @@ public interface IConstants {
     String DELETEHASFILE = "该目录下存在子文件！";
     String DELETEHASPATH = "该目录下存在子目录！";
     String DELETEPATHFAIL = "文件目录删除失败！";
-
-    String IMPORTSUCCESS = "Import success!";
-    String IMPORTFAIL = "Import Fail!";
 
 
     String KEYWORD_SUCCESS = "关键字设置成功！";
@@ -74,6 +71,7 @@ public interface IConstants {
 
 
     String UPDATE_STATE = "UPLOAD";
+    String DOWNLOAD_STATE = "DOWNLOAD";
 
 
     /**

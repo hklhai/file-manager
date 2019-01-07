@@ -33,6 +33,9 @@ public class TbFileLog implements Serializable {
 
     private String username;
 
+    @Transient
+    private Integer fileid;
+
     /**
      * bi-directional many-to-one association to TbFile
      */
@@ -44,15 +47,15 @@ public class TbFileLog implements Serializable {
     }
 
     public Integer getFilelogid() {
-        return this.filelogid;
+        return filelogid;
     }
 
-    public void setFilelogid(int filelogid) {
+    public void setFilelogid(Integer filelogid) {
         this.filelogid = filelogid;
     }
 
     public String getDeptfullname() {
-        return this.deptfullname;
+        return deptfullname;
     }
 
     public void setDeptfullname(String deptfullname) {
@@ -60,18 +63,18 @@ public class TbFileLog implements Serializable {
     }
 
     public Integer getDeptid() {
-        return this.deptid;
+        return deptid;
     }
 
-    public void setDeptid(int deptid) {
+    public void setDeptid(Integer deptid) {
         this.deptid = deptid;
     }
 
     public Integer getOperatecount() {
-        return this.operatecount;
+        return operatecount;
     }
 
-    public void setOperatecount(int operatecount) {
+    public void setOperatecount(Integer operatecount) {
         this.operatecount = operatecount;
     }
 
@@ -84,7 +87,7 @@ public class TbFileLog implements Serializable {
     }
 
     public String getOperatetype() {
-        return this.operatetype;
+        return operatetype;
     }
 
     public void setOperatetype(String operatetype) {
@@ -92,27 +95,34 @@ public class TbFileLog implements Serializable {
     }
 
     public Integer getUserid() {
-        return this.userid;
+        return userid;
     }
 
-    public void setUserid(int userid) {
+    public void setUserid(Integer userid) {
         this.userid = userid;
     }
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    public Integer getFileid() {
+        return fileid;
+    }
+
+    public void setFileid(Integer fileid) {
+        this.fileid = fileid;
+    }
+
     public TbFile getTbFile() {
-        return this.tbFile;
+        return tbFile;
     }
 
     public void setTbFile(TbFile tbFile) {
         this.tbFile = tbFile;
     }
-
 }

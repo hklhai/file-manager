@@ -44,15 +44,15 @@ public class TbCurrentFileLog implements Serializable {
     }
 
     public Integer getCurrentfilelogid() {
-        return this.currentfilelogid;
+        return currentfilelogid;
     }
 
-    public void setCurrentfilelogid(int currentfilelogid) {
+    public void setCurrentfilelogid(Integer currentfilelogid) {
         this.currentfilelogid = currentfilelogid;
     }
 
     public String getDeptfullname() {
-        return this.deptfullname;
+        return deptfullname;
     }
 
     public void setDeptfullname(String deptfullname) {
@@ -60,18 +60,18 @@ public class TbCurrentFileLog implements Serializable {
     }
 
     public Integer getDeptid() {
-        return this.deptid;
+        return deptid;
     }
 
-    public void setDeptid(int deptid) {
+    public void setDeptid(Integer deptid) {
         this.deptid = deptid;
     }
 
     public Integer getOperatecount() {
-        return this.operatecount;
+        return operatecount;
     }
 
-    public void setOperatecount(int operatecount) {
+    public void setOperatecount(Integer operatecount) {
         this.operatecount = operatecount;
     }
 
@@ -84,7 +84,7 @@ public class TbCurrentFileLog implements Serializable {
     }
 
     public String getOperatetype() {
-        return this.operatetype;
+        return operatetype;
     }
 
     public void setOperatetype(String operatetype) {
@@ -92,15 +92,15 @@ public class TbCurrentFileLog implements Serializable {
     }
 
     public Integer getUserid() {
-        return this.userid;
+        return userid;
     }
 
-    public void setUserid(int userid) {
+    public void setUserid(Integer userid) {
         this.userid = userid;
     }
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username) {
@@ -108,11 +108,25 @@ public class TbCurrentFileLog implements Serializable {
     }
 
     public TbFile getTbFile() {
-        return this.tbFile;
+        return tbFile;
     }
 
     public void setTbFile(TbFile tbFile) {
         this.tbFile = tbFile;
     }
 
+    @Override
+    public String toString() {
+        return "TbCurrentFileLog{" +
+                "currentfilelogid=" + currentfilelogid +
+                ", deptfullname='" + deptfullname + '\'' +
+                ", deptid=" + deptid +
+                ", operatecount=" + operatecount +
+                ", operatetime=" + operatetime +
+                ", operatetype='" + operatetype + '\'' +
+                ", userid=" + userid +
+                ", username='" + username + '\'' +
+                ", tbFile=" + tbFile +
+                '}';
+    }
 }
