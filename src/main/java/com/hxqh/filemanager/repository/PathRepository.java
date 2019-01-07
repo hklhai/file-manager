@@ -1,6 +1,5 @@
 package com.hxqh.filemanager.repository;
 
-import com.hxqh.filemanager.model.TbFile;
 import com.hxqh.filemanager.model.TbPath;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,4 +36,20 @@ public interface PathRepository extends JpaRepository<TbPath, Integer> {
     @Query("select u from TbPath u where u.parentid=?1 and u.foldername=?2")
     TbPath findParentIdAndFoldername(Integer parentid, String foldername);
 
+    /**
+     * @param pathid
+     * @param deptid
+     * @return
+     */
+    @Query("select u from TbPath u where u.parentid=?1 and u.deptid=?2 or u.deptid=0")
+    List<TbPath> findByParentidAndDeptidWithRoot(Integer pathid, Integer deptid);
+
+    /**
+     *
+     * @param pathid
+     * @param deptid
+     * @return
+     */
+    @Query("select u from TbPath u where u.parentid=?1 and u.deptid=?2")
+    List<TbPath> findByParentidAndDeptid(Integer pathid, Integer deptid);
 }

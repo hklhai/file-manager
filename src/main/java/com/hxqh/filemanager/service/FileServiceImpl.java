@@ -5,7 +5,6 @@ import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtil;
-import com.hxqh.filemanager.util.GroupListUtil;
 import com.hxqh.filemanager.util.Md5Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -202,7 +201,7 @@ public class FileServiceImpl implements FileService {
         List<TbFileVersion> fileVersionByMd5 = fileVersionRepository.findByMd5(md5String);
 
         // 生成随机文件名称
-        savePath = generateFileName(file, uploadPath);
+        savePath = generateFileName(file, fileInfo.getDeptfullname(), uploadPath);
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             // 保存至文件系统
@@ -262,9 +261,9 @@ public class FileServiceImpl implements FileService {
         setFileProperties(file, fileInfo, savePath, tbFile);
 
         if (null != fileInfo.getAppname()) {
-            String path = uploadPath + "/" + DateUtils.getTodayMonth();
+            String path = uploadPath + "/" + fileInfo.getDeptfullname();
             // 存储路径
-            mkdirStorePath(path, DateUtils.getTodayMonth());
+            mkdirStorePath(path, fileInfo.getDeptfullname(), fileInfo);
             TbPath tbPath = pathRepository.findByPathname(path);
             tbFile.setTbPath(tbPath);
         }
@@ -347,18 +346,18 @@ public class FileServiceImpl implements FileService {
         return refer;
     }
 
-    private String generateFileName(MultipartFile file, String uploadPath) {
-        String path = uploadPath + "/" + DateUtils.getTodayMonth();
+    private String generateFileName(MultipartFile file, String deptName, String uploadPath) {
+        String path = uploadPath + "/" + deptName;
         FileUtil.createPaths(path);
 
         String savePath;
         String extensionName = file.getOriginalFilename().split("\\.")[1];
-        savePath = "/" + DateUtils.getTodayMonth() + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
+        savePath = "/" + deptName + "/" + DateUtils.getTodayTime() + "_" + UUID.randomUUID()
                 + "." + extensionName;
         return savePath;
     }
 
-    private TbPath mkdirStorePath(String path, String folderName) {
+    private TbPath mkdirStorePath(String path, String folderName, FileInfo fileInfo) {
         FileUtil.createPaths(path);
 
         // 保存至path中
@@ -370,6 +369,7 @@ public class FileServiceImpl implements FileService {
             tbPath.setPathname(path);
             tbPath.setParentname(uploadPath);
             tbPath.setFoldername(folderName);
+            tbPath.setDeptid(fileInfo.getDeptid());
             pathRepository.save(tbPath);
         }
         return tbPath;
@@ -502,7 +502,7 @@ public class FileServiceImpl implements FileService {
         newTbPath.setParentname(parentPathName);
         newTbPath.setParentid(path.get().getPathid());
         newTbPath.setFoldername(tbPath.getFoldername());
-
+        newTbPath.setDeptid(tbPath.getDeptid());
         pathRepository.save(newTbPath);
 
         // 创建文件夹
@@ -512,7 +512,13 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public List<TbPath> pathList(TbPath path) {
-        List<TbPath> pathList = pathRepository.findByParentid(path.getPathid());
+        List<TbPath> pathList;
+
+        if (path.getPathid() == 3) {
+            pathList = pathRepository.findByParentidAndDeptidWithRoot(path.getPathid(), path.getDeptid());
+        } else {
+            pathList = pathRepository.findByParentidAndDeptid(path.getPathid(), path.getDeptid());
+        }
         return pathList;
     }
 
@@ -549,9 +555,9 @@ public class FileServiceImpl implements FileService {
             if (null != path.getPathid()) {
                 list.add(cb.equal(root.get("tbPath").get("pathid").as(Integer.class), path.getPathid()));
             }
-            if (null != path.getUserid()) {
-                list.add(cb.equal(root.get("userid").as(Integer.class), path.getUserid()));
-            }
+//            if (null != path.getUserid()) {
+//                list.add(cb.equal(root.get("userid").as(Integer.class), path.getUserid()));
+//            }
             Predicate[] p = new Predicate[list.size()];
             return cb.and(list.toArray(p));
         };
@@ -560,45 +566,13 @@ public class FileServiceImpl implements FileService {
 
         List<TbFile> fileList = files.getContent();
         Integer totalPages = files.getTotalPages();
+        fileList.stream().map(e -> {
+            e.setWebUrl(webUrl + e.getFilepath());
+            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
+            return e;
+        }).collect(Collectors.toList());
 
-//        // mockdata
-//        List<TbFile> fileList = new ArrayList<>();
-//
-//        TbFile m1 = fileRepository.findById(110).get();
-//        TbFile m2 = fileRepository.findById(125).get();
-//        fileList.add(m1);
-//        fileList.add(m2);
-
-        // 拼接SQL
-        if (null != fileList && fileList.size() > 0) {
-            StringBuilder builder = new StringBuilder(2 * THOUSAND);
-            for (TbFile file : fileList) {
-                builder.append(SQL_1 + file.getFileid() + SQL_2 + path.getUserid() + UNION_ALL);
-            }
-            String sql = builder.toString().substring(0, builder.length() - 11);
-            List<FilePrivilege> list = getSession().createSQLQuery(sql).addEntity(FilePrivilege.class).list();
-            // 分组做权限处理
-            Map<Integer, List<FilePrivilege>> listMap = GroupListUtil.group(list, (obj) -> {
-                FilePrivilege d = (FilePrivilege) obj;
-                return d.getFileid();
-            });
-
-            Map<Integer, FilePrivilege> privilegeMap = new HashMap<>(10);
-            for (Map.Entry<Integer, List<FilePrivilege>> entry : listMap.entrySet()) {
-                List<FilePrivilege> value = entry.getValue();
-                FilePrivilege filePrivilege = getFilePrivilege(value);
-                privilegeMap.put(entry.getKey(), filePrivilege);
-            }
-
-            // 对象拷贝
-            for (TbFile file : fileList) {
-                FilePrivilege privilege = privilegeMap.get(file.getFileid());
-                BeanUtils.copyProperties(privilege, file);
-                privilegeList.add(file);
-            }
-        }
-
-        FileDto fileDto = new FileDto(pageable, totalPages, files.getTotalElements(), privilegeList);
+        FileDto fileDto = new FileDto(pageable, totalPages, files.getTotalElements(), fileList);
         return fileDto;
     }
 

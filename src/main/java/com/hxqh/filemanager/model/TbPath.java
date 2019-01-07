@@ -38,7 +38,17 @@ public class TbPath implements Serializable {
     @Transient
     private Integer userid;
 
+    private Integer deptid;
+
     public TbPath() {
+    }
+
+    public Integer getDeptid() {
+        return deptid;
+    }
+
+    public void setDeptid(Integer deptid) {
+        this.deptid = deptid;
     }
 
     public Integer getUserid() {

@@ -9,8 +9,8 @@ public interface IConstants {
 
 
     String os = System.getProperty("os.name");
-    Integer PRIVATE_PATH = os.toLowerCase().startsWith("win") == true ? 2 : 4;
-    Integer DETAIL_PATH = os.toLowerCase().startsWith("win") == true ? 1 : 3;
+    //    Integer PRIVATE_PATH = os.toLowerCase().startsWith("win") == true ? 2 : 4;
+    Integer PATH = os.toLowerCase().startsWith("win") == true ? 1 : 3;
 
     String FILE = "file";
     Integer SUCCESS = 1;
@@ -40,6 +40,7 @@ public interface IConstants {
     String UPLOADFAIL = "Upload Fail!";
     String UPLOADSIZE = "Upload Size is 0!";
     String UPLOADDOT = "名称中包含“.”，请修改后重试！";
+    String DEPT_IS_NULL = "组织机构名称不能为空！";
     String UPLOADSAME = "The same file exists!";
     String FILE_REFER = "file";
     String VERSION_REFER = "version";

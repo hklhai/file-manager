@@ -64,19 +64,19 @@ public class FileController {
                               @RequestParam(value = "appname", defaultValue = "") String appname,
                               @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
                               @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
-
-        if (0 == pathid && 0 != appid) {
-            pathid = IConstants.DETAIL_PATH;
-        } else if (0 == pathid && 0 == appid) {
-            pathid = IConstants.PRIVATE_PATH;
-        }
-
         Message message;
+        if (0 == pathid && 0 != appid) {
+            pathid = IConstants.PATH;
+        } else if (0 == pathid && 0 == appid) {
+            pathid = IConstants.PATH;
+        }
         try {
             if (0 == files.getSize()) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
             } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
+            } else if (null != deptfullname || "".equals(deptfullname)) {
+                message = new Message(IConstants.FAIL, IConstants.DEPT_IS_NULL);
             } else {
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.setUserid(userid);
@@ -132,11 +132,10 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/createPath", method = RequestMethod.POST)
     public Message createPath(@RequestBody TbPath tbPath) {
-        if (0 == tbPath.getParentid()) {
-            tbPath.setParentid(IConstants.PRIVATE_PATH);
-        }
-
         Message message;
+        if (0 == tbPath.getParentid()) {
+            tbPath.setParentid(IConstants.PATH);
+        }
         try {
             // 不合法
             if (!FileUtil.isValidFileName(tbPath.getFoldername())) {
@@ -163,7 +162,7 @@ public class FileController {
                             @RequestParam(value = "size", defaultValue = "10") int size) {
         Sort sort = new Sort(Sort.Direction.DESC, "fileid");
         if (0 == path.getPathid()) {
-            path.setPathid(IConstants.PRIVATE_PATH);
+            path.setPathid(IConstants.PATH);
         }
         List<TbPath> pathList;
         FileDto fileList;
@@ -198,7 +197,7 @@ public class FileController {
     public Message deletePath(@PathVariable("id") Integer pathId) {
         Message message;
 
-        if (0 == pathId || 4 == pathId) {
+        if (1 == pathId || 2 == pathId || 3 == pathId || 4 == pathId) {
             message = new Message(IConstants.FAIL, IConstants.DELETEROOT);
             return message;
         }
@@ -285,10 +284,17 @@ public class FileController {
     @RequestMapping(value = "/downloadFile", method = RequestMethod.GET)
     public void downloadFile(HttpServletRequest request, HttpServletResponse response,
                              @RequestParam(value = "ftype", defaultValue = "") String ftype,
-                             @RequestParam("fid") Integer fid) throws Exception {
-
+                             @RequestParam("fid") Integer fid,
+                             @RequestParam("userid") Integer userid,
+                             @RequestParam("fid") Integer username,
+                             @RequestParam("fid") Integer operatetype,
+                             @RequestParam("fid") Integer deptid,
+                             @RequestParam("fid") Integer deptfullname,
+                             @RequestParam("fid") Integer operatetime,
+                             @RequestParam("fid") Integer operatecount) throws Exception {
 
         // todo 记录下载日志
+
 
         String userAgent = request.getHeader("User-Agent");
 
@@ -349,8 +355,6 @@ public class FileController {
         cipherOutputStream.close();
         outputStream.close();
         inputStream.close();
-
-
 
 
         InputStream stream = new BufferedInputStream(new FileInputStream(uploadPath + "/tmp"));
