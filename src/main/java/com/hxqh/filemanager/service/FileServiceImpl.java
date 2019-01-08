@@ -602,10 +602,12 @@ public class FileServiceImpl implements FileService {
         List<TbFileKeyword> keywordList = new ArrayList<>(50);
         TbFile tbFile = fileRepository.findById(fileKeyword.getFileid()).get();
         for (CategoryKeyword categoryKeyword : categoryKeywordList) {
-            TbFileKeyword tbFileKeyword = new TbFileKeyword();
-            BeanUtils.copyProperties(categoryKeyword, tbFileKeyword);
-            tbFileKeyword.setTbFile(tbFile);
-            keywordList.add(tbFileKeyword);
+            if (null == categoryKeyword.getFilekeywordid()) {
+                TbFileKeyword tbFileKeyword = new TbFileKeyword();
+                BeanUtils.copyProperties(categoryKeyword, tbFileKeyword);
+                tbFileKeyword.setTbFile(tbFile);
+                keywordList.add(tbFileKeyword);
+            }
         }
 
         // column删除
@@ -662,7 +664,7 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public List<VFileKeywordKeyWord> fileKeywordList(TbFile file) {
-        return vFileKeywordKeyWordRepository.findAll();
+        return vFileKeywordKeyWordRepository.findByFileid(file.getFileid());
     }
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
