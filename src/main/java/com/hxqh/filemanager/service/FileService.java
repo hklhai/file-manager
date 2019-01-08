@@ -2,6 +2,7 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
+import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
@@ -149,7 +150,7 @@ public interface FileService {
      * @param file
      * @return
      */
-    List<TbFileKeyword> fileKeywordList(TbFile file);
+    List<VFileKeywordKeyWord> fileKeywordList(TbFile file);
 
     /**
      * 

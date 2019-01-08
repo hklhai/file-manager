@@ -4,6 +4,7 @@ import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.model.base.Message;
+import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.service.FileService;
 import com.hxqh.filemanager.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+
+import static com.hxqh.filemanager.common.IConstants.PATH;
+import static com.hxqh.filemanager.common.IConstants.PATH_PRIVATE;
 
 /**
  * Created by Ocean Lin on 2018/10/30.
@@ -64,13 +68,16 @@ public class FileController {
                               @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
         Message message;
         if (0 == pathid && 0 != appid) {
-            pathid = IConstants.PATH;
+            pathid = PATH;
         } else if (0 == pathid && 0 == appid) {
-            pathid = IConstants.PATH;
+            pathid = PATH;
         }
         try {
             if (0 == files.getSize()) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else if (PATH_PRIVATE.equals(pathid)) {
+                message = new Message(IConstants.FAIL, IConstants.PATHPRIVATEROOT);
+                // 已存在
             } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
                 message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
             } else if (null == deptfullname || "".equals(deptfullname)) {
@@ -128,8 +135,8 @@ public class FileController {
 
     @ResponseBody
     @RequestMapping(value = "/fileKeywordList", method = RequestMethod.POST)
-    public List<TbFileKeyword> fileKeywordList(@RequestBody TbFile file) {
-        List<TbFileKeyword> keywordList = null;
+    public List<VFileKeywordKeyWord> fileKeywordList(@RequestBody TbFile file) {
+        List<VFileKeywordKeyWord> keywordList = null;
         try {
             keywordList = fileService.fileKeywordList(file);
         } catch (Exception e) {
@@ -174,7 +181,7 @@ public class FileController {
                             @RequestParam(value = "size", defaultValue = "10") int size) {
         Sort sort = new Sort(Sort.Direction.DESC, "fileid");
         if (0 == path.getPathid()) {
-            path.setPathid(IConstants.PATH);
+            path.setPathid(PATH);
         }
         List<TbPath> pathList;
         FileDto fileList;
@@ -230,24 +237,6 @@ public class FileController {
         return message;
     }
 
-
-    @ResponseBody
-    @RequestMapping(value = "/fileVersionList", method = RequestMethod.POST)
-    public FileVersionDto fileVersionList(@RequestBody TbFileVersion fileVersion,
-                                          @RequestParam(value = "page", defaultValue = "0") int page,
-                                          @RequestParam(value = "size", defaultValue = "10") int size) {
-        FileVersionDto fileVersionDto = null;
-        Sort sort = new Sort(Sort.Direction.DESC, "fileversionid");
-        try {
-            Pageable pageable = PageRequest.of(page, size, sort);
-            fileVersionDto = fileService.fileVersionList(fileVersion, pageable);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return fileVersionDto;
-    }
-
-
     @ResponseBody
     @RequestMapping(value = "/privilege", method = RequestMethod.POST)
     public FilePrivilege privilege(@RequestBody FilePrivilegeDto filePrivilegeDto) {
@@ -258,33 +247,6 @@ public class FileController {
             e.printStackTrace();
         }
         return filePrivilege;
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/uploadNewVersion", method = RequestMethod.POST)
-    public Message uploadNewVersion(@RequestParam("files") MultipartFile files,
-                                    @RequestParam("fileid") Integer fileid) {
-        Message message;
-        try {
-            // 增加同一文件上传时，判断如果md5相同提示存在相同文件。
-            if (0 == files.getSize()) {
-                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
-            } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
-                message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
-            } else if (fileService.hasSameFile(files, fileid)) {
-                message = new Message(IConstants.FAIL, IConstants.UPLOADSAME);
-            } else {
-                FileInfo fileInfo = new FileInfo();
-                fileInfo.setFileid(fileid);
-                fileService.saveFile(files, fileInfo);
-                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
-            }
-        } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
-            e.printStackTrace();
-        }
-        return message;
     }
 
     /**
@@ -418,8 +380,8 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/fileLogList", method = RequestMethod.POST)
     public FileLogDto fileLogList(@RequestBody TbFile file,
-                               @RequestParam(value = "page", defaultValue = "0") int page,
-                               @RequestParam(value = "size", defaultValue = "10") int size) {
+                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
         FileLogDto fileDto = null;
         Sort sort = new Sort(Sort.Direction.DESC, "filelogid");
         try {
@@ -431,4 +393,45 @@ public class FileController {
         return fileDto;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/uploadNewVersion", method = RequestMethod.POST)
+    public Message uploadNewVersion(@RequestParam("files") MultipartFile files,
+                                    @RequestParam("fileid") Integer fileid) {
+        Message message;
+        try {
+            // 增加同一文件上传时，判断如果md5相同提示存在相同文件。
+            if (0 == files.getSize()) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+            } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
+            } else if (fileService.hasSameFile(files, fileid)) {
+                message = new Message(IConstants.FAIL, IConstants.UPLOADSAME);
+            } else {
+                FileInfo fileInfo = new FileInfo();
+                fileInfo.setFileid(fileid);
+                fileService.saveFile(files, fileInfo);
+                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+            }
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/fileVersionList", method = RequestMethod.POST)
+    public FileVersionDto fileVersionList(@RequestBody TbFileVersion fileVersion,
+                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                          @RequestParam(value = "size", defaultValue = "10") int size) {
+        FileVersionDto fileVersionDto = null;
+        Sort sort = new Sort(Sort.Direction.DESC, "fileversionid");
+        try {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            fileVersionDto = fileService.fileVersionList(fileVersion, pageable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fileVersionDto;
+    }
 }

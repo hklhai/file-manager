@@ -11,7 +11,7 @@
 
 ### 部署修改
 1. 设置tomcat.ip、tomcat.port
-2. com.hxqh.filemanager.upload与com.hxqh.filemanager.file.download
+2. 设置com.hxqh.filemanager.upload与com.hxqh.filemanager.file.download
 3. 新建目录
 ```
 mkdir -p /home/hadoop/doclinks

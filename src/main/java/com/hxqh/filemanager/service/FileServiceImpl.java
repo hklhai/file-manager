@@ -2,6 +2,7 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
+import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtil;
@@ -81,6 +82,9 @@ public class FileServiceImpl implements FileService {
     private KeywordRepository keywordRepository;
     @Autowired
     private FileKeywordRepository fileKeywordRepository;
+
+    @Autowired
+    private VFileKeywordKeyWordRepository vFileKeywordKeyWordRepository;
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
@@ -556,8 +560,6 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public FileDto findFileByPathId(TbPath path, Sort sort, int page, int size) {
-        List<TbFile> privilegeList = new ArrayList<>(10);
-
         Specification<TbFile> specification = (root, query, cb) -> {
             List<Predicate> list = new ArrayList<>(10);
 
@@ -576,7 +578,6 @@ public class FileServiceImpl implements FileService {
         List<TbFile> fileList = files.getContent();
         Integer totalPages = files.getTotalPages();
         fileList.stream().map(e -> {
-            e.setWebUrl(webUrl + e.getFilepath());
             e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
             return e;
         }).collect(Collectors.toList());
@@ -660,8 +661,8 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
-    public List<TbFileKeyword> fileKeywordList(TbFile file) {
-        return fileKeywordRepository.findAll();
+    public List<VFileKeywordKeyWord> fileKeywordList(TbFile file) {
+        return vFileKeywordKeyWordRepository.findAll();
     }
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)

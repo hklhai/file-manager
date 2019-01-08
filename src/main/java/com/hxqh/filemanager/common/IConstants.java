@@ -10,11 +10,11 @@ public interface IConstants {
 
     String os = System.getProperty("os.name");
     Integer PATH = os.toLowerCase().startsWith("win") == true ? 1 : 3;
+    Integer PATH_PRIVATE = os.toLowerCase().startsWith("win") == true ? 2 : 4;
 
     String FILE = "file";
     Integer SUCCESS = 1;
     Integer FAIL = 0;
-    Integer OCCUPIED = -3;
     Integer THOUSAND = 1024;
     String VERSION = "Viersion";
 
@@ -24,15 +24,7 @@ public interface IConstants {
     String MSIE = "MSIE";
     String TRIDENT = "Trident";
 
-    String EDITNOMATCHCREATE = "The current user not match the creator";
-    String OCCUPIEDINFO = "Already occupied";
-    String EDITSUCCESS = "Edit Success!";
-    String EDITFAIL = "Edit Fail!";
-    String ADDSUCCESS = "Add Success!";
-    String AUTHORIZATIONSUCCESS = "Authorization Success!";
-    String USEREXISTS = "User name already exists";
-    String ROLEEXISTS = "Role name already exists";
-    String ADDFAIL = "添加失败!";
+
     String DELETESUCCESS = "删除成功!";
     String DELETEFAIL = "删除失败!";
     String UPLOADSUCCESS = "上传成功!";
@@ -48,6 +40,7 @@ public interface IConstants {
     String PATHINVALID = "文件目录不合法！";
     String PATHEXIST = "文件目录已存在！";
     String PATHROOT = "根目录下无法创建文件夹，请在Private目录下创建！";
+    String PATHPRIVATEROOT = "Private根目录下无法上传文件，请在Private目录下创建文件夹！";
     String PATHSUCCESS = "文件目录创建成功！";
     String PATHFAIL = "文件目录创建失败！";
 

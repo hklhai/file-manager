@@ -43,7 +43,7 @@ public class TbFile implements Serializable {
     private String filestatus;
 
     private Integer fileversion;
-    @JSONField (format="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date invaliddate;
 
     private String md5;
@@ -53,15 +53,15 @@ public class TbFile implements Serializable {
     private Integer referid;
 
     private String refertab;
-    @JSONField (format="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date statustime;
-    @JSONField (format="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date uploadtime;
 
     private Integer userid;
 
     private String username;
-    @JSONField (format="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date validdate;
 
     @Transient
@@ -95,7 +95,7 @@ public class TbFile implements Serializable {
     /**
      * bi-directional many-to-one association to TbPath
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pathid")
     @JSONField(serialize = false)
     private TbPath tbPath;
