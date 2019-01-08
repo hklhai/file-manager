@@ -8,6 +8,8 @@ public class FileKeyword {
 
     private List<CategoryKeyword> categoryKeywordList;
 
+    private List<Integer> deleteFilekeywordidList;
+
     public FileKeyword() {
     }
 
@@ -16,6 +18,13 @@ public class FileKeyword {
         this.categoryKeywordList = categoryKeywordList;
     }
 
+    public List<Integer> getDeleteFilekeywordidList() {
+        return deleteFilekeywordidList;
+    }
+
+    public void setDeleteFilekeywordidList(List<Integer> deleteFilekeywordidList) {
+        this.deleteFilekeywordidList = deleteFilekeywordidList;
+    }
 
     public Integer getFileid() {
         return fileid;

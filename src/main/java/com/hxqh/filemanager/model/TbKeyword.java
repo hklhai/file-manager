@@ -1,5 +1,7 @@
 package com.hxqh.filemanager.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -27,6 +29,7 @@ public class TbKeyword implements Serializable {
 
     private String username;
 
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date createtime;
 
     private String deptfullname;

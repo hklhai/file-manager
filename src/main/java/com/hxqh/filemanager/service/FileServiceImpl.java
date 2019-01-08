@@ -596,6 +596,7 @@ public class FileServiceImpl implements FileService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void fileBindKeyword(FileKeyword fileKeyword) {
+        List<Integer> deleteFilekeywordidList = fileKeyword.getDeleteFilekeywordidList();
         List<CategoryKeyword> categoryKeywordList = fileKeyword.getCategoryKeywordList();
         List<TbFileKeyword> keywordList = new ArrayList<>(50);
         TbFile tbFile = fileRepository.findById(fileKeyword.getFileid()).get();
@@ -604,6 +605,13 @@ public class FileServiceImpl implements FileService {
             BeanUtils.copyProperties(categoryKeyword, tbFileKeyword);
             tbFileKeyword.setTbFile(tbFile);
             keywordList.add(tbFileKeyword);
+        }
+
+        // column删除
+        if (null != deleteFilekeywordidList && deleteFilekeywordidList.size() >= 1) {
+            for (Integer filekeywordid : deleteFilekeywordidList) {
+                fileKeywordRepository.deleteById(filekeywordid);
+            }
         }
         fileKeywordRepository.saveAll(keywordList);
     }
@@ -621,14 +629,19 @@ public class FileServiceImpl implements FileService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public TbCurrentFileLog logAndReturnCurrent(TbFileLog tbFileLog) {
-        TbCurrentFileLog currentFileLog = currentFileLogRepository.findByFileid(tbFileLog.getFileid());
+        TbCurrentFileLog currentFileLog = currentFileLogRepository.findByFileidAndOperatetype(tbFileLog.getFileid(), DOWNLOAD_STATE);
+        if (null == currentFileLog) {
+            currentFileLog = new TbCurrentFileLog();
+            currentFileLog.setOperatecount(0);
+            Optional<TbFile> file = fileRepository.findById(tbFileLog.getFileid());
+            currentFileLog.setTbFile(file.get());
+        }
         currentFileLog.setUserid(tbFileLog.getUserid());
         currentFileLog.setUsername(tbFileLog.getUsername());
         currentFileLog.setDeptid(tbFileLog.getDeptid());
         currentFileLog.setDeptfullname(tbFileLog.getDeptfullname());
         currentFileLog.setOperatetype(DOWNLOAD_STATE);
         currentFileLog.setOperatetime(new Date());
-
         currentFileLog.setOperatecount(currentFileLog.getOperatecount() + 1);
         currentFileLogRepository.save(currentFileLog);
 
@@ -643,6 +656,37 @@ public class FileServiceImpl implements FileService {
     public TbPath findPathById(Integer pathid) {
         Optional<TbPath> path = pathRepository.findById(pathid);
         return path.get();
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public List<TbFileKeyword> fileKeywordList(TbFile file) {
+        return fileKeywordRepository.findAll();
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public FileLogDto fileLogList(TbFile file, Pageable pageable) {
+        Specification<TbFileLog> specification = (root, query, cb) -> {
+            List<Predicate> list = new ArrayList<>(5);
+
+            if (null != file.getFileid()) {
+                list.add(cb.equal(root.get("tbFile").get("fileid").as(Integer.class), file.getFileid()));
+            }
+            Predicate[] p = new Predicate[list.size()];
+            return cb.and(list.toArray(p));
+        };
+        Page<TbFileLog> fileLogPage = fileLogRepository.findAll(specification, pageable);
+        List<TbFileLog> fileLogList = fileLogPage.getContent();
+        Integer totalPages = fileLogPage.getTotalPages();
+        FileLogDto fileDto = new FileLogDto(pageable, totalPages, fileLogPage.getTotalElements(), fileLogList);
+        return fileDto;
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public List<TbCurrentFileLog> fileCurrentLogList(TbFile file) {
+        return currentFileLogRepository.findByFileId(file.getFileid());
     }
 
     /**

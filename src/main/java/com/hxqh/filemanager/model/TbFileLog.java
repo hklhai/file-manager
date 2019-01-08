@@ -1,5 +1,7 @@
 package com.hxqh.filemanager.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -25,6 +27,7 @@ public class TbFileLog implements Serializable {
 
     private Integer operatecount;
 
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date operatetime;
 
     private String operatetype;
@@ -39,6 +42,7 @@ public class TbFileLog implements Serializable {
     /**
      * bi-directional many-to-one association to TbFile
      */
+    @JSONField(serialize = false)
     @ManyToOne
     @JoinColumn(name = "fileid")
     private TbFile tbFile;

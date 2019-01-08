@@ -2,6 +2,7 @@ package com.hxqh.filemanager.repository;
 
 import com.hxqh.filemanager.model.TbFileLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -10,5 +11,5 @@ import org.springframework.stereotype.Repository;
  * @author Ocean lin
  */
 @Repository
-public interface FileLogRepository  extends JpaRepository<TbFileLog, Integer> {
+public interface FileLogRepository extends JpaRepository<TbFileLog, Integer>, JpaSpecificationExecutor<TbFileLog> {
 }

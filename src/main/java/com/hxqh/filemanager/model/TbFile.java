@@ -1,7 +1,6 @@
 package com.hxqh.filemanager.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -44,7 +43,7 @@ public class TbFile implements Serializable {
     private String filestatus;
 
     private Integer fileversion;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JSONField (format="yyyy-MM-dd HH:mm:ss")
     private Date invaliddate;
 
     private String md5;
@@ -54,15 +53,15 @@ public class TbFile implements Serializable {
     private Integer referid;
 
     private String refertab;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JSONField (format="yyyy-MM-dd HH:mm:ss")
     private Date statustime;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JSONField (format="yyyy-MM-dd HH:mm:ss")
     private Date uploadtime;
 
     private Integer userid;
 
     private String username;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JSONField (format="yyyy-MM-dd HH:mm:ss")
     private Date validdate;
 
     @Transient

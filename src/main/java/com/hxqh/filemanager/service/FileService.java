@@ -143,4 +143,26 @@ public interface FileService {
      * @return
      */
     TbPath findPathById(Integer pathid);
+
+    /**
+     *
+     * @param file
+     * @return
+     */
+    List<TbFileKeyword> fileKeywordList(TbFile file);
+
+    /**
+     * 
+     * @param file
+     * @param pageable
+     * @return
+     */
+    FileLogDto fileLogList(TbFile file, Pageable pageable);
+
+    /**
+     *
+     * @param file
+     * @return
+     */
+    List<TbCurrentFileLog> fileCurrentLogList(TbFile file);
 }

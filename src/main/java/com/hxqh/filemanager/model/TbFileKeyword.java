@@ -1,7 +1,9 @@
 package com.hxqh.filemanager.model;
 
-import java.io.Serializable;
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
+import java.io.Serializable;
 
 
 /**
@@ -21,6 +23,7 @@ public class TbFileKeyword implements Serializable {
     /**
      * bi-directional many-to-one association to TbFile
      */
+    @JSONField(serialize=false)
     @ManyToOne
     @JoinColumn(name = "fileid")
     private TbFile tbFile;

@@ -126,13 +126,25 @@ public class FileController {
         return message;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/fileKeywordList", method = RequestMethod.POST)
+    public List<TbFileKeyword> fileKeywordList(@RequestBody TbFile file) {
+        List<TbFileKeyword> keywordList = null;
+        try {
+            keywordList = fileService.fileKeywordList(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return keywordList;
+    }
+
 
     @ResponseBody
     @RequestMapping(value = "/createPath", method = RequestMethod.POST)
     public Message createPath(@RequestBody TbPath tbPath) {
         Message message;
 
-        //tbPath.setParentid(IConstants.PATH);
+        //tbPath.setParentid();
         try {
             // 不合法
             if (!FileUtil.isValidFileName(tbPath.getFoldername())) {
@@ -388,6 +400,35 @@ public class FileController {
         //初始化密码器
         cipher.init(Cipher.DECRYPT_MODE, sKeySpec, new IvParameterSpec(IConstants.IV.getBytes()));
         return cipher;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/fileCurrentLogList", method = RequestMethod.POST)
+    public List<TbCurrentFileLog> fileCurrentLogList(@RequestBody TbFile file) {
+        List<TbCurrentFileLog> currentFileLogList = null;
+        try {
+            currentFileLogList = fileService.fileCurrentLogList(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return currentFileLogList;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/fileLogList", method = RequestMethod.POST)
+    public FileLogDto fileLogList(@RequestBody TbFile file,
+                               @RequestParam(value = "page", defaultValue = "0") int page,
+                               @RequestParam(value = "size", defaultValue = "10") int size) {
+        FileLogDto fileDto = null;
+        Sort sort = new Sort(Sort.Direction.DESC, "filelogid");
+        try {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            fileDto = fileService.fileLogList(file, pageable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fileDto;
     }
 
 }
