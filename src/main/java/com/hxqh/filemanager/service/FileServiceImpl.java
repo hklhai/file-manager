@@ -103,8 +103,15 @@ public class FileServiceImpl implements FileService {
                 list.add(cb.equal(root.get("recordid").as(Integer.class), file.getRecordid()));
             }
             if (StringUtils.isNotBlank(file.getFilerealname())) {
-                list.add(cb.like(root.get("filerealname").as(String.class), "%" + file.getFilerealname() + "%"));
+                list.add(cb.like(root.get("filerealname").as(String.class), file.getFilerealname() + "%"));
             }
+            if (StringUtils.isNotBlank(file.getDeptfullname())) {
+                list.add(cb.like(root.get("deptfullname").as(String.class), file.getDeptfullname() + "%"));
+            }
+            // todo 精确搜索
+//            if (StringUtils.isNotBlank(file.getDeptfullname())) {
+//                list.add(cb.equal(root.get("deptfullname").as(String.class), file.getDeptfullname()));
+//            }
 
             Predicate[] p = new Predicate[list.size()];
             return cb.and(list.toArray(p));
@@ -131,7 +138,7 @@ public class FileServiceImpl implements FileService {
             List<Predicate> list = new ArrayList<>(5);
 
             if (StringUtils.isNotBlank(fileVersion.getFilerealname())) {
-                list.add(cb.like(root.get("filerealname").as(String.class), "%" + fileVersion.getFilerealname() + "%"));
+                list.add(cb.like(root.get("filerealname").as(String.class), fileVersion.getFilerealname() + "%"));
             }
             if (null != fileVersion.getFileid()) {
                 list.add(cb.equal(root.get("tbFile").get("fileid").as(String.class), fileVersion.getFileid()));
@@ -706,7 +713,10 @@ public class FileServiceImpl implements FileService {
                 list.add(cb.equal(root.get("userid").as(Integer.class), keywordFile.getUserid()));
             }
             if (StringUtils.isNotBlank(keywordFile.getFilename())) {
-                list.add(cb.like(root.get("filename").as(String.class), "%" + keywordFile.getFilename() + "%"));
+                list.add(cb.like(root.get("filename").as(String.class), keywordFile.getFilename() + "%"));
+            }
+            if (StringUtils.isNotBlank(keywordFile.getDeptfullname())) {
+                list.add(cb.like(root.get("filename").as(String.class), keywordFile.getDeptfullname() + "%"));
             }
             Predicate[] p = new Predicate[list.size()];
             return cb.and(list.toArray(p));

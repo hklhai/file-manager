@@ -21,8 +21,28 @@ public class VBaseKeywordFile {
     private Integer userid;
     @JSONField(serialize = false)
     private String username;
+    @JSONField(serialize = false)
+    private Integer deptid;
+    @JSONField(serialize = false)
+    private String deptfullname;
 
     public VBaseKeywordFile() {
+    }
+
+    public Integer getDeptid() {
+        return deptid;
+    }
+
+    public void setDeptid(Integer deptid) {
+        this.deptid = deptid;
+    }
+
+    public String getDeptfullname() {
+        return deptfullname;
+    }
+
+    public void setDeptfullname(String deptfullname) {
+        this.deptfullname = deptfullname;
     }
 
     public Integer getFileid() {

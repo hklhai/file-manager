@@ -202,13 +202,6 @@ public class FileController {
     @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
     public Message deleteFile(@PathVariable("id") Integer fileId) {
         Message message;
-
-        // todo demo 数据
-        if (fileId == 196 || fileId == 191) {
-            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
-            return message;
-        }
-
         try {
             fileService.deleteFile(fileId);
             message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
