@@ -2,6 +2,7 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
+import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,11 +28,10 @@ public interface FileService {
     void saveFile(MultipartFile files, FileInfo fileInfo) throws Exception;
 
     /**
-     * 删除文件
-     *
      * @param fileId
+     * @throws Exception
      */
-    void deleteFile(Integer fileId);
+    void deleteFile(Integer fileId) throws Exception;
 
     /**
      * 文件列表带条件的分页获取接口
@@ -139,21 +139,18 @@ public interface FileService {
     TbCurrentFileLog logAndReturnCurrent(TbFileLog tbFileLog);
 
     /**
-     *
      * @param pathid
      * @return
      */
     TbPath findPathById(Integer pathid);
 
     /**
-     *
      * @param file
      * @return
      */
     List<VFileKeywordKeyWord> fileKeywordList(TbFile file);
 
     /**
-     * 
      * @param file
      * @param pageable
      * @return
@@ -161,9 +158,15 @@ public interface FileService {
     FileLogDto fileLogList(TbFile file, Pageable pageable);
 
     /**
-     *
      * @param file
      * @return
      */
     List<TbCurrentFileLog> fileCurrentLogList(TbFile file);
+
+    /**
+     * @param keywordFile
+     * @param pageable
+     * @return
+     */
+    BaseKeywordDto baseKeywordList(VBaseKeywordFile keywordFile, Pageable pageable);
 }

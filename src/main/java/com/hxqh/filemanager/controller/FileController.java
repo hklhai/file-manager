@@ -4,6 +4,7 @@ import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.model.base.Message;
+import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.service.FileService;
 import com.hxqh.filemanager.util.FileUtil;
@@ -201,6 +202,13 @@ public class FileController {
     @RequestMapping(value = "/deleteFile/{id}", method = RequestMethod.DELETE)
     public Message deleteFile(@PathVariable("id") Integer fileId) {
         Message message;
+
+        // todo demo 数据
+        if (fileId == 196 || fileId == 191) {
+            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
+            return message;
+        }
+
         try {
             fileService.deleteFile(fileId);
             message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
@@ -237,17 +245,6 @@ public class FileController {
         return message;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/privilege", method = RequestMethod.POST)
-    public FilePrivilege privilege(@RequestBody FilePrivilegeDto filePrivilegeDto) {
-        FilePrivilege filePrivilege = null;
-        try {
-            filePrivilege = fileService.privilege(filePrivilegeDto);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return filePrivilege;
-    }
 
     /**
      * @param response
@@ -392,6 +389,37 @@ public class FileController {
         }
         return fileDto;
     }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/baseKeywordList", method = RequestMethod.POST)
+    public BaseKeywordDto baseKeywordList(@RequestBody VBaseKeywordFile keywordFile,
+                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                          @RequestParam(value = "size", defaultValue = "10") int size) {
+        BaseKeywordDto baseKeywordDto = null;
+        Sort sort = new Sort(Sort.Direction.DESC, "fileid");
+        try {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            baseKeywordDto = fileService.baseKeywordList(keywordFile, pageable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseKeywordDto;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/privilege", method = RequestMethod.POST)
+    public FilePrivilege privilege(@RequestBody FilePrivilegeDto filePrivilegeDto) {
+        FilePrivilege filePrivilege = null;
+        try {
+            filePrivilege = fileService.privilege(filePrivilegeDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filePrivilege;
+    }
+
 
     @ResponseBody
     @RequestMapping(value = "/uploadNewVersion", method = RequestMethod.POST)

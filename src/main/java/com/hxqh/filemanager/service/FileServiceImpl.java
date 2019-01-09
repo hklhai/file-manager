@@ -2,6 +2,7 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
+import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
@@ -85,6 +86,8 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private VFileKeywordKeyWordRepository vFileKeywordKeyWordRepository;
+    @Autowired
+    private VBaseKeywordFileRepository vBaseKeywordFileRepository;
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
@@ -403,7 +406,7 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteFile(Integer fileId) {
+    public void deleteFile(Integer fileId) throws Exception {
 
         if (null != fileId) {
             // 文件系统删除
@@ -690,6 +693,37 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<TbCurrentFileLog> fileCurrentLogList(TbFile file) {
         return currentFileLogRepository.findByFileId(file.getFileid());
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public BaseKeywordDto baseKeywordList(VBaseKeywordFile keywordFile, Pageable pageable) {
+
+        Specification<VBaseKeywordFile> specification = (root, query, cb) -> {
+            List<Predicate> list = new ArrayList<>(5);
+
+            if (null != keywordFile.getUserid()) {
+                list.add(cb.equal(root.get("userid").as(Integer.class), keywordFile.getUserid()));
+            }
+            if (StringUtils.isNotBlank(keywordFile.getFilename())) {
+                list.add(cb.like(root.get("filename").as(String.class), "%" + keywordFile.getFilename() + "%"));
+            }
+            Predicate[] p = new Predicate[list.size()];
+            return cb.and(list.toArray(p));
+        };
+
+        Page<VBaseKeywordFile> baseKeywordFiles = vBaseKeywordFileRepository.findAll(specification, pageable);
+        List<VBaseKeywordFile> baseKeywordFileList = baseKeywordFiles.getContent();
+
+        baseKeywordFileList.stream().map(e -> {
+            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
+            return e;
+        }).collect(Collectors.toList());
+
+
+        Integer totalPages = baseKeywordFiles.getTotalPages();
+        BaseKeywordDto baseKeywordDto = new BaseKeywordDto(pageable, totalPages, baseKeywordFiles.getTotalElements(), baseKeywordFileList);
+        return baseKeywordDto;
     }
 
     /**
