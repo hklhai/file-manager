@@ -105,13 +105,9 @@ public class FileServiceImpl implements FileService {
             if (StringUtils.isNotBlank(file.getFilerealname())) {
                 list.add(cb.like(root.get("filerealname").as(String.class), file.getFilerealname() + "%"));
             }
-            if (StringUtils.isNotBlank(file.getDeptfullname())) {
-                list.add(cb.like(root.get("deptfullname").as(String.class), file.getDeptfullname() + "%"));
+            if (StringUtils.isNotBlank(file.getAppname())) {
+                list.add(cb.like(root.get("appname").as(String.class), file.getAppname() + "%"));
             }
-            // todo 精确搜索
-//            if (StringUtils.isNotBlank(file.getDeptfullname())) {
-//                list.add(cb.equal(root.get("deptfullname").as(String.class), file.getDeptfullname()));
-//            }
 
             Predicate[] p = new Predicate[list.size()];
             return cb.and(list.toArray(p));

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * @author Lin
@@ -26,7 +27,36 @@ public class VBaseKeywordFile {
     @JSONField(serialize = false)
     private String deptfullname;
 
+    private Double filesize;
+    private String filestatus;
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date uploadtime;
+
     public VBaseKeywordFile() {
+    }
+
+    public Date getUploadtime() {
+        return uploadtime;
+    }
+
+    public void setUploadtime(Date uploadtime) {
+        this.uploadtime = uploadtime;
+    }
+
+    public Double getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(Double filesize) {
+        this.filesize = filesize;
+    }
+
+    public String getFilestatus() {
+        return filestatus;
+    }
+
+    public void setFilestatus(String filestatus) {
+        this.filestatus = filestatus;
     }
 
     public Integer getDeptid() {
