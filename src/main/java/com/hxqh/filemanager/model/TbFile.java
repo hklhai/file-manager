@@ -84,6 +84,7 @@ public class TbFile implements Serializable {
     @Transient
     private Integer filedelete;
 
+    private Integer isshow;
 
     /**
      * bi-directional many-to-one association to TbCurrentFileLog
@@ -122,6 +123,15 @@ public class TbFile implements Serializable {
     private List<TbFileVersion> tbFileVersions;
 
     public TbFile() {
+    }
+
+
+    public Integer getIsshow() {
+        return isshow;
+    }
+
+    public void setIsshow(Integer isshow) {
+        this.isshow = isshow;
     }
 
     public Integer getFileread() {

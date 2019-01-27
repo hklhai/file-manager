@@ -32,7 +32,17 @@ public class VBaseKeywordFile {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date uploadtime;
 
+    private Integer isshow;
+
     public VBaseKeywordFile() {
+    }
+
+    public Integer getIsshow() {
+        return isshow;
+    }
+
+    public void setIsshow(Integer isshow) {
+        this.isshow = isshow;
     }
 
     public Date getUploadtime() {

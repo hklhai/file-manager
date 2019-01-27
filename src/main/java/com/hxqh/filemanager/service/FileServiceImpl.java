@@ -91,11 +91,12 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
-
     public FileDto fileList(TbFile file, Pageable pageable) {
         Specification<TbFile> specification = (root, query, cb) -> {
             List<Predicate> list = new ArrayList<>(10);
 
+            // todo appid
+            list.add(cb.equal(root.get("isshow").as(Integer.class), 1));
             if (StringUtils.isNotBlank(file.getAppname())) {
                 list.add(cb.equal(root.get("appname").as(String.class), file.getAppname()));
             }
@@ -310,6 +311,7 @@ public class FileServiceImpl implements FileService {
 
         tbFile.setTbFileLogs(fileLogList);
         tbFile.setTbCurrentFileLogs(tbCurrentFileLogList);
+        tbFile.setIsshow(1);
 
         fileRepository.save(tbFile);
         fileLogRepository.save(fileLog);
@@ -409,8 +411,16 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void deleteFile(Integer fileId) throws Exception {
+    public void logicDeleteFile(Integer fileId) {
+        TbFile file = fileRepository.findByFileid(fileId);
+        file.setIsshow(0);
+        fileRepository.save(file);
+    }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void deleteFile(Integer fileId) throws Exception {
         if (null != fileId) {
             // 文件系统删除
             TbFile file = fileRepository.findByFileid(fileId);
@@ -698,13 +708,15 @@ public class FileServiceImpl implements FileService {
         return currentFileLogRepository.findByFileId(file.getFileid());
     }
 
+
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public BaseKeywordDto baseKeywordList(VBaseKeywordFile keywordFile, Pageable pageable) {
 
         Specification<VBaseKeywordFile> specification = (root, query, cb) -> {
-            List<Predicate> list = new ArrayList<>(5);
+            List<Predicate> list = new ArrayList<>(8);
 
+            list.add(cb.equal(root.get("isshow").as(Integer.class), 1));
             if (null != keywordFile.getUserid()) {
                 list.add(cb.equal(root.get("userid").as(Integer.class), keywordFile.getUserid()));
             }
@@ -781,6 +793,15 @@ public class FileServiceImpl implements FileService {
         }
 
         return filePrivilege;
+    }
+    
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public TbFile filePath(Integer fileId) {
+        TbFile file = fileRepository.findById(fileId).get();
+        String pathname = file.getTbPath().getParentname();
+        file.setFilepath(pathname+file.getFilepath());
+        return file;
     }
 
 }
