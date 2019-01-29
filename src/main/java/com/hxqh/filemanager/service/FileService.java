@@ -169,4 +169,18 @@ public interface FileService {
      * @return
      */
     BaseKeywordDto baseKeywordList(VBaseKeywordFile keywordFile, Pageable pageable);
+
+    /**
+     * 逻辑删除
+     *
+     * @param fileId 文档主键
+     */
+    void logicDeleteFile(Integer fileId);
+
+    /**
+     *
+     * @param fileId
+     * @return
+     */
+    TbFile filePath(Integer fileId);
 }

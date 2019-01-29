@@ -153,7 +153,6 @@ public class FileController {
     public Message createPath(@RequestBody TbPath tbPath) {
         Message message;
 
-        //tbPath.setParentid();
         try {
             // 不合法
             if (!FileUtil.isValidFileName(tbPath.getFoldername())) {
@@ -205,6 +204,21 @@ public class FileController {
         Message message;
         try {
             fileService.deleteFile(fileId);
+            message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
+        } catch (Exception e) {
+            message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/logicDeleteFile/{id}", method = RequestMethod.DELETE)
+    public Message logicDeleteFile(@PathVariable("id") Integer fileId) {
+        Message message;
+        try {
+            fileService.logicDeleteFile(fileId);
             message = new Message(IConstants.SUCCESS, IConstants.DELETESUCCESS);
         } catch (Exception e) {
             message = new Message(IConstants.FAIL, IConstants.DELETEFAIL);
@@ -420,6 +434,19 @@ public class FileController {
             e.printStackTrace();
         }
         return filePrivilege;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/filePath", method = RequestMethod.GET)
+    public TbFile filePath(@RequestParam(value = "fileId", defaultValue = "0") Integer fileId) {
+        TbFile file = null;
+        try {
+            file = fileService.filePath(fileId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 
 

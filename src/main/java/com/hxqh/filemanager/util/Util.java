@@ -150,7 +150,7 @@ public class Util {
      * @return byte[]
      */
     public static byte[] hexStringToBytes(String hexString) {
-        if (hexString == null || hexString.equals("")) {
+        if (hexString == null || "".equals(hexString)) {
             return null;
         }
 
