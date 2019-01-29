@@ -98,7 +98,8 @@ public class FileServiceImpl implements FileService {
             List<Predicate> list = new ArrayList<>(10);
 
             // todo appid
-            list.add(cb.equal(root.get("isshow").as(Integer.class), 1));
+            Integer isShow = null == file.getIsshow() ? 1 : 0;
+            list.add(cb.equal(root.get("isshow").as(Integer.class), isShow));
             if (StringUtils.isNotBlank(file.getAppname())) {
                 list.add(cb.equal(root.get("appname").as(String.class), file.getAppname()));
             }
@@ -778,13 +779,13 @@ public class FileServiceImpl implements FileService {
 
         return filePrivilege;
     }
-    
+
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public TbFile filePath(Integer fileId) {
         TbFile file = fileRepository.findById(fileId).get();
         String pathname = file.getTbPath().getParentname();
-        file.setFilepath(pathname+file.getFilepath());
+        file.setFilepath(pathname + file.getFilepath());
         return file;
     }
 

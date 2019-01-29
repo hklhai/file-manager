@@ -327,38 +327,18 @@ public class FileController {
             downloadName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
         }
 
+
         byte[] encodeBytes = FileUtil.getByte(file);
         byte[] decryptEcb = Sm4Util.decryptEcb(KEY, encodeBytes);
 
 
-//        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-//        Cipher cipher = getCipherDecrypt();
-//
-//        //解密文件流
-//        FileOutputStream outputStream = new FileOutputStream(uploadPath + "/tmp");
-//        //以解密流写出文件
-//        CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
-//        byte[] buffer = new byte[1024];
-//        int r;
-//        while ((r = inputStream.read(buffer)) >= 0) {
-//            cipherOutputStream.write(buffer, 0, r);
-//        }
-//        cipherOutputStream.close();
-//        outputStream.close();
-//        inputStream.close();
-//        InputStream stream = new BufferedInputStream(new FileInputStream(uploadPath + "/tmp"));
-
-
-        // 指向response的输出流
-        OutputStream os = response.getOutputStream();
-        os.write(decryptEcb, 0, decryptEcb.length);
-
         response.setHeader("Content-Disposition", "attachment;filename=" + downloadName);
         // 设置强制下载不打开
         response.setContentType("application/force-download");
-
-        File tmp = new File(uploadPath + "/tmp");
-        response.setContentLength((int) tmp.length());
+        response.setContentLength(decryptEcb.length);
+        // 指向response的输出流
+        OutputStream os = response.getOutputStream();
+        os.write(decryptEcb, 0, decryptEcb.length);
 
         os.close();
     }
