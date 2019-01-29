@@ -8,6 +8,7 @@ import com.hxqh.filemanager.repository.*;
 import com.hxqh.filemanager.util.DateUtils;
 import com.hxqh.filemanager.util.FileUtil;
 import com.hxqh.filemanager.util.Md5Utils;
+import com.hxqh.filemanager.util.Sm4Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -25,13 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.Predicate;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -222,28 +224,11 @@ public class FileServiceImpl implements FileService {
                     Optional<TbPath> path = pathRepository.findById(fileInfo.getPathid());
                     filePath = path.get().getPathname() + savePath;
                 }
-                FileOutputStream outputStream;
                 try {
-                    //读取保存密钥的文件
-                    Cipher cipher = getCipherEncrpt();
-
                     //读取要加密的文件流
                     byte[] bytes = file.getBytes();
-                    InputStream inputStream = new ByteArrayInputStream(bytes);
-                    //输出加密后的文件流
-                    outputStream = new FileOutputStream(filePath);
-                    //以加密流写入文件
-                    CipherInputStream cipherInputStream = new CipherInputStream(inputStream, cipher);
-                    byte[] b = new byte[2048];
-                    int len = 0;
-                    //没有读到文件末尾一直读
-                    while ((len = cipherInputStream.read(b)) != -1) {
-                        outputStream.write(b, 0, len);
-                        outputStream.flush();
-                    }
-                    cipherInputStream.close();
-                    inputStream.close();
-                    outputStream.close();
+                    byte[] encodeBytes = Sm4Util.encryptEcb(KEY, bytes);
+                    FileUtil.writeFileByByte(filePath, encodeBytes);
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 }
@@ -255,7 +240,6 @@ public class FileServiceImpl implements FileService {
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
                 TbFile tbFile = saveFileIno(file, fileInfo, refer, savePath, md5String);
-
 
             } else {
                 // 保存文件版本信息

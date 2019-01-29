@@ -94,4 +94,6 @@ public interface IConstants {
 
     String UNION_ALL = " union all ";
 
+    String KEY = "86C63180C2806ED1F47B859DE501200B";
+
 }

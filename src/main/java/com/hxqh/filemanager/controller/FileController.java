@@ -8,24 +8,26 @@ import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.service.FileService;
 import com.hxqh.filemanager.util.FileUtil;
+import com.hxqh.filemanager.util.Sm4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -34,8 +36,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import static com.hxqh.filemanager.common.IConstants.PATH;
-import static com.hxqh.filemanager.common.IConstants.PATH_PRIVATE;
+import static com.hxqh.filemanager.common.IConstants.*;
 
 /**
  * Created by Ocean Lin on 2018/10/30.
@@ -312,32 +313,40 @@ public class FileController {
             downloadName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
         }
 
-        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-        Cipher cipher = getCipherDecrypt();
-
-        //解密文件流
-        FileOutputStream outputStream = new FileOutputStream(uploadPath + "/tmp");
-        //以解密流写出文件
-        CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
-        byte[] buffer = new byte[1024];
-        int r;
-        while ((r = inputStream.read(buffer)) >= 0) {
-            cipherOutputStream.write(buffer, 0, r);
-        }
-        cipherOutputStream.close();
-        outputStream.close();
-        inputStream.close();
+        byte[] encodeBytes = FileUtil.getByte(file);
+        byte[] decryptEcb = Sm4Util.decryptEcb(KEY, encodeBytes);
 
 
-        InputStream stream = new BufferedInputStream(new FileInputStream(uploadPath + "/tmp"));
+//        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+//        Cipher cipher = getCipherDecrypt();
+//
+//        //解密文件流
+//        FileOutputStream outputStream = new FileOutputStream(uploadPath + "/tmp");
+//        //以解密流写出文件
+//        CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, cipher);
+//        byte[] buffer = new byte[1024];
+//        int r;
+//        while ((r = inputStream.read(buffer)) >= 0) {
+//            cipherOutputStream.write(buffer, 0, r);
+//        }
+//        cipherOutputStream.close();
+//        outputStream.close();
+//        inputStream.close();
+//        InputStream stream = new BufferedInputStream(new FileInputStream(uploadPath + "/tmp"));
+
+
+        // 指向response的输出流
+        OutputStream os = response.getOutputStream();
+        os.write(decryptEcb, 0, decryptEcb.length);
+
         response.setHeader("Content-Disposition", "attachment;filename=" + downloadName);
         // 设置强制下载不打开
         response.setContentType("application/force-download");
 
         File tmp = new File(uploadPath + "/tmp");
         response.setContentLength((int) tmp.length());
-        FileCopyUtils.copy(stream, response.getOutputStream());
-        stream.close();
+
+        os.close();
     }
 
     private Cipher getCipherDecrypt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {

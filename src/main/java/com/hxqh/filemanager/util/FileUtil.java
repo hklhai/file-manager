@@ -729,4 +729,42 @@ public final class FileUtil {
             return fileName.matches("[^\\s\\\\/:\\*\\?\\\"<>\\|](\\x20|[^\\s\\\\/:\\*\\?\\\"<>\\|])*[^\\s\\\\/:\\*\\?\\\"<>\\|\\.]$");
         }
     }
+
+
+    public static void writeFileByByte(String path, byte[] contents) {
+        try {
+            FileOutputStream fio = new FileOutputStream(path);
+            fio.write(contents);
+            fio.flush();
+            fio.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] getByte(File file) throws Exception {
+        byte[] bytes = null;
+        if (file != null) {
+            InputStream is = new FileInputStream(file);
+            int length = (int) file.length();
+            //当文件的长度超过了int的最大值
+            if (length > Integer.MAX_VALUE) {
+                System.out.println("this file is max ");
+                return null;
+            }
+            bytes = new byte[length];
+            int offset = 0;
+            int numRead = 0;
+            while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+                offset += numRead;
+            }
+            //如果得到的字节长度和file实际的长度不一致就可能出错了
+            if (offset < bytes.length) {
+                System.out.println("file length is error");
+                return null;
+            }
+            is.close();
+        }
+        return bytes;
+    }
 }
