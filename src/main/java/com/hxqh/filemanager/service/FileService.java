@@ -25,7 +25,7 @@ public interface FileService {
      * @param fileInfo 上传文件信息
      * @throws Exception
      */
-    void saveFile(MultipartFile files, FileInfo fileInfo) throws Exception;
+    FileIdSize saveFile(MultipartFile files, FileInfo fileInfo) throws Exception;
 
     /**
      * @param fileId
@@ -178,9 +178,25 @@ public interface FileService {
     void logicDeleteFile(Integer fileId);
 
     /**
-     *
      * @param fileId
      * @return
      */
     TbFile filePath(Integer fileId);
+
+    /**
+     * 保存icon
+     *
+     * @param files
+     * @param fileInfo
+     * @return
+     */
+    String saveIcon(MultipartFile files, FileInfo fileInfo);
+
+    /**
+     * 根据userid获取WebUrl
+     *
+     * @param fileInfo
+     * @return
+     */
+    String getIconUrl(FileInfo fileInfo);
 }

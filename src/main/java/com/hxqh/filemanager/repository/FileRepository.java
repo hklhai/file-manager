@@ -57,4 +57,13 @@ public interface FileRepository extends JpaRepository<TbFile, Integer>, JpaSpeci
      */
     @Query("select u from TbFile u where u.tbPath.pathid=?1 and u.userid = ?2")
     List<TbFile> findByPathidAndUserId(Integer pathId, Integer userId);
+
+
+    /**
+     * @param appname
+     * @param userid
+     * @return
+     */
+    @Query("select u from TbFile u where u.appname = ?1 and u.userid = ?2")
+    TbFile findAppnameAndUserid(String appname, Integer userid);
 }

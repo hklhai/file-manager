@@ -4,6 +4,8 @@ import com.hxqh.filemanager.common.IConstants;
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.model.base.Message;
+import com.hxqh.filemanager.model.base.MessageFile;
+import com.hxqh.filemanager.model.base.MessageInfo;
 import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.service.FileService;
@@ -59,16 +61,16 @@ public class FileController {
 
     @ResponseBody
     @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)
-    public Message uploadfile(@RequestParam("files") MultipartFile files,
-                              @RequestParam(value = "userid", defaultValue = "0") Integer userid,
-                              @RequestParam(value = "username", defaultValue = "") String username,
-                              @RequestParam(value = "deptid", defaultValue = "0") Integer deptid,
-                              @RequestParam(value = "deptfullname", defaultValue = "") String deptfullname,
-                              @RequestParam(value = "appid", defaultValue = "0") Integer appid,
-                              @RequestParam(value = "appname", defaultValue = "") String appname,
-                              @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
-                              @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
-        Message message;
+    public MessageFile uploadfile(@RequestParam("files") MultipartFile files,
+                                  @RequestParam(value = "userid", defaultValue = "0") Integer userid,
+                                  @RequestParam(value = "username", defaultValue = "") String username,
+                                  @RequestParam(value = "deptid", defaultValue = "0") Integer deptid,
+                                  @RequestParam(value = "deptfullname", defaultValue = "") String deptfullname,
+                                  @RequestParam(value = "appid", defaultValue = "0") Integer appid,
+                                  @RequestParam(value = "appname", defaultValue = "") String appname,
+                                  @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
+                                  @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
+        MessageFile message;
         if (0 == pathid && 0 != appid) {
             pathid = PATH;
         } else if (0 == pathid && 0 == appid) {
@@ -76,14 +78,14 @@ public class FileController {
         }
         try {
             if (0 == files.getSize()) {
-                message = new Message(IConstants.FAIL, IConstants.UPLOADSIZE);
+                message = new MessageFile(IConstants.FAIL, IConstants.UPLOADSIZE);
             } else if (PATH_PRIVATE.equals(pathid)) {
-                message = new Message(IConstants.FAIL, IConstants.PATHPRIVATEROOT);
+                message = new MessageFile(IConstants.FAIL, IConstants.PATHPRIVATEROOT);
                 // 已存在
             } else if (files.getOriginalFilename().split(IConstants.DOT).length >= NUM) {
-                message = new Message(IConstants.FAIL, IConstants.UPLOADDOT);
+                message = new MessageFile(IConstants.FAIL, IConstants.UPLOADDOT);
             } else if (null == deptfullname || "".equals(deptfullname)) {
-                message = new Message(IConstants.FAIL, IConstants.DEPT_IS_NULL);
+                message = new MessageFile(IConstants.FAIL, IConstants.DEPT_IS_NULL);
             } else {
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.setUserid(userid);
@@ -94,11 +96,55 @@ public class FileController {
                 fileInfo.setAppid(appid);
                 fileInfo.setAppname(appname);
                 fileInfo.setPathid(pathid);
-                fileService.saveFile(files, fileInfo);
-                message = new Message(IConstants.SUCCESS, IConstants.UPLOADSUCCESS);
+                FileIdSize fileIdSize = fileService.saveFile(files, fileInfo);
+                message = new MessageFile(IConstants.SUCCESS, IConstants.UPLOADSUCCESS,
+                        fileIdSize.getFileid(), fileIdSize.getFilesize());
             }
         } catch (Exception e) {
-            message = new Message(IConstants.FAIL, IConstants.UPLOADFAIL);
+            message = new MessageFile(IConstants.FAIL, IConstants.UPLOADFAIL);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/uploadIcon", method = RequestMethod.POST)
+    public MessageInfo uploadIcon(@RequestParam("files") MultipartFile files,
+                                  @RequestParam(value = "userid", defaultValue = "0") Integer userid,
+                                  @RequestParam(value = "appname", defaultValue = "icon") String appname,
+                                  @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
+                                  @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
+        MessageInfo message;
+        String icon;
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setUserid(userid);
+        fileInfo.setRecordid(recordid);
+        fileInfo.setAppname(appname);
+        fileInfo.setPathid(pathid);
+        try {
+            icon = fileService.saveIcon(files, fileInfo);
+            message = new MessageInfo(IConstants.SUCCESS, IConstants.UPLOADSUCCESS, icon);
+        } catch (Exception e) {
+            message = new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL, null);
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/icon", method = RequestMethod.GET)
+    public MessageInfo icon(@RequestParam(value = "appname", defaultValue = "icon") String appname,
+                            @RequestParam(value = "recordid", defaultValue = "0") Integer recordid) {
+        MessageInfo message;
+        String icon;
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setRecordid(recordid);
+        fileInfo.setAppname(appname);
+        try {
+            icon = fileService.getIconUrl(fileInfo);
+            message = new MessageInfo(IConstants.SUCCESS, IConstants.UPLOADSUCCESS, icon);
+        } catch (Exception e) {
+            message = new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL, null);
             e.printStackTrace();
         }
         return message;

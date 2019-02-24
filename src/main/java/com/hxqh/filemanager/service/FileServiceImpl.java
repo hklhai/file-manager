@@ -109,9 +109,6 @@ public class FileServiceImpl implements FileService {
             if (StringUtils.isNotBlank(file.getFilerealname())) {
                 list.add(cb.like(root.get("filerealname").as(String.class), file.getFilerealname() + "%"));
             }
-            if (StringUtils.isNotBlank(file.getAppname())) {
-                list.add(cb.like(root.get("appname").as(String.class), file.getAppname() + "%"));
-            }
 
             Predicate[] p = new Predicate[list.size()];
             return cb.and(list.toArray(p));
@@ -206,7 +203,7 @@ public class FileServiceImpl implements FileService {
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
+    public FileIdSize saveFile(MultipartFile file, FileInfo fileInfo) throws Exception {
         Refer refer = null;
         String filePath, savePath;
         String md5String = Md5Utils.getFileMD5String(file.getBytes());
@@ -241,15 +238,59 @@ public class FileServiceImpl implements FileService {
 
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
-                TbFile tbFile = saveFileIno(file, fileInfo, refer, savePath, md5String);
-
+                TbFile save = saveFileIno(file, fileInfo, refer, savePath, md5String);
+                FileIdSize fileIdSize = new FileIdSize(save.getFileid(), save.getFilesize());
+                return fileIdSize;
             } else {
                 // 保存文件版本信息
-                saveFileVersion(file, fileInfo, refer, savePath, md5String);
+                TbFileVersion tbFileVersion = saveFileVersion(file, fileInfo, refer, savePath, md5String);
+                FileIdSize fileIdSize = new FileIdSize(tbFileVersion.getFileversionid(), tbFileVersion.getFilesize());
+                return fileIdSize;
             }
 
         }
+        return null;
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public String saveIcon(MultipartFile file, FileInfo fileInfo) {
+        // TODO: 2019/2/20  测试上传文件及返回webUrl
+        String filePath = null, savePath;
+        TbPath path = null;
+        savePath = fileInfo.getUserid().toString();
+
+        if (file.getOriginalFilename() != null && file.getSize() > 0) {
+            // 保存至文件系统
+            path = pathRepository.findById(fileInfo.getPathid()).get();
+            filePath = path.getPathname() + savePath + DOT + file.getOriginalFilename();
+            try {
+                byte[] bytes = file.getBytes();
+                FileUtil.writeFileByByte(filePath, bytes);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+        }
+        TbFile tbFile = saveIconIno(file, fileInfo, savePath, path);
+        return webUrl + filePath;
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public String getIconUrl(FileInfo fileInfo) {
+        // TODO: 2019/2/20 待测试
+        TbFile file = fileRepository.findAppnameAndUserid(fileInfo.getAppname(), fileInfo.getUserid());
+        return webUrl + file.getFilepath();
+    }
+
+    private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path) {
+        TbFile tbFile = new TbFile();
+        setFileProperties(file, fileInfo, savePath, tbFile);
+        tbFile.setTbPath(path);
+        tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
+        tbFile.setIsshow(1);
+        fileRepository.save(tbFile);
+        return tbFile;
     }
 
     private TbFile saveFileIno(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
@@ -298,13 +339,13 @@ public class FileServiceImpl implements FileService {
         tbFile.setTbCurrentFileLogs(tbCurrentFileLogList);
         tbFile.setIsshow(1);
 
-        fileRepository.save(tbFile);
+        TbFile save = fileRepository.save(tbFile);
         fileLogRepository.save(fileLog);
         currentFileLogRepository.save(tbCurrentFileLog);
-        return tbFile;
+        return save;
     }
 
-    private void saveFileVersion(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
+    private TbFileVersion saveFileVersion(MultipartFile file, FileInfo fileInfo, Refer refer, String savePath, String md5String) {
         TbFile tbFile = fileRepository.findByFileid(fileInfo.getFileid());
         TbFileVersion fileVersion = new TbFileVersion();
         BeanUtils.copyProperties(tbFile, fileVersion);
@@ -320,7 +361,8 @@ public class FileServiceImpl implements FileService {
         if (null != refer) {
             BeanUtils.copyProperties(refer, fileVersion);
         }
-        fileVersionRepository.save(fileVersion);
+        TbFileVersion save = fileVersionRepository.save(fileVersion);
+        return save;
     }
 
     private Cipher getCipherEncrpt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
@@ -788,5 +830,6 @@ public class FileServiceImpl implements FileService {
         file.setFilepath(pathname + file.getFilepath());
         return file;
     }
+
 
 }
