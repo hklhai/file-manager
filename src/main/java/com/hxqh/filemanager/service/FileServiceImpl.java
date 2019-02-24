@@ -63,6 +63,10 @@ public class FileServiceImpl implements FileService {
     @Value(value = "${com.hxqh.filemanager.file.download}")
     private String downloadUrl;
 
+    @Value(value = "${com.hxqh.filemanager.icon}")
+    private String icondPath;
+
+
     @Autowired
     private EntityManagerFactory entityManagerFactory;
 
@@ -278,9 +282,8 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public String getIconUrl(FileInfo fileInfo) {
-        // TODO: 2019/2/20 待测试
         TbFile file = fileRepository.findAppnameAndUserid(fileInfo.getAppname(), fileInfo.getUserid());
-        return webUrl + file.getFilepath();
+        return icondPath + file.getFilepath();
     }
 
     private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path) {
