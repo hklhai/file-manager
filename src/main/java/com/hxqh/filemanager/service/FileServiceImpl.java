@@ -60,6 +60,9 @@ public class FileServiceImpl implements FileService {
     @Value(value = "${com.hxqh.filemanager.file.url}")
     private String webUrl;
 
+    @Value(value = "${com.hxqh.filemanager.file.tomcat.url}")
+    private String iconUrl;
+
     @Value(value = "${com.hxqh.filemanager.file.download}")
     private String downloadUrl;
 
@@ -243,12 +246,14 @@ public class FileServiceImpl implements FileService {
             if (null == fileInfo.getFileid()) {
                 // 保存文件信息
                 TbFile save = saveFileIno(file, fileInfo, refer, savePath, md5String);
-                FileIdSize fileIdSize = new FileIdSize(save.getFileid(), save.getFilesize());
+                String webLink = webUrl + downloadUrl + DOWNLOAD_FILE + save.getFileid();
+                FileIdSize fileIdSize = new FileIdSize(save.getFileid(), save.getFilesize(), webLink);
                 return fileIdSize;
             } else {
                 // 保存文件版本信息
                 TbFileVersion tbFileVersion = saveFileVersion(file, fileInfo, refer, savePath, md5String);
-                FileIdSize fileIdSize = new FileIdSize(tbFileVersion.getFileversionid(), tbFileVersion.getFilesize());
+                String webLink = webUrl + downloadUrl + DOWNLOAD_FILE + tbFileVersion.getFileversionid();
+                FileIdSize fileIdSize = new FileIdSize(tbFileVersion.getFileversionid(), tbFileVersion.getFilesize(), webLink);
                 return fileIdSize;
             }
 
@@ -258,16 +263,15 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String saveIcon(MultipartFile file, FileInfo fileInfo) throws IOException {
-        // TODO: 2019/2/20  测试上传文件及返回webUrl
+    public IconDto saveIcon(MultipartFile file, FileInfo fileInfo) throws IOException {
         String filePath = null, savePath;
         TbPath path = null;
-        savePath = fileInfo.getUserid().toString();
+        savePath = fileInfo.getUserid().toString() + "." + file.getOriginalFilename().split("\\.")[1];
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             // 保存至文件系统
             path = pathRepository.findById(fileInfo.getPathid()).get();
-            filePath = path.getPathname() + "/" + savePath + "." + file.getOriginalFilename().split("\\.")[1];
+            filePath = path.getPathname() + "/" + savePath;
             try {
                 byte[] bytes = file.getBytes();
                 FileUtil.writeFileByByte(filePath, bytes);
@@ -276,18 +280,26 @@ public class FileServiceImpl implements FileService {
             }
         }
         TbFile tbFile = saveIconIno(file, fileInfo, savePath, path);
-        return webUrl + filePath;
+        IconDto iconDto = new IconDto(webUrl + "/" + tbFile.getFilepath(), tbFile.getFileid());
+        return iconDto;
     }
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
-    public String getIconUrl(FileInfo fileInfo) {
+    public IconDto getIconUrl(FileInfo fileInfo) {
         TbFile file = fileRepository.findAppnameAndUserid(fileInfo.getAppname(), fileInfo.getUserid());
-        return icondPath + file.getFilepath();
+        IconDto iconDto = new IconDto(webUrl + "/" + file.getFilepath(), file.getFileid());
+        return iconDto;
     }
 
     private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path) throws IOException {
-        TbFile tbFile = new TbFile();
+        TbFile tbFile = null;
+        if (0 == fileInfo.getFileid()) {
+            fileInfo.setFileid(null);
+            tbFile = new TbFile();
+        } else {
+            tbFile = fileRepository.findByFileid(fileInfo.getFileid());
+        }
         setFileProperties(file, fileInfo, savePath, tbFile);
         tbFile.setTbPath(path);
         tbFile.setFilename(file.getOriginalFilename());
@@ -296,7 +308,7 @@ public class FileServiceImpl implements FileService {
         tbFile.setFilestatus(STATUS_RELEASE);
         String md5String = Md5Utils.getFileMD5String(file.getBytes());
         tbFile.setMd5(md5String);
-        fileRepository.save(tbFile);
+        fileRepository.saveAndFlush(tbFile);
         return tbFile;
     }
 

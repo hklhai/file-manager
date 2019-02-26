@@ -11,6 +11,8 @@ public class MessageFile extends Message {
 
     private Float filesize;
 
+    private String webUrl;
+
     public MessageFile() {
     }
 
@@ -18,14 +20,23 @@ public class MessageFile extends Message {
         super(code, message);
     }
 
-    public MessageFile(int code, String message, Integer fileid, Float filesize) {
+    public MessageFile(int code, String message, Integer fileid, Float filesize, String webUrl) {
         super(code, message);
         this.fileid = fileid;
         this.filesize = filesize;
+        this.webUrl = webUrl;
     }
 
     public MessageFile(int code, String message, boolean success) {
         super(code, message, success);
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
     }
 
     public Integer getFileid() {

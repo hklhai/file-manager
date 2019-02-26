@@ -24,11 +24,14 @@ public interface IConstants {
     String MSIE = "MSIE";
     String TRIDENT = "Trident";
 
+    String GET_SUCCESS = "获取成功";
+    String GET_FAIL = "获取失败";
 
     String DELETESUCCESS = "删除成功!";
     String DELETEFAIL = "删除失败!";
     String UPLOADSUCCESS = "上传成功!";
     String UPLOADFAIL = "上传失败!";
+    String UPLOADFAIL_ICON = "头像需要PNG格式";
     String UPLOADSIZE = "文件大小不能为0!";
     String UPLOADDOT = "名称中包含“.”，请修改后重试！";
     String DEPT_IS_NULL = "组织机构名称不能为空！";

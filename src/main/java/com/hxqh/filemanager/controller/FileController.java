@@ -98,7 +98,7 @@ public class FileController {
                 fileInfo.setPathid(pathid);
                 FileIdSize fileIdSize = fileService.saveFile(files, fileInfo);
                 message = new MessageFile(IConstants.SUCCESS, IConstants.UPLOADSUCCESS,
-                        fileIdSize.getFileid(), fileIdSize.getFilesize());
+                        fileIdSize.getFileid(), fileIdSize.getFilesize(), fileIdSize.getWebUrl());
             }
         } catch (Exception e) {
             message = new MessageFile(IConstants.FAIL, IConstants.UPLOADFAIL);
@@ -116,24 +116,31 @@ public class FileController {
                                   @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
                                   @RequestParam(value = "deptid", defaultValue = "0") Integer deptid,
                                   @RequestParam(value = "deptfullname", defaultValue = "") String deptfullname,
-                                  @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
+                                  @RequestParam(value = "pathid", defaultValue = "0") Integer pathid,
+                                  @RequestParam(value = "fileid", defaultValue = "0") Integer fileid) {
 
         // todo  增加fileid 判断是否修改
         MessageInfo message;
-        String icon;
+        IconDto icon;
         FileInfo fileInfo = new FileInfo();
         fileInfo.setUserid(userid);
-        fileInfo.setRecordid(recordid);
+        fileInfo.setRecordid(userid);
         fileInfo.setUsername(username);
         fileInfo.setAppname(appname);
         fileInfo.setDeptid(deptid);
         fileInfo.setDeptfullname(deptfullname);
         fileInfo.setPathid(pathid);
+        fileInfo.setFileid(fileid);
+        String extension = files.getOriginalFilename().split("\\.")[1].toUpperCase();
+        if (!"PNG".equals(extension)) {
+            return new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL_ICON, null, null);
+        }
+
         try {
             icon = fileService.saveIcon(files, fileInfo);
-            message = new MessageInfo(IConstants.SUCCESS, IConstants.UPLOADSUCCESS, icon);
+            message = new MessageInfo(IConstants.SUCCESS, IConstants.UPLOADSUCCESS, icon.getIcon(), icon.getFileid());
         } catch (Exception e) {
-            message = new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL, null);
+            message = new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL, null, null);
             e.printStackTrace();
         }
         return message;
@@ -142,17 +149,17 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/icon", method = RequestMethod.GET)
     public MessageInfo icon(@RequestParam(value = "appname", defaultValue = "icon") String appname,
-                            @RequestParam(value = "recordid", defaultValue = "0") Integer recordid) {
+                            @RequestParam(value = "userid", defaultValue = "0") Integer userid) {
         MessageInfo message;
-        String icon;
+        IconDto icon;
         FileInfo fileInfo = new FileInfo();
-        fileInfo.setRecordid(recordid);
+        fileInfo.setUserid(userid);
         fileInfo.setAppname(appname);
         try {
             icon = fileService.getIconUrl(fileInfo);
-            message = new MessageInfo(IConstants.SUCCESS, IConstants.UPLOADSUCCESS, icon);
+            message = new MessageInfo(IConstants.SUCCESS, IConstants.GET_SUCCESS, icon.getIcon(), icon.getFileid());
         } catch (Exception e) {
-            message = new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL, null);
+            message = new MessageInfo(IConstants.FAIL, IConstants.GET_FAIL, null, null);
             e.printStackTrace();
         }
         return message;

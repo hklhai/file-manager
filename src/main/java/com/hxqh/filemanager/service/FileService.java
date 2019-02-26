@@ -191,7 +191,7 @@ public interface FileService {
      * @param fileInfo
      * @return
      */
-    String saveIcon(MultipartFile files, FileInfo fileInfo) throws IOException;
+    IconDto saveIcon(MultipartFile files, FileInfo fileInfo) throws IOException;
 
     /**
      * 根据userid获取WebUrl
@@ -199,5 +199,5 @@ public interface FileService {
      * @param fileInfo
      * @return
      */
-    String getIconUrl(FileInfo fileInfo);
+    IconDto getIconUrl(FileInfo fileInfo);
 }

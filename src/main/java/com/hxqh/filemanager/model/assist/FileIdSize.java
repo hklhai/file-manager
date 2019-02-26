@@ -11,12 +11,24 @@ public class FileIdSize {
 
     private Float filesize;
 
+
+    private String webUrl;
+
     public FileIdSize() {
     }
 
-    public FileIdSize(Integer fileid, Float filesize) {
+    public FileIdSize(Integer fileid, Float filesize, String webUrl) {
         this.fileid = fileid;
         this.filesize = filesize;
+        this.webUrl = webUrl;
+    }
+
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
     }
 
     public Integer getFileid() {
