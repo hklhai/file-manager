@@ -111,15 +111,23 @@ public class FileController {
     @RequestMapping(value = "/uploadIcon", method = RequestMethod.POST)
     public MessageInfo uploadIcon(@RequestParam("files") MultipartFile files,
                                   @RequestParam(value = "userid", defaultValue = "0") Integer userid,
+                                  @RequestParam(value = "username", defaultValue = "") String username,
                                   @RequestParam(value = "appname", defaultValue = "icon") String appname,
                                   @RequestParam(value = "recordid", defaultValue = "0") Integer recordid,
+                                  @RequestParam(value = "deptid", defaultValue = "0") Integer deptid,
+                                  @RequestParam(value = "deptfullname", defaultValue = "") String deptfullname,
                                   @RequestParam(value = "pathid", defaultValue = "0") Integer pathid) {
+
+        // todo  增加fileid 判断是否修改
         MessageInfo message;
         String icon;
         FileInfo fileInfo = new FileInfo();
         fileInfo.setUserid(userid);
         fileInfo.setRecordid(recordid);
+        fileInfo.setUsername(username);
         fileInfo.setAppname(appname);
+        fileInfo.setDeptid(deptid);
+        fileInfo.setDeptfullname(deptfullname);
         fileInfo.setPathid(pathid);
         try {
             icon = fileService.saveIcon(files, fileInfo);

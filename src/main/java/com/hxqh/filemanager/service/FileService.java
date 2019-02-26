@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -190,7 +191,7 @@ public interface FileService {
      * @param fileInfo
      * @return
      */
-    String saveIcon(MultipartFile files, FileInfo fileInfo);
+    String saveIcon(MultipartFile files, FileInfo fileInfo) throws IOException;
 
     /**
      * 根据userid获取WebUrl

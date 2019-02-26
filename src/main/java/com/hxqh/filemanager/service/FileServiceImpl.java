@@ -258,7 +258,7 @@ public class FileServiceImpl implements FileService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String saveIcon(MultipartFile file, FileInfo fileInfo) {
+    public String saveIcon(MultipartFile file, FileInfo fileInfo) throws IOException {
         // TODO: 2019/2/20  测试上传文件及返回webUrl
         String filePath = null, savePath;
         TbPath path = null;
@@ -267,7 +267,7 @@ public class FileServiceImpl implements FileService {
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             // 保存至文件系统
             path = pathRepository.findById(fileInfo.getPathid()).get();
-            filePath = path.getPathname() + savePath + DOT + file.getOriginalFilename();
+            filePath = path.getPathname() + "/" + savePath + "." + file.getOriginalFilename().split("\\.")[1];
             try {
                 byte[] bytes = file.getBytes();
                 FileUtil.writeFileByByte(filePath, bytes);
@@ -286,12 +286,16 @@ public class FileServiceImpl implements FileService {
         return icondPath + file.getFilepath();
     }
 
-    private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path) {
+    private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path) throws IOException {
         TbFile tbFile = new TbFile();
         setFileProperties(file, fileInfo, savePath, tbFile);
         tbFile.setTbPath(path);
+        tbFile.setFilename(file.getOriginalFilename());
         tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
         tbFile.setIsshow(1);
+        tbFile.setFilestatus(STATUS_RELEASE);
+        String md5String = Md5Utils.getFileMD5String(file.getBytes());
+        tbFile.setMd5(md5String);
         fileRepository.save(tbFile);
         return tbFile;
     }
