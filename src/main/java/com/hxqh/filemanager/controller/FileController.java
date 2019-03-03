@@ -119,7 +119,6 @@ public class FileController {
                                   @RequestParam(value = "pathid", defaultValue = "0") Integer pathid,
                                   @RequestParam(value = "fileid", defaultValue = "0") Integer fileid) {
 
-        // todo  增加fileid 判断是否修改
         MessageInfo message;
         IconDto icon;
         FileInfo fileInfo = new FileInfo();
@@ -132,7 +131,7 @@ public class FileController {
         fileInfo.setPathid(pathid);
         fileInfo.setFileid(fileid);
         String extension = files.getOriginalFilename().split("\\.")[1].toUpperCase();
-        if (!"PNG".equals(extension)) {
+        if (!(PNG.equals(extension) || JPG.equals(extension))) {
             return new MessageInfo(IConstants.FAIL, IConstants.UPLOADFAIL_ICON, null, null);
         }
 

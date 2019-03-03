@@ -266,7 +266,8 @@ public class FileServiceImpl implements FileService {
     public IconDto saveIcon(MultipartFile file, FileInfo fileInfo) throws IOException {
         String filePath = null, savePath;
         TbPath path = null;
-        savePath = fileInfo.getUserid().toString() + "." + file.getOriginalFilename().split("\\.")[1];
+        String uuid = UUID.randomUUID().toString();
+        savePath = uuid + "." + file.getOriginalFilename().split("\\.")[1];
 
         if (file.getOriginalFilename() != null && file.getSize() > 0) {
             // 保存至文件系统
@@ -279,8 +280,8 @@ public class FileServiceImpl implements FileService {
                 logger.error(e.getMessage());
             }
         }
-        TbFile tbFile = saveIconIno(file, fileInfo, savePath, path);
-        IconDto iconDto = new IconDto(webUrl + "/" + tbFile.getFilepath(), tbFile.getFileid());
+        TbFile tbFile = saveIconIno(file, fileInfo, savePath, path, uuid);
+        IconDto iconDto = new IconDto(iconUrl + "/" + tbFile.getFilepath(), tbFile.getFileid());
         return iconDto;
     }
 
@@ -288,11 +289,11 @@ public class FileServiceImpl implements FileService {
     @Override
     public IconDto getIconUrl(FileInfo fileInfo) {
         TbFile file = fileRepository.findAppnameAndUserid(fileInfo.getAppname(), fileInfo.getUserid());
-        IconDto iconDto = new IconDto(webUrl + "/" + file.getFilepath(), file.getFileid());
+        IconDto iconDto = new IconDto(iconUrl + "/" + file.getFilepath(), file.getFileid());
         return iconDto;
     }
 
-    private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path) throws IOException {
+    private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path, String uuid) throws IOException {
         TbFile tbFile = null;
         if (0 == fileInfo.getFileid()) {
             fileInfo.setFileid(null);
@@ -305,6 +306,7 @@ public class FileServiceImpl implements FileService {
         tbFile.setFilename(file.getOriginalFilename());
         tbFile.setExtensionname(file.getOriginalFilename().split("\\.")[1]);
         tbFile.setIsshow(1);
+        tbFile.setFilename(uuid);
         tbFile.setFilestatus(STATUS_RELEASE);
         String md5String = Md5Utils.getFileMD5String(file.getBytes());
         tbFile.setMd5(md5String);

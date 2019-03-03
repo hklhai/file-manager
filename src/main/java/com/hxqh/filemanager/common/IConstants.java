@@ -31,7 +31,7 @@ public interface IConstants {
     String DELETEFAIL = "删除失败!";
     String UPLOADSUCCESS = "上传成功!";
     String UPLOADFAIL = "上传失败!";
-    String UPLOADFAIL_ICON = "头像需要PNG格式";
+    String UPLOADFAIL_ICON = "头像需要PNG或PNG格式";
     String UPLOADSIZE = "文件大小不能为0!";
     String UPLOADDOT = "名称中包含“.”，请修改后重试！";
     String DEPT_IS_NULL = "组织机构名称不能为空！";
@@ -98,5 +98,8 @@ public interface IConstants {
     String UNION_ALL = " union all ";
 
     String KEY = "86C63180C2806ED1F47B859DE501200B";
+
+    String PNG = "PNG";
+    String JPG = "JPG";
 
 }
