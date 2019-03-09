@@ -36,9 +36,6 @@ CREATE TABLE `tb_path` (
 -- ----------------------------
 -- Records of tb_path
 -- ----------------------------
-INSERT INTO `tb_path` VALUES ('1', null, 'C:/doclinks', '', null, '-1');
-INSERT INTO `tb_path` VALUES ('2', '1', 'C:/doclinks/private', 'D:/DOCLINKS', 'private', '0');
-INSERT INTO `tb_path` VALUES ('3', null, '/home/hadoop/doclinks', ' ', null, '-1');
-INSERT INTO `tb_path` VALUES ('4', null, '/home/hadoop/doclinks/private', '/home/hadoop/doclinks', 'private', '0');
-INSERT INTO `tb_path` VALUES ('5', null, '/home/hadoop/doclinks/icon', '/home/hadoop/doclinks', 'icon', '-1');
-INSERT INTO `tb_path` VALUES ('6', '1', 'C:/doclinks/icon', 'D:/DOCLINKS', 'icon', '-1');
+INSERT INTO `tb_path` VALUES (3, NULL, 'C:/doclinks', ' ', NULL, -1);
+INSERT INTO `tb_path` VALUES (4, 3, 'C:/doclinks/private', 'C:/doclinks', 'private', 0);
+INSERT INTO `tb_path` VALUES (5, 3, 'C:/doclinks/icon', 'C:/doclinks', 'icon', -1);

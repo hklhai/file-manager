@@ -9,8 +9,8 @@ public interface IConstants {
 
 
     String OS = System.getProperty("os.name");
-    Integer PATH = OS.toLowerCase().startsWith("win") == true ? 1 : 3;
-    Integer PATH_PRIVATE = OS.toLowerCase().startsWith("win") == true ? 2 : 4;
+    Integer PATH = OS.toLowerCase().startsWith("win") == true ? 3 : 3;
+    Integer PATH_PRIVATE = OS.toLowerCase().startsWith("win") == true ? 4 : 4;
 
     String FILE = "file";
     Integer SUCCESS = 1;
