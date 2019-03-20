@@ -324,6 +324,22 @@ public class FileServiceImpl implements FileService {
         Integer offset = (page - 1) * size;
         Integer pageSize = size;
 
+        List<VBaseKeywordFile> list = getvBaseKeywordFiles(baseKeywordFile, session, filename, offset, pageSize);
+
+        // 查询总数
+        Integer total = getCount(baseKeywordFile, session, filename);
+        Integer totalPages = (total + pageSize - 1) / pageSize;
+
+        list.stream().map(e -> {
+            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
+            return e;
+        }).collect(Collectors.toList());
+
+        return new BaseKeywordDto(list, total, totalPages, page, size);
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    private List<VBaseKeywordFile> getvBaseKeywordFiles(BaseKeywordFile baseKeywordFile, Session session, String filename, Integer offset, Integer pageSize) {
         StringBuilder querySQL = new StringBuilder(300);
         querySQL.append(KEYWORD_SQL_1);
         querySQL.append(COMMON_CONDTION);
@@ -343,9 +359,11 @@ public class FileServiceImpl implements FileService {
         if (!"".equals(filename)) {
             nativeQuery.setParameter("filename", filename + "%");
         }
-        List<VBaseKeywordFile> list = nativeQuery.list();
+        return (List<VBaseKeywordFile>) nativeQuery.list();
+    }
 
-        // 查询总数
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    private Integer getCount(BaseKeywordFile baseKeywordFile, Session session, String filename) {
         StringBuilder countSQL = new StringBuilder(300);
         countSQL.append(KEYWORD_SQL_2);
         countSQL.append(COMMON_CONDTION);
@@ -361,15 +379,7 @@ public class FileServiceImpl implements FileService {
         if (!"".equals(filename)) {
             countQuery.setParameter("filename", filename + "%");
         }
-        Integer total = Integer.parseInt(countQuery.uniqueResult().toString());
-        Integer totalPages = (total + pageSize - 1) / pageSize;
-
-        list.stream().map(e -> {
-            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
-            return e;
-        }).collect(Collectors.toList());
-
-        return new BaseKeywordDto(list, total, totalPages, page, size);
+        return Integer.parseInt(countQuery.uniqueResult().toString());
     }
 
     private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path, String uuid) throws IOException {
