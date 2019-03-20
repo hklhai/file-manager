@@ -8,6 +8,7 @@ public class BaseKeywordFile {
     private Integer userid;
     private Integer categoryid;
     private Integer keywordid;
+    private String filename;
 
     public BaseKeywordFile() {
     }
@@ -16,6 +17,14 @@ public class BaseKeywordFile {
         this.userid = userid;
         this.categoryid = categoryid;
         this.keywordid = keywordid;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public Integer getUserid() {

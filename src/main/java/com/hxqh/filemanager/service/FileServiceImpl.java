@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -318,26 +319,49 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public BaseKeywordDto baseKeywordList(BaseKeywordFile baseKeywordFile, int page, int size) {
+        Session session = getSession();
+        String filename = baseKeywordFile.getFilename();
         Integer offset = (page - 1) * size;
         Integer pageSize = size;
 
-        List<VBaseKeywordFile> list = getSession().createSQLQuery(KEYWORD_SQL_1 + ":userid \n" +
-                "\tAND kp.categoryid = :categoryid \n" +
-                "\tAND kp.keywordid = :keywordid \n" +
-                "\tLIMIT :offset,:pageSize")
+        StringBuilder querySQL = new StringBuilder(300);
+        querySQL.append(KEYWORD_SQL_1);
+        querySQL.append(COMMON_CONDTION);
+        if (!"".equals(filename)) {
+            querySQL.append("and f.filename like :filename ");
+        }
+        querySQL.append("LIMIT :offset,:pageSize");
+
+        NativeQuery nativeQuery = session.createSQLQuery(querySQL.toString())
                 .addEntity(VBaseKeywordFile.class)
                 .setParameter("categoryid", baseKeywordFile.getCategoryid())
                 .setParameter("keywordid", baseKeywordFile.getKeywordid())
                 .setParameter("offset", offset)
                 .setParameter("pageSize", pageSize)
-                .setParameter("userid", baseKeywordFile.getUserid()).list();
+                .setParameter("userid", baseKeywordFile.getUserid());
 
-        Integer total = Integer.parseInt(getSession().createSQLQuery(KEYWORD_SQL_2 + " :userid \n" +
-                "\tAND kp.categoryid = :categoryid \n" +
-                "\tAND kp.keywordid = :keywordid \n")
+        if (!"".equals(filename)) {
+            nativeQuery.setParameter("filename", filename + "%");
+        }
+        List<VBaseKeywordFile> list = nativeQuery.list();
+
+        // 查询总数
+        StringBuilder countSQL = new StringBuilder(300);
+        countSQL.append(KEYWORD_SQL_2);
+        countSQL.append(COMMON_CONDTION);
+        if (!"".equals(filename)) {
+            countSQL.append("and f.filename like :filename ");
+        }
+
+        NativeQuery countQuery = session.createSQLQuery(countSQL.toString())
                 .setParameter("categoryid", baseKeywordFile.getCategoryid())
                 .setParameter("keywordid", baseKeywordFile.getKeywordid())
-                .setParameter("userid", baseKeywordFile.getUserid()).uniqueResult().toString());
+                .setParameter("userid", baseKeywordFile.getUserid());
+
+        if (!"".equals(filename)) {
+            countQuery.setParameter("filename", filename + "%");
+        }
+        Integer total = Integer.parseInt(countQuery.uniqueResult().toString());
         Integer totalPages = (total + pageSize - 1) / pageSize;
 
         list.stream().map(e -> {

@@ -135,4 +135,6 @@ public interface IConstants {
             "AND fk.keywordid = kp.keywordid \n" +
             "AND kp.userid =";
 
+
+    String COMMON_CONDTION = ":userid AND kp.categoryid = :categoryid AND kp.keywordid = :keywordid ";
 }
