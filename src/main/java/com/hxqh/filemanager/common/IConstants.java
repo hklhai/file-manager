@@ -102,4 +102,37 @@ public interface IConstants {
     String PNG = "PNG";
     String JPG = "JPG";
 
+    String KEYWORD_SQL_1 = "SELECT\n" +
+            "\t`f`.`fileid` AS `fileid`,\n" +
+            "\t`f`.`filepath` AS `filepath`,\n" +
+            "\t`f`.`filename` AS `filename`,\n" +
+            "\t`f`.`deptid` AS `deptid`,\n" +
+            "\t`f`.`deptfullname` AS `deptfullname`,\n" +
+            "\t`f`.`filestatus` AS `filestatus`,\n" +
+            "\t`f`.`uploadtime` AS `uploadtime`,\n" +
+            "\t`f`.`filesize` AS `filesize`,\n" +
+            "\t`f`.`isshow` AS `isshow` \n" +
+            "FROM\n" +
+            "\ttb_file f,\n" +
+            "\ttb_file_keyword fk,\n" +
+            "\ttb_keyword_privilege2 kp \n" +
+            "WHERE\n" +
+            "\t`f`.`fileid` = `fk`.`fileid` \n" +
+            "\tAND fk.categoryid = kp.categoryid \n" +
+            "\tAND fk.keywordid = kp.keywordid \n" +
+            "\tAND kp.userid = ";
+
+
+    String  KEYWORD_SQL_2= "SELECT\n" +
+            "count(1) as total \n" +
+            "FROM\n" +
+            "tb_file f,\n" +
+            "tb_file_keyword fk,\n" +
+            "tb_keyword_privilege2 kp \n" +
+            "WHERE\n" +
+            "`f`.`fileid` = `fk`.`fileid` \n" +
+            "AND fk.categoryid = kp.categoryid \n" +
+            "AND fk.keywordid = kp.keywordid \n" +
+            "AND kp.userid =";
+
 }

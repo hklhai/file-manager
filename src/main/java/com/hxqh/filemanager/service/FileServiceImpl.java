@@ -321,25 +321,7 @@ public class FileServiceImpl implements FileService {
         Integer offset = (page - 1) * size;
         Integer pageSize = size;
 
-        List<VBaseKeywordFile> list = getSession().createSQLQuery("SELECT\n" +
-                "\t`f`.`fileid` AS `fileid`,\n" +
-                "\t`f`.`filepath` AS `filepath`,\n" +
-                "\t`f`.`filename` AS `filename`,\n" +
-                "\t`f`.`deptid` AS `deptid`,\n" +
-                "\t`f`.`deptfullname` AS `deptfullname`,\n" +
-                "\t`f`.`filestatus` AS `filestatus`,\n" +
-                "\t`f`.`uploadtime` AS `uploadtime`,\n" +
-                "\t`f`.`filesize` AS `filesize`,\n" +
-                "\t`f`.`isshow` AS `isshow` \n" +
-                "FROM\n" +
-                "\ttb_file f,\n" +
-                "\ttb_file_keyword fk,\n" +
-                "\ttb_keyword_privilege2 kp \n" +
-                "WHERE\n" +
-                "\t`f`.`fileid` = `fk`.`fileid` \n" +
-                "\tAND fk.categoryid = kp.categoryid \n" +
-                "\tAND fk.keywordid = kp.keywordid \n" +
-                "\tAND kp.userid = :userid \n" +
+        List<VBaseKeywordFile> list = getSession().createSQLQuery(KEYWORD_SQL_1 + ":userid \n" +
                 "\tAND kp.categoryid = :categoryid \n" +
                 "\tAND kp.keywordid = :keywordid \n" +
                 "\tLIMIT :offset,:pageSize")
@@ -350,17 +332,7 @@ public class FileServiceImpl implements FileService {
                 .setParameter("pageSize", pageSize)
                 .setParameter("userid", baseKeywordFile.getUserid()).list();
 
-        Integer total = Integer.parseInt(getSession().createSQLQuery("SELECT\n" +
-                "\t count(1) as total \n" +
-                "FROM\n" +
-                "\ttb_file f,\n" +
-                "\ttb_file_keyword fk,\n" +
-                "\ttb_keyword_privilege2 kp \n" +
-                "WHERE\n" +
-                "\t`f`.`fileid` = `fk`.`fileid` \n" +
-                "\tAND fk.categoryid = kp.categoryid \n" +
-                "\tAND fk.keywordid = kp.keywordid \n" +
-                "\tAND kp.userid = :userid \n" +
+        Integer total = Integer.parseInt(getSession().createSQLQuery(KEYWORD_SQL_2 + " :userid \n" +
                 "\tAND kp.categoryid = :categoryid \n" +
                 "\tAND kp.keywordid = :keywordid \n")
                 .setParameter("categoryid", baseKeywordFile.getCategoryid())
