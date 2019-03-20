@@ -1,27 +1,22 @@
-package com.hxqh.filemanager.model.view;
+package com.hxqh.filemanager.model.assist;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
 /**
  * @author Lin
  */
 @Entity
-@Table(name = "v_base_keyword_file")
 public class VBaseKeywordFile {
 
     @Id
     private Integer fileid;
     private String filepath;
     private String filename;
-    @JSONField(serialize = false)
-    private Integer userid;
-    @JSONField(serialize = false)
-    private String username;
+
     @JSONField(serialize = false)
     private Integer deptid;
     @JSONField(serialize = false)
@@ -109,19 +104,4 @@ public class VBaseKeywordFile {
         this.filename = filename;
     }
 
-    public Integer getUserid() {
-        return userid;
-    }
-
-    public void setUserid(Integer userid) {
-        this.userid = userid;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 }

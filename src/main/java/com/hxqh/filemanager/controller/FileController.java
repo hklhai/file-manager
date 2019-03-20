@@ -6,7 +6,6 @@ import com.hxqh.filemanager.model.assist.*;
 import com.hxqh.filemanager.model.base.Message;
 import com.hxqh.filemanager.model.base.MessageFile;
 import com.hxqh.filemanager.model.base.MessageInfo;
-import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.service.FileService;
 import com.hxqh.filemanager.util.FileUtil;
@@ -445,15 +444,26 @@ public class FileController {
 
 
     @ResponseBody
+    @RequestMapping(value = "/categoryKeyWordTreeList", method = RequestMethod.GET)
+    public CategoryKeyWordTree categoryKeyWordTreeList() {
+        CategoryKeyWordTree categoryKeyWordTree = null;
+        try {
+            categoryKeyWordTree = fileService.categoryKeyWordTreeList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return categoryKeyWordTree;
+    }
+
+
+    @ResponseBody
     @RequestMapping(value = "/baseKeywordList", method = RequestMethod.POST)
-    public BaseKeywordDto baseKeywordList(@RequestBody VBaseKeywordFile keywordFile,
+    public BaseKeywordDto baseKeywordList(@RequestBody BaseKeywordFile baseKeywordFile,
                                           @RequestParam(value = "page", defaultValue = "0") int page,
                                           @RequestParam(value = "size", defaultValue = "10") int size) {
         BaseKeywordDto baseKeywordDto = null;
-        Sort sort = new Sort(Sort.Direction.DESC, "fileid");
         try {
-            Pageable pageable = PageRequest.of(page, size, sort);
-            baseKeywordDto = fileService.baseKeywordList(keywordFile, pageable);
+            baseKeywordDto = fileService.baseKeywordList(baseKeywordFile,page,size);
         } catch (Exception e) {
             e.printStackTrace();
         }

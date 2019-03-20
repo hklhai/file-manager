@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -23,7 +24,7 @@ public class TbCategory implements Serializable {
 
     private String categoryname;
 
-    @JSONField(format="yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createtime;
 
     private String deptfullname;
@@ -34,7 +35,18 @@ public class TbCategory implements Serializable {
 
     private String username;
 
+    @Transient
+    private List<TbKeyword> keywordList;
+
     public TbCategory() {
+    }
+
+    public List<TbKeyword> getKeywordList() {
+        return keywordList;
+    }
+
+    public void setKeywordList(List<TbKeyword> keywordList) {
+        this.keywordList = keywordList;
     }
 
     public Integer getId() {

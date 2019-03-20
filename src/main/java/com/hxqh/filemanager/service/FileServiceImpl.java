@@ -2,13 +2,9 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
-import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import com.hxqh.filemanager.repository.*;
-import com.hxqh.filemanager.util.DateUtils;
-import com.hxqh.filemanager.util.FileUtil;
-import com.hxqh.filemanager.util.Md5Utils;
-import com.hxqh.filemanager.util.Sm4Util;
+import com.hxqh.filemanager.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -89,6 +85,8 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private FileLogRepository fileLogRepository;
     @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
     private KeywordRepository keywordRepository;
     @Autowired
     private FileKeywordRepository fileKeywordRepository;
@@ -97,6 +95,7 @@ public class FileServiceImpl implements FileService {
     private VFileKeywordKeyWordRepository vFileKeywordKeyWordRepository;
     @Autowired
     private VBaseKeywordFileRepository vBaseKeywordFileRepository;
+
 
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
@@ -291,6 +290,90 @@ public class FileServiceImpl implements FileService {
         TbFile file = fileRepository.findAppnameAndUserid(fileInfo.getAppname(), fileInfo.getUserid());
         IconDto iconDto = new IconDto(iconUrl + "/" + file.getFilepath(), file.getFileid());
         return iconDto;
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public CategoryKeyWordTree categoryKeyWordTreeList() {
+        List<TbCategory> categoryList = categoryRepository.findAll();
+        List<TbKeyword> keywordList = keywordRepository.findAll();
+        // 先对keywordList分组
+        Map<Integer, List<TbKeyword>> listMap = GroupListUtil.group(keywordList, (obj) -> {
+            TbKeyword d = (TbKeyword) obj;
+            return d.getCategoryid();
+        });
+
+
+        for (int i = 0; i < categoryList.size(); i++) {
+            TbCategory tbCategory = categoryList.get(i);
+            for (Map.Entry entry : listMap.entrySet()) {
+                if (tbCategory.getId().equals(entry.getKey())) {
+                    tbCategory.setKeywordList((List<TbKeyword>) entry.getValue());
+                }
+            }
+        }
+        return new CategoryKeyWordTree(categoryList);
+    }
+
+    @Transactional(readOnly = true, rollbackFor = Exception.class)
+    @Override
+    public BaseKeywordDto baseKeywordList(BaseKeywordFile baseKeywordFile, int page, int size) {
+        Integer offset = (page - 1) * size;
+        Integer pageSize = size;
+
+        List<VBaseKeywordFile> list = getSession().createSQLQuery("SELECT\n" +
+                "\t`f`.`fileid` AS `fileid`,\n" +
+                "\t`f`.`filepath` AS `filepath`,\n" +
+                "\t`f`.`filename` AS `filename`,\n" +
+                "\t`f`.`deptid` AS `deptid`,\n" +
+                "\t`f`.`deptfullname` AS `deptfullname`,\n" +
+                "\t`f`.`filestatus` AS `filestatus`,\n" +
+                "\t`f`.`uploadtime` AS `uploadtime`,\n" +
+                "\t`f`.`filesize` AS `filesize`,\n" +
+                "\t`f`.`isshow` AS `isshow` \n" +
+                "FROM\n" +
+                "\ttb_file f,\n" +
+                "\ttb_file_keyword fk,\n" +
+                "\ttb_keyword_privilege2 kp \n" +
+                "WHERE\n" +
+                "\t`f`.`fileid` = `fk`.`fileid` \n" +
+                "\tAND fk.categoryid = kp.categoryid \n" +
+                "\tAND fk.keywordid = kp.keywordid \n" +
+                "\tAND kp.userid = :userid \n" +
+                "\tAND kp.categoryid = :categoryid \n" +
+                "\tAND kp.keywordid = :keywordid \n" +
+                "\tLIMIT :offset,:pageSize")
+                .addEntity(VBaseKeywordFile.class)
+                .setParameter("categoryid", baseKeywordFile.getCategoryid())
+                .setParameter("keywordid", baseKeywordFile.getKeywordid())
+                .setParameter("offset", offset)
+                .setParameter("pageSize", pageSize)
+                .setParameter("userid", baseKeywordFile.getUserid()).list();
+
+        Integer total = Integer.parseInt(getSession().createSQLQuery("SELECT\n" +
+                "\t count(1) as total \n" +
+                "FROM\n" +
+                "\ttb_file f,\n" +
+                "\ttb_file_keyword fk,\n" +
+                "\ttb_keyword_privilege2 kp \n" +
+                "WHERE\n" +
+                "\t`f`.`fileid` = `fk`.`fileid` \n" +
+                "\tAND fk.categoryid = kp.categoryid \n" +
+                "\tAND fk.keywordid = kp.keywordid \n" +
+                "\tAND kp.userid = :userid \n" +
+                "\tAND kp.categoryid = :categoryid \n" +
+                "\tAND kp.keywordid = :keywordid \n")
+                .setParameter("categoryid", baseKeywordFile.getCategoryid())
+                .setParameter("keywordid", baseKeywordFile.getKeywordid())
+                .setParameter("userid", baseKeywordFile.getUserid()).uniqueResult().toString());
+        Integer totalPages = (total + pageSize - 1) / pageSize;
+
+        list.stream().map(e -> {
+            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
+            return e;
+        }).collect(Collectors.toList());
+
+        return new BaseKeywordDto(list, total, totalPages, page, size);
     }
 
     private TbFile saveIconIno(MultipartFile file, FileInfo fileInfo, String savePath, TbPath path, String uuid) throws IOException {
@@ -756,41 +839,6 @@ public class FileServiceImpl implements FileService {
         return currentFileLogRepository.findByFileId(file.getFileid());
     }
 
-
-    @Transactional(readOnly = true, rollbackFor = Exception.class)
-    @Override
-    public BaseKeywordDto baseKeywordList(VBaseKeywordFile keywordFile, Pageable pageable) {
-
-        Specification<VBaseKeywordFile> specification = (root, query, cb) -> {
-            List<Predicate> list = new ArrayList<>(8);
-
-            list.add(cb.equal(root.get("isshow").as(Integer.class), 1));
-            if (null != keywordFile.getUserid()) {
-                list.add(cb.equal(root.get("userid").as(Integer.class), keywordFile.getUserid()));
-            }
-            if (StringUtils.isNotBlank(keywordFile.getFilename())) {
-                list.add(cb.like(root.get("filename").as(String.class), keywordFile.getFilename() + "%"));
-            }
-            if (StringUtils.isNotBlank(keywordFile.getDeptfullname())) {
-                list.add(cb.like(root.get("filename").as(String.class), keywordFile.getDeptfullname() + "%"));
-            }
-            Predicate[] p = new Predicate[list.size()];
-            return cb.and(list.toArray(p));
-        };
-
-        Page<VBaseKeywordFile> baseKeywordFiles = vBaseKeywordFileRepository.findAll(specification, pageable);
-        List<VBaseKeywordFile> baseKeywordFileList = baseKeywordFiles.getContent();
-
-        baseKeywordFileList.stream().map(e -> {
-            e.setFilepath(webUrl + downloadUrl + DOWNLOAD_FILE + e.getFileid());
-            return e;
-        }).collect(Collectors.toList());
-
-
-        Integer totalPages = baseKeywordFiles.getTotalPages();
-        BaseKeywordDto baseKeywordDto = new BaseKeywordDto(pageable, totalPages, baseKeywordFiles.getTotalElements(), baseKeywordFileList);
-        return baseKeywordDto;
-    }
 
     /**
      * 1. 遍历categoryid与categoryid2相同放入CommonSet

@@ -2,7 +2,6 @@ package com.hxqh.filemanager.service;
 
 import com.hxqh.filemanager.model.*;
 import com.hxqh.filemanager.model.assist.*;
-import com.hxqh.filemanager.model.view.VBaseKeywordFile;
 import com.hxqh.filemanager.model.view.VFileKeywordKeyWord;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -164,12 +163,6 @@ public interface FileService {
      */
     List<TbCurrentFileLog> fileCurrentLogList(TbFile file);
 
-    /**
-     * @param keywordFile
-     * @param pageable
-     * @return
-     */
-    BaseKeywordDto baseKeywordList(VBaseKeywordFile keywordFile, Pageable pageable);
 
     /**
      * 逻辑删除
@@ -200,4 +193,18 @@ public interface FileService {
      * @return
      */
     IconDto getIconUrl(FileInfo fileInfo);
+
+    /**
+     * @return
+     */
+    CategoryKeyWordTree categoryKeyWordTreeList();
+
+    /**
+     *
+     * @param baseKeywordFile
+     * @param page
+     * @param size
+     * @return
+     */
+    BaseKeywordDto baseKeywordList(BaseKeywordFile baseKeywordFile, int page, int size);
 }
