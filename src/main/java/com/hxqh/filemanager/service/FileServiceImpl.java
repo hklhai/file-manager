@@ -248,6 +248,8 @@ public class FileServiceImpl implements FileService {
                 TbFile save = saveFileIno(file, fileInfo, refer, savePath, md5String);
                 String webLink = webUrl + downloadUrl + DOWNLOAD_FILE + save.getFileid();
                 FileIdSize fileIdSize = new FileIdSize(save.getFileid(), save.getFilesize(), webLink);
+                fileIdSize.setFilename(save.getFilename());
+                fileIdSize.setFilerealname(save.getFilerealname());
                 return fileIdSize;
             } else {
                 // 保存文件版本信息

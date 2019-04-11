@@ -98,6 +98,8 @@ public class FileController {
                 FileIdSize fileIdSize = fileService.saveFile(files, fileInfo);
                 message = new MessageFile(IConstants.SUCCESS, IConstants.UPLOADSUCCESS,
                         fileIdSize.getFileid(), fileIdSize.getFilesize(), fileIdSize.getWebUrl());
+                message.setFilename(fileIdSize.getFilename());
+                message.setFilerealname(fileIdSize.getFilerealname());
             }
         } catch (Exception e) {
             message = new MessageFile(IConstants.FAIL, IConstants.UPLOADFAIL);

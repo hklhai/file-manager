@@ -11,8 +11,11 @@ public class FileIdSize {
 
     private Float filesize;
 
-
     private String webUrl;
+
+    private String filename;
+
+    private String filerealname;
 
     public FileIdSize() {
     }
@@ -21,6 +24,22 @@ public class FileIdSize {
         this.fileid = fileid;
         this.filesize = filesize;
         this.webUrl = webUrl;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getFilerealname() {
+        return filerealname;
+    }
+
+    public void setFilerealname(String filerealname) {
+        this.filerealname = filerealname;
     }
 
     public String getWebUrl() {

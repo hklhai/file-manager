@@ -13,6 +13,11 @@ public class MessageFile extends Message {
 
     private String webUrl;
 
+    private String filename;
+
+    private String filerealname;
+
+
     public MessageFile() {
     }
 
@@ -25,6 +30,22 @@ public class MessageFile extends Message {
         this.fileid = fileid;
         this.filesize = filesize;
         this.webUrl = webUrl;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getFilerealname() {
+        return filerealname;
+    }
+
+    public void setFilerealname(String filerealname) {
+        this.filerealname = filerealname;
     }
 
     public MessageFile(int code, String message, boolean success) {
