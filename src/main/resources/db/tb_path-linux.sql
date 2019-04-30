@@ -13,3 +13,6 @@ INSERT INTO `tb_path` VALUES ('2', null, 'D:/DOCLINKS/private', 'D:/DOCLINKS', '
 INSERT INTO `tb_path` VALUES ('3', null, '/home/hadoop/doclinks', ' ', null, '-1');
 INSERT INTO `tb_path` VALUES ('4', '3', '/home/hadoop/doclinks/private', '/home/hadoop/doclinks', 'private', '0');
 INSERT INTO `tb_path` VALUES ('5', '3', '/home/hadoop/doclinks/icon', '/home/hadoop/doclinks', 'icon', '-1');
+
+
+

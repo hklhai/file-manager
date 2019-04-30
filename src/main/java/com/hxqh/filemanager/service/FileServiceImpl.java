@@ -298,8 +298,8 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     @Override
     public CategoryKeyWordTree categoryKeyWordTreeList() {
-        List<TbCategory> categoryList = categoryRepository.findAll();
-        List<TbKeyword> keywordList = keywordRepository.findAll();
+        List<TbCategory> categoryList = categoryRepository.findByStatus();
+        List<TbKeyword> keywordList = keywordRepository.findByStatus();
         // 先对keywordList分组
         Map<Integer, List<TbKeyword>> listMap = GroupListUtil.group(keywordList, (obj) -> {
             TbKeyword d = (TbKeyword) obj;

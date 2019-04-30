@@ -60,14 +60,14 @@ public class UploadDemo {
         }
         FileBody bin = new FileBody(file);
 
-        StringBody userid = new StringBody("6000", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody username = new StringBody("yy", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody deptid = new StringBody("100", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody deptfullname = new StringBody("部门", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody appid = new StringBody("90001", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody appname = new StringBody("应用名称", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody recordid = new StringBody("1100", ContentType.create("text/plain", Consts.UTF_8));
-        StringBody pathid = new StringBody("202", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody userid = new StringBody("1", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody username = new StringBody("admin", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody deptid = new StringBody("1", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody deptfullname = new StringBody("admin", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody appid = new StringBody("1", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody appname = new StringBody("important_problem", ContentType.create("text/plain", Consts.UTF_8));
+        StringBody recordid = new StringBody("1", ContentType.create("text/plain", Consts.UTF_8));
+//        StringBody pathid = new StringBody("202", ContentType.create("text/plain", Consts.UTF_8));
 
         MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
         HttpEntity reqEntity = multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
@@ -79,7 +79,7 @@ public class UploadDemo {
                 .addPart("appid", appid)
                 .addPart("appname", appname)
                 .addPart("recordid", recordid)
-                .addPart("pathid", pathid)
+//                .addPart("pathid", pathid)
                 .setCharset(CharsetUtils.get("UTF-8")).build();
 
         return reqEntity;
@@ -87,11 +87,11 @@ public class UploadDemo {
 
 
     public static void main(String[] args) throws IOException {
-        File file = new File("D://变电.docx");
+        File file = new File("D://x.png");
         System.out.println(file.exists());
         Map<String, Object> param = new HashMap<>();
 //        String name = new String("http://127.0.0.1:8099/file/uploadfile".getBytes("UTF-8"), "iso-8859-1");
-        String name = new String("http://localhost.fiddler:8099/file/uploadfile".getBytes("UTF-8"), "iso-8859-1");
+        String name = new String("http://spark2:8088/file/uploadfile".getBytes("UTF-8"), "iso-8859-1");
         String res = postFile(name, param, file);
         JSONObject result = JSONObject.parseObject(res);
         System.out.println(result);

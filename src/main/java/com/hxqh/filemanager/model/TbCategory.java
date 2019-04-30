@@ -35,10 +35,20 @@ public class TbCategory implements Serializable {
 
     private String username;
 
+    private String status;
+
     @Transient
     private List<TbKeyword> keywordList;
 
     public TbCategory() {
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public List<TbKeyword> getKeywordList() {
