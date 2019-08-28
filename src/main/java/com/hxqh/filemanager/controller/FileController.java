@@ -348,8 +348,15 @@ public class FileController {
             if (0 != file.getAppid()) {
                 urlname = uploadPath + file.getFilepath();
             } else {
-                TbPath path = fileService.findPathById(file.getTbPath().getPathid());
-                urlname = path.getPathname() + file.getFilepath();
+                // 判断是否存在引用关系
+                if (null != file.getReferid()) {
+                    TbFile referFile = fileService.findByFileid(file.getReferid());
+                    TbPath path = fileService.findPathById(referFile.getTbPath().getPathid());
+                    urlname = path.getParentname() + referFile.getFilepath();
+                } else {
+                    TbPath path = fileService.findPathById(file.getTbPath().getPathid());
+                    urlname = path.getPathname() + file.getFilepath();
+                }
             }
             fileName = file.getFilerealname();
         } else {
@@ -465,7 +472,7 @@ public class FileController {
                                           @RequestParam(value = "size", defaultValue = "10") int size) {
         BaseKeywordDto baseKeywordDto = null;
         try {
-            baseKeywordDto = fileService.baseKeywordList(baseKeywordFile,page,size);
+            baseKeywordDto = fileService.baseKeywordList(baseKeywordFile, page, size);
         } catch (Exception e) {
             e.printStackTrace();
         }
